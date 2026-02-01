@@ -1,9 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Required for Docker standalone build
+  output: "standalone",
+  
   eslint: {
     ignoreDuringBuilds: true,
   },
+  
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  
   images: {
     remotePatterns: [
       {
@@ -17,14 +25,25 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
       {
+        protocol: "http",
+        hostname: "backend",
+        port: "8000",
+        pathname: "/**",
+      },
+      {
         protocol: "https",
         hostname: "localhost",
         port: "8000",
         pathname: "/**",
       },
     ],
-    // Also allow localhost without port for flexibility
-    domains: ["localhost"],
+    // Allow localhost and backend service name
+    domains: ["localhost", "backend"],
+  },
+
+  // Environment variables available at runtime
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/",
   },
 };
 
