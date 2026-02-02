@@ -54,8 +54,9 @@ services:
     volumes:
       - media_files:/app/media
       - static_files:/app/staticfiles
-    ports:
-      - "8000:8000"
+    # Ports removed to avoid conflict and route through Nginx
+    # ports:
+    #   - "8001:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -83,8 +84,9 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/}
       - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:-}
-    ports:
-      - "3000:3000"
+    # Ports removed to avoid conflict and route through Nginx
+    # ports:
+    #   - "3000:3000"
     depends_on:
       backend:
         condition: service_healthy
@@ -94,6 +96,42 @@ services:
       timeout: 10s
       retries: 3
       start_period: 20s
+    networks:
+      - social_network
+
+  # ===========================================================================
+  # Nginx Reverse Proxy
+  # ===========================================================================
+  nginx:
+    image: nginx:alpine
+    container_name: social_media_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+      - static_files:/app/staticfiles
+      - media_files:/app/media
+    depends_on:
+      - backend
+      - frontend
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    networks:
+      - social_network
+
+  # ===========================================================================
+  # Certbot for SSL
+  # ===========================================================================
+  certbot:
+    image: certbot/certbot
+    container_name: social_media_certbot
+    volumes:
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     networks:
       - social_network
 
