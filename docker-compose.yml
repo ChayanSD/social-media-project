@@ -38,7 +38,7 @@ services:
     container_name: social_media_backend
     restart: unless-stopped
     env_file:
-      - ./social-media-drf/.env
+      - ./.env
     environment:
       # Database
       DB_HOST: db
