@@ -572,7 +572,7 @@ export default function ReportedPostsTable() {
                               className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 text-xs font-bold transition disabled:opacity-50 cursor-pointer"
                             >
                               <UserMinus className="w-4 h-4" />
-                              {isBlockingLocal ? "Blocking..." : "Block Local"}
+                              {isBlockingLocal ? "Blocking..." : "Block by this user"}
                             </button>
                           ) : (
                             <button
@@ -581,7 +581,7 @@ export default function ReportedPostsTable() {
                               className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-xs font-bold transition disabled:opacity-50 cursor-pointer"
                             >
                               <User className="w-4 h-4" />
-                              {isUnblockingLocal ? "Unblocking..." : "Unblock Local"}
+                              {isUnblockingLocal ? "Unblocking..." : "Unblock by this user"}
                             </button>
                           )}
                         </div>

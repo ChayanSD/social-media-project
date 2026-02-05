@@ -87,7 +87,7 @@ class BlockedUserSerializer(serializers.ModelSerializer):
 
 class UserReportSerializer(serializers.ModelSerializer):
     """Serializer for UserReport model"""
-    reported_user = UserSerializer(read_only=True)
+    reported_user = serializers.SerializerMethodField()
     reported_user_id = serializers.IntegerField(source='reported_user.id', read_only=True)
     reporter = UserSerializer(read_only=True)
     reviewed_by_details = UserSerializer(source='reviewed_by', read_only=True)
@@ -100,6 +100,14 @@ class UserReportSerializer(serializers.ModelSerializer):
             'reviewed_by', 'reviewed_by_details', 'reviewed_at', 'admin_notes'
         ]
         read_only_fields = ['reporter', 'status', 'created_at', 'reviewed_by', 'reviewed_at', 'admin_notes']
+
+    def get_reported_user(self, obj):
+        if obj.reported_user:
+            # Pass reporter_id to context to check local block status correctly
+            context = self.context.copy()
+            context['reporter_id'] = obj.reporter_id
+            return UserSerializer(obj.reported_user, context=context).data
+        return None
 
 
 class CreateUserReportSerializer(serializers.ModelSerializer):

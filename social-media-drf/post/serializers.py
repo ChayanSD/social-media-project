@@ -502,7 +502,7 @@ class UserSuggestionSerializer(serializers.Serializer):
 class PostReportSerializer(serializers.ModelSerializer):
     """ Serializer for Post Report """
     reporter = UserSerializer(read_only=True)
-    post_author_details = UserSerializer(source='post.user', read_only=True)
+    post_author_details = serializers.SerializerMethodField()
     reviewed_by_details = UserSerializer(source='reviewed_by', read_only=True)
     post_title = serializers.CharField(source='post.title', read_only=True)
     post_id = serializers.IntegerField(source='post.id', read_only=True)
@@ -516,6 +516,14 @@ class PostReportSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = ['reporter', 'status', 'reviewed_by', 'reviewed_at', 'created_at', 'updated_at']
+
+    def get_post_author_details(self, obj):
+        if obj.post and obj.post.user:
+            # Pass reporter_id to context to check local block status correctly
+            context = self.context.copy()
+            context['reporter_id'] = obj.reporter_id
+            return UserSerializer(obj.post.user, context=context).data
+        return None
 
     def validate(self, data):
         # Prevent users from reporting their own posts

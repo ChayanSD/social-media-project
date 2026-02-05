@@ -13,6 +13,7 @@ class User(AbstractUser):
         ('moderator', 'Moderator'),
         ('admin', 'Admin'),
     ]
+    email = models.EmailField(unique=True)
     email_verified = models.BooleanField(default=False)
     verification_code = models.CharField(max_length=6, blank=True, null=True)
     is_oauth_user = models.BooleanField(default=False)
