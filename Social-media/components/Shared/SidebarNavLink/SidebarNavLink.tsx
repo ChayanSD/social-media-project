@@ -9,7 +9,6 @@ import Link from "next/link";
 import HexagonIcon from "../../Icons/HexagonIcon";
 import { FiPlus, FiTag } from "react-icons/fi";
 import { useRouter } from "next/navigation";
-import MessageRequestBadge from "@/components/message/MessageRequestBadge";
 import bg from "../../../public/main-bg.jpg";
 
 interface SidebarNavLinkProps {
@@ -90,10 +89,6 @@ const SidebarNavLinkContent = ({ className = "" }: { className?: string }) => {
             {item.icon} {item.label}
           </Link>
         ))}
-        {/* Message Requests Badge */}
-        <div className="px-6 py-2.5">
-          <MessageRequestBadge />
-        </div>
       </div>
       <div className="bg-[#06133FBF] backdrop-blur-[1px] py-3 px-2.5 rounded-2xl">
         <h3 className="text-base text-[#BCB3B3] px-8 my-4">Communities</h3>
@@ -106,7 +101,7 @@ const SidebarNavLinkContent = ({ className = "" }: { className?: string }) => {
         <button onClick={() => router.push('/main/create-community')} className="w-full text-xs text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out cursor-pointer">
           <FiPlus size={24} /> Create Communities
         </button>
-        <button 
+        <button
           onClick={() => router.push('/main/manage-communities')}
           className="w-full text-xs text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out cursor-pointer"
         >
@@ -115,13 +110,13 @@ const SidebarNavLinkContent = ({ className = "" }: { className?: string }) => {
       </div>
       <div className="bg-[#06133FBF] backdrop-blur-[1px] py-3 px-2.5 rounded-2xl">
         <h3 className="text-base text-[#BCB3B3] px-8 my-4">Categories</h3>
-        <button 
+        <button
           onClick={() => router.push('/main/join-categories')}
           className="w-full text-xs text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out cursor-pointer"
         >
           <FiPlus size={24} /> Join Categories
         </button>
-        <button 
+        <button
           onClick={() => router.push('/main/categories')}
           className="w-full text-xs text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out cursor-pointer"
         >
@@ -152,8 +147,8 @@ const SidebarNavLink = ({
 }: SidebarNavLinkProps) => {
   const baseClasses = "fixed left-0 h-[100vh] bg-cover bg-center bg-no-repeat shadow-md transform transition-transform duration-300 xl:translate-x-0 z-50 lg:z-30 w-[370px] p-10 hover:overflow-y-auto overflow-y-hidden custom-scroll";
   const mobileClasses = isSidebarOpen ? "translate-x-0" : "-translate-x-full";
-  
-  const asideClasses =  `${baseClasses} ${mobileClasses} ${className}`;
+
+  const asideClasses = `${baseClasses} ${mobileClasses} ${className}`;
 
   return (
     <aside

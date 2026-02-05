@@ -3,6 +3,7 @@ import { setupListeners } from "@reduxjs/toolkit/query";
 import { baseApi } from "./baseApi";
 import "./authApi"; // Import to ensure endpoints are registered
 import "./postApi";
+import "./chatApi";
 import "./notificationApi";
 import "./communityApi";
 import "./marketplaceApi";

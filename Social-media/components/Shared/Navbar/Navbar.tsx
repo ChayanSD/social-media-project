@@ -15,7 +15,7 @@ import { useGetCurrentUserProfileQuery } from "@/store/authApi";
 import NotificationDropdown from "../../Message/NotificationDropdown";
 import { IoPersonOutline } from "react-icons/io5";
 import { useGetUnreadNotificationCountQuery } from "@/store/notificationApi";
-import { useGetConversationsListQuery, useGetChatRoomsQuery } from "@/store/chatApi";
+import { useGetConversationsListQuery, useGetChatRoomsQuery, useGetMessageRequestsQuery } from "@/store/chatApi";
 import { useSearch } from "@/contexts/SearchContext";
 import { useMessage } from "@/contexts/MessageContext";
 import { getStoredAccessToken } from "@/lib/auth";
@@ -62,6 +62,9 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
   const { data: unreadCountData } = useGetUnreadNotificationCountQuery(undefined, {
     skip: !isAuthenticated,
   });
+  const { data: messageRequestsData } = useGetMessageRequestsQuery(undefined, {
+    skip: !isAuthenticated,
+  });
 
   const profile = profileData?.data;
 
@@ -96,8 +99,13 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
       }, 0);
     }
 
+    // Count pending message requests
+    if (messageRequestsData?.data) {
+      totalUnread += messageRequestsData.data.length;
+    }
+
     return totalUnread;
-  }, [conversationsData, roomsData]);
+  }, [conversationsData, roomsData, messageRequestsData]);
 
   const handleCloseSidebar = () => {
     setIsProfileSidebarOpen(false);

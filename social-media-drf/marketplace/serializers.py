@@ -1,6 +1,7 @@
 from .models import *
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from utils.image_processing import compress_image
 
 user = get_user_model()
 
@@ -36,6 +37,12 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'image', 'status', 'sub_category', 'user_name', 'category_name', 'subcategory_name', 'description', 'location', 'link', 'created_at', 'updated_at']
 
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def validate_image(self, value):
+        """Compress product image before saving"""
+        if value and hasattr(value, 'file'):
+            return compress_image(value)
+        return value
 
     def create(self, validated_data):
         user = self.context['request'].user

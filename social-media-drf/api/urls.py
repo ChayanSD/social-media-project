@@ -50,6 +50,7 @@ router.register(r'invitations', CommunityInvitationViewSet, basename='invitation
 
 """ Chat Section """
 router.register(r'chat/rooms', RoomViewSet, basename='chat-room')
+router.register(r'chat/reactions', MessageReactionViewSet, basename='chat-reaction')
 
 urlpatterns = [
     # Community invitation endpoints (must be before router.urls to avoid conflicts)

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { useGetMyCommunitiesQuery, useDeleteCommunityMutation, useJoinCommunityMutation, useLeaveCommunityMutation, CommunityItem } from "@/store/communityApi";
-import { useGetCurrentUserProfileQuery } from "@/store/authApi";
+import { useGetMyCommunitiesQuery, useJoinCommunityMutation, useLeaveCommunityMutation, CommunityItem } from "@/store/communityApi";
+import { useGetCurrentUserProfileQuery, useDeleteCommunityMutation as useAdminDeleteCommunityMutation } from "@/store/authApi";
 import { FaUsers } from "react-icons/fa";
 import { FiTrash2, FiUserPlus, FiUsers as FiUsersIcon, FiUserMinus, FiSettings } from "react-icons/fi";
 import { useRouter } from "next/navigation";
@@ -27,12 +27,14 @@ const ManageCommunities = () => {
   const [selectedCommunityForInvite, setSelectedCommunityForInvite] = useState<CommunityItem | null>(null);
   const { data: communitiesResponse, isLoading, isError, refetch: refetchMyCommunities } = useGetMyCommunitiesQuery();
   const { data: currentUserResponse } = useGetCurrentUserProfileQuery();
-  const [deleteCommunity, { isLoading: isDeleting }] = useDeleteCommunityMutation();
+  const [deleteCommunity, { isLoading: isDeleting }] = useAdminDeleteCommunityMutation();
   const [joinCommunity, { isLoading: isJoining }] = useJoinCommunityMutation();
   const [leaveCommunity, { isLoading: isLeaving }] = useLeaveCommunityMutation();
-  
+
   const currentUserId = useMemo(() => {
-    return currentUserResponse?.data?.id || currentUserResponse?.id;
+    if (!currentUserResponse) return null;
+    const profile = currentUserResponse.data || currentUserResponse;
+    return profile.user_id || profile.user || profile.id;
   }, [currentUserResponse]);
 
   const communities = useMemo(() => {
@@ -66,27 +68,26 @@ const ManageCommunities = () => {
   };
 
   const handleDeleteConfirm = async () => {
-    if (!communityToDelete) return;
+    if (!communityToDelete || !communityToDelete.id) return;
 
-    const communityName = communityToDelete.name || communityToDelete.id?.toString() || "";
-    
     try {
-      await deleteCommunity(communityName).unwrap();
+      await deleteCommunity({ communityId: communityToDelete.id }).unwrap();
+      const nameForToast = communityToDelete.title || communityToDelete.name || communityToDelete.id?.toString() || "";
       toast.success("Community deleted successfully!", {
-        description: `The community "${communityToDelete.title || communityToDelete.name || communityName}" has been deleted.`,
+        description: `The community "${nameForToast}" has been deleted.`,
       });
       setDeleteDialogOpen(false);
       setCommunityToDelete(null);
     } catch (error: unknown) {
       console.error('Error deleting community:', error);
-      const errorMessage = 
-        (error && typeof error === 'object' && 'data' in error && 
-         error.data && typeof error.data === 'object' && 
-         ('message' in error.data || 'detail' in error.data))
-          ? (error.data as { message?: string; detail?: string }).message || 
-            (error.data as { message?: string; detail?: string }).detail
+      const errorMessage =
+        (error && typeof error === 'object' && 'data' in error &&
+          error.data && typeof error.data === 'object' &&
+          ('message' in error.data || 'detail' in error.data))
+          ? (error.data as { message?: string; detail?: string }).message ||
+          (error.data as { message?: string; detail?: string }).detail
           : "Failed to delete community. Please try again.";
-      
+
       toast.error("Error deleting community", {
         description: errorMessage || "Failed to delete community. Please try again.",
       });
@@ -204,14 +205,14 @@ const ManageCommunities = () => {
       toast.success('Successfully joined community!');
     } catch (error: unknown) {
       console.error('Failed to join community:', error);
-      const errorMessage = 
-        (error && typeof error === 'object' && 'data' in error && 
-         error.data && typeof error.data === 'object' && 
-         ('message' in error.data || 'detail' in error.data))
-          ? (error.data as { message?: string; detail?: string }).message || 
-            (error.data as { message?: string; detail?: string }).detail
+      const errorMessage =
+        (error && typeof error === 'object' && 'data' in error &&
+          error.data && typeof error.data === 'object' &&
+          ('message' in error.data || 'detail' in error.data))
+          ? (error.data as { message?: string; detail?: string }).message ||
+          (error.data as { message?: string; detail?: string }).detail
           : "Failed to join community. Please try again.";
-      
+
       toast.error('Failed to join community', {
         description: errorMessage || "Failed to join community. Please try again.",
       });
@@ -224,14 +225,14 @@ const ManageCommunities = () => {
       toast.success('Successfully left community!');
     } catch (error: unknown) {
       console.error('Failed to leave community:', error);
-      const errorMessage = 
-        (error && typeof error === 'object' && 'data' in error && 
-         error.data && typeof error.data === 'object' && 
-         ('message' in error.data || 'detail' in error.data))
-          ? (error.data as { message?: string; detail?: string }).message || 
-            (error.data as { message?: string; detail?: string }).detail
+      const errorMessage =
+        (error && typeof error === 'object' && 'data' in error &&
+          error.data && typeof error.data === 'object' &&
+          ('message' in error.data || 'detail' in error.data))
+          ? (error.data as { message?: string; detail?: string }).message ||
+          (error.data as { message?: string; detail?: string }).detail
           : "Failed to leave community. Please try again.";
-      
+
       toast.error('Failed to leave community', {
         description: errorMessage || "Failed to leave community. Please try again.",
       });
@@ -251,12 +252,13 @@ const ManageCommunities = () => {
             onCardClick={() => handleCardClick(community)}
             actions={
               (() => {
-                const isCreator = community.created_by === currentUserId || community.can_manage === true;
+                const isCreator = community.created_by === currentUserId;
+                const canManage = community.can_manage === true || isCreator;
                 const isMember = community.is_member === true;
                 const communityName = community.name || community.id?.toString() || "";
-                
-                // Creator buttons
-                if (isCreator) {
+
+                // Creator/Manager buttons
+                if (canManage) {
                   const isPrivate = community.visibility === 'private';
                   return (
                     <div className="space-y-2">
@@ -271,7 +273,7 @@ const ManageCommunities = () => {
                           <FiUsersIcon className="w-4 h-4" />
                           <span>Members</span>
                         </button>
-                       {!isPrivate && <button
+                        {!isPrivate && <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleViewJoinRequests(community);
@@ -282,21 +284,21 @@ const ManageCommunities = () => {
                           <span>Requests</span>
                         </button>}
                         {isPrivate && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleInviteMember(community);
-                          }}
-                          className=" p-2.5 cursor-pointer rounded-lg font-medium transition-all bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/30 flex items-center justify-center gap-2"
-                        >
-                          <FiUserPlus className="w-4 h-4" />
-                          <span>Invite Member</span>
-                        </button>
-                      )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleInviteMember(community);
+                            }}
+                            className=" p-2.5 cursor-pointer rounded-lg font-medium transition-all bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/30 flex items-center justify-center gap-2"
+                          >
+                            <FiUserPlus className="w-4 h-4" />
+                            <span>Invite Member</span>
+                          </button>
+                        )}
                       </div>
-                      
+
                       <div className="flex gap-2">
-                   
+
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -320,7 +322,7 @@ const ManageCommunities = () => {
                     </div>
                   );
                 }
-                
+
                 // Normal user buttons - Join/Leave
                 return (
                   <div className="flex gap-2">

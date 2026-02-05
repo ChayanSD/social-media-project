@@ -18,6 +18,7 @@ import {
 } from "@/store/postApi";
 import { toast } from "@/components/ui/sonner";
 import { useGetCurrentUserProfileQuery } from "@/store/authApi";
+import { useRouter } from "next/navigation";
 
 interface FormData {
   title: string;
@@ -40,17 +41,18 @@ interface SharedPostData {
   mediaUrls?: string[];
 }
 
-const CreatePost = ({ 
-  isProfile = false, 
-  communityId, 
+const CreatePost = ({
+  isProfile = false,
+  communityId,
   onSuccess,
-  sharedPostData 
-}: { 
-  isProfile?: boolean; 
-  communityId?: number | string; 
+  sharedPostData
+}: {
+  isProfile?: boolean;
+  communityId?: number | string;
   onSuccess?: () => void;
   sharedPostData?: SharedPostData;
 }) => {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"text" | "image" | "link">("text");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
@@ -103,11 +105,11 @@ const CreatePost = ({
       if (sharedPostData.mediaUrls && sharedPostData.mediaUrls.length > 0) {
         setActiveTab("image");
         setValue("postType", "image");
-        
+
         // Convert URLs to File objects for preview
         const loadMediaFromUrls = async () => {
           const mediaPreviews: MediaPreview[] = [];
-          
+
           for (let i = 0; i < sharedPostData.mediaUrls!.length; i++) {
             const url = sharedPostData.mediaUrls![i];
             try {
@@ -115,7 +117,7 @@ const CreatePost = ({
               const blob = await response.blob();
               const fileName = url.split('/').pop() || `image-${i}.jpg`;
               const file = new File([blob], fileName, { type: blob.type });
-              
+
               mediaPreviews.push({
                 id: `shared-${i}-${Date.now()}`,
                 file: file,
@@ -125,13 +127,13 @@ const CreatePost = ({
               console.error(`Failed to load media from ${url}:`, error);
             }
           }
-          
+
           if (mediaPreviews.length > 0) {
             setMediaPreviews(mediaPreviews);
             updateFormFiles(mediaPreviews);
           }
         };
-        
+
         loadMediaFromUrls();
       }
     }
@@ -255,21 +257,24 @@ const CreatePost = ({
       }
       if (onSuccess) {
         onSuccess();
+      } else if (!isProfile) {
+        // Redirect to profile page if not embedded and success
+        router.push("/main/profile");
       }
     } catch (error: unknown) {
       console.error("Error submitting form:", error);
-      
+
       // Handle media limit error specifically
-      const apiError = error as { data?: { media_limit?: string; content_moderation?: string; non_field_errors?: string | string[]; [key: string]: unknown } };
-      
+      const apiError = error as { data?: { media_limit?: string; content_moderation?: string; non_field_errors?: string | string[];[key: string]: unknown } };
+
       if (apiError?.data?.media_limit) {
         toast.error(apiError.data.media_limit);
       } else if (apiError?.data?.content_moderation) {
         toast.error(apiError.data.content_moderation);
       } else if (apiError?.data?.non_field_errors) {
         // Handle non-field errors
-        const errorMessage = Array.isArray(apiError.data.non_field_errors) 
-          ? apiError.data.non_field_errors[0] 
+        const errorMessage = Array.isArray(apiError.data.non_field_errors)
+          ? apiError.data.non_field_errors[0]
           : apiError.data.non_field_errors;
         toast.error(errorMessage || "Failed to submit post. Please try again.");
       } else if (apiError?.data) {
@@ -318,11 +323,10 @@ const CreatePost = ({
                         setActiveTab(tab.id);
                         setValue("postType", tab.id);
                       }}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 cursor-pointer ${
-                        activeTab === tab.id
-                          ? "bg-white/20 text-white border border-white/30"
-                          : "bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10"
-                      }`}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 cursor-pointer ${activeTab === tab.id
+                        ? "bg-white/20 text-white border border-white/30"
+                        : "bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10"
+                        }`}
                     >
                       <Icon size={18} />
                       <span className="text-sm font-medium">{tab.label}</span>
@@ -330,7 +334,7 @@ const CreatePost = ({
                   );
                 })}
               </div>
-              {!isProfile &&  <div className="mb-6 md:mb-0 text-center md:text-left">
+              {!isProfile && <div className="mb-6 md:mb-0 text-center md:text-left">
                 <h1 className="text-3xl font-bold text-white  mb-2">
                   Create New Post
                 </h1>
@@ -410,13 +414,12 @@ const CreatePost = ({
                           type="button"
                           onClick={() => handleInterestClick(interest.name)}
                           disabled={isDisabled}
-                          className={`px-3 py-1 rounded-full text-xs transition-all ${
-                            isSelected
-                              ? "bg-purple-500/30 text-purple-300 border border-purple-400/50"
-                              : isDisabled
+                          className={`px-3 py-1 rounded-full text-xs transition-all ${isSelected
+                            ? "bg-purple-500/30 text-purple-300 border border-purple-400/50"
+                            : isDisabled
                               ? "bg-white/5 text-white/30 border border-white/10 cursor-not-allowed"
                               : "bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 hover:text-white cursor-pointer"
-                          }`}
+                            }`}
                         >
                           {interest.name}
                         </button>
@@ -477,7 +480,7 @@ const CreatePost = ({
                         idx === 4 && mediaPreviews.length > 5;
                       const isVideo = media.file?.type?.startsWith('video/') ?? false;
                       const isImage = media.file?.type?.startsWith('image/') ?? false;
-                      
+
                       return (
                         <button
                           type="button"
@@ -611,67 +614,67 @@ const CreatePost = ({
         title={`Uploaded media (${mediaPreviews.length})`}
         maxWidth="4xl"
       >
-          {mediaPreviews.length === 0 ? (
-            <p className="text-gray-400 text-sm">
-              No media selected yet. Upload images or videos to preview them here.
-            </p>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {mediaPreviews.map((media) => {
-                const isVideo = media.file?.type?.startsWith('video/') ?? false;
-                const isImage = media.file?.type?.startsWith('image/') ?? false;
-                
-                return (
-                  <div
-                    key={media.id}
-                    className="relative w-full h-48 rounded-xl overflow-hidden border border-white/10 group"
-                  >
-                    {isImage ? (
-                      <Image
+        {mediaPreviews.length === 0 ? (
+          <p className="text-gray-400 text-sm">
+            No media selected yet. Upload images or videos to preview them here.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {mediaPreviews.map((media) => {
+              const isVideo = media.file?.type?.startsWith('video/') ?? false;
+              const isImage = media.file?.type?.startsWith('image/') ?? false;
+
+              return (
+                <div
+                  key={media.id}
+                  className="relative w-full h-48 rounded-xl overflow-hidden border border-white/10 group"
+                >
+                  {isImage ? (
+                    <Image
+                      src={media.url}
+                      alt="Uploaded image"
+                      fill
+                      unoptimized
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                      className="object-cover"
+                    />
+                  ) : isVideo ? (
+                    <div className="relative w-full h-full">
+                      <video
                         src={media.url}
-                        alt="Uploaded image"
-                        fill
-                        unoptimized
-                        sizes="(max-width: 640px) 100vw, 33vw"
-                        className="object-cover"
+                        className="w-full h-full object-cover rounded-xl"
+                        controls
+                        muted
+                        preload="metadata"
+                        playsInline
                       />
-                    ) : isVideo ? (
-                      <div className="relative w-full h-full">
-                        <video
-                          src={media.url}
-                          className="w-full h-full object-cover rounded-xl"
-                          controls
-                          muted
-                          preload="metadata"
-                          playsInline
-                        />
-                        <div className="absolute top-2 left-2 px-2 py-1 bg-black/70 rounded text-white text-xs font-medium">
-                          Video
-                        </div>
+                      <div className="absolute top-2 left-2 px-2 py-1 bg-black/70 rounded text-white text-xs font-medium">
+                        Video
                       </div>
-                    ) : (
-                      <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                        <p className="text-white/60 text-sm">Unsupported file type</p>
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveMedia(media.id)}
-                      className="absolute top-2 right-2 rounded-full bg-black/70 p-2 text-white hover:bg-red-600 transition-colors cursor-pointer"
-                    >
-                      <IoMdClose size={16} />
-                      <span className="sr-only">Remove media</span>
-                    </button>
-                    <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 rounded text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                      {media.file.name.length > 20 
-                        ? `${media.file.name.substring(0, 20)}...` 
-                        : media.file.name}
                     </div>
+                  ) : (
+                    <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                      <p className="text-white/60 text-sm">Unsupported file type</p>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveMedia(media.id)}
+                    className="absolute top-2 right-2 rounded-full bg-black/70 p-2 text-white hover:bg-red-600 transition-colors cursor-pointer"
+                  >
+                    <IoMdClose size={16} />
+                    <span className="sr-only">Remove media</span>
+                  </button>
+                  <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 rounded text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                    {media.file.name.length > 20
+                      ? `${media.file.name.substring(0, 20)}...`
+                      : media.file.name}
                   </div>
-                );
-              })}
-            </div>
-          )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </CustomDialog>
     </div>
   );

@@ -207,7 +207,7 @@ export const authApi = baseApi.injectEndpoints({
       query: (data) => {
         const formData = new FormData();
         formData.append("email", data.email);
-        
+
         return {
           url: "/auth/send-otp/",
           method: "POST",
@@ -220,7 +220,7 @@ export const authApi = baseApi.injectEndpoints({
         const formData = new FormData();
         formData.append("email", data.email);
         formData.append("code", data.code);
-        
+
         return {
           url: "/auth/verify-otp/",
           method: "POST",
@@ -234,7 +234,7 @@ export const authApi = baseApi.injectEndpoints({
         formData.append("email", data.email);
         formData.append("username", data.username);
         formData.append("password", data.password);
-        
+
         return {
           url: "/auth/set-credentials/",
           method: "POST",
@@ -247,7 +247,7 @@ export const authApi = baseApi.injectEndpoints({
         const formData = new FormData();
         formData.append("email_or_username", data.email_or_username);
         formData.append("password", data.password);
-        
+
         return {
           url: "/auth/login/",
           method: "POST",
@@ -354,7 +354,7 @@ export const authApi = baseApi.injectEndpoints({
       query: (data) => {
         const formData = new FormData();
         formData.append("email", data.email);
-        
+
         return {
           url: "/auth/password-reset/send-otp/",
           method: "POST",
@@ -367,7 +367,7 @@ export const authApi = baseApi.injectEndpoints({
         const formData = new FormData();
         formData.append("email", data.email);
         formData.append("code", data.code);
-        
+
         return {
           url: "/auth/password-reset/verify-otp/",
           method: "POST",
@@ -382,7 +382,7 @@ export const authApi = baseApi.injectEndpoints({
         formData.append("code", data.code);
         formData.append("new_password", data.new_password);
         formData.append("confirm_password", data.confirm_password);
-        
+
         return {
           url: "/auth/password-reset/reset/",
           method: "POST",
@@ -398,7 +398,7 @@ export const authApi = baseApi.injectEndpoints({
         formData.append("email", data.email);
         formData.append("subject", data.subject);
         formData.append("message", data.message);
-        
+
         return {
           url: "/auth/contacts/",
           method: "POST",
@@ -427,21 +427,21 @@ export const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: () => [{ type: 'Contacts' }],
     }),
-    blockUser: builder.mutation<{ success?: boolean; message?: string; error?: string }, { userId: number | string }>({
+    adminBlockUser: builder.mutation<{ success?: boolean; message?: string; error?: string }, { userId: number | string }>({
       query: ({ userId }) => ({
         url: `/auth/admin/users/${userId}/block/`,
         method: "POST",
       }),
       invalidatesTags: ["UserProfile"],
     }),
-    unblockUser: builder.mutation<{ success?: boolean; message?: string; error?: string }, { userId: number | string }>({
+    adminUnblockUser: builder.mutation<{ success?: boolean; message?: string; error?: string }, { userId: number | string }>({
       query: ({ userId }) => ({
         url: `/auth/admin/users/${userId}/unblock/`,
         method: "DELETE",
       }),
       invalidatesTags: ["UserProfile"],
     }),
-    deleteUser: builder.mutation<{ success?: boolean; message?: string; error?: string }, { userId: number | string }>({
+    adminDeleteUser: builder.mutation<{ success?: boolean; message?: string; error?: string }, { userId: number | string }>({
       query: ({ userId }) => ({
         url: `/auth/admin/users/${userId}/delete/`,
         method: "DELETE",
@@ -467,10 +467,10 @@ export const authApi = baseApi.injectEndpoints({
     }),
     deleteCommunity: builder.mutation<{ success?: boolean; message?: string; error?: string }, { communityId: number | string }>({
       query: ({ communityId }) => ({
-        url: `/auth/admin/communities/${communityId}/delete/`,
+        url: `/auth/communities/${communityId}/delete/`,
         method: "DELETE",
       }),
-      invalidatesTags: ["UserProfile"],
+      invalidatesTags: ["UserProfile", "Communities"],
     }),
     getPublicStats: builder.query<{
       success: boolean;
@@ -505,15 +505,15 @@ export const {
   useSendPasswordResetOtpMutation,
   useVerifyPasswordResetOtpMutation,
   useResetPasswordMutation,
-  useBlockUserMutation,
-  useUnblockUserMutation,
-  useDeleteUserMutation,
+  useAdminBlockUserMutation,
+  useAdminUnblockUserMutation,
+  useAdminDeleteUserMutation,
   useGetCommunitiesQuery,
   useDeleteCommunityMutation,
   useGetPublicStatsQuery,
 } = authApi;
 
-export const   useGetCurrentUserProfileQuery = (
+export const useGetCurrentUserProfileQuery = (
   arg?: void,
   options?: Parameters<typeof authApi.endpoints.getCurrentUserProfile.useQuery>[1]
 ) => authApi.endpoints.getCurrentUserProfile.useQuery(arg, options);

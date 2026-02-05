@@ -3,6 +3,9 @@ from django.conf import settings
 from ckeditor.fields import RichTextField
 from community.models import *
 from interest.models import SubCategory
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+from django.core.files.storage import default_storage
 
 """ Post Models """
 class Post(models.Model):
@@ -283,5 +286,13 @@ class PostReport(models.Model):
 
     def __str__(self):
         return f"Report by {self.reporter.username} on {self.post.title} - {self.reason}"
-    
+
+@receiver(post_delete, sender=Post)
+def delete_post_media(sender, instance, **kwargs):
+    """Delete media files from storage when Post is deleted"""
+    if instance.media_file:
+        for file_path in instance.media_file:
+            if default_storage.exists(file_path):
+                default_storage.delete(file_path)
+
 """ End of Post Models """

@@ -17,7 +17,7 @@ export default function CommunityManagementTable() {
   const [datePreset, setDatePreset] = useState<DateRangePreset>("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  
+
   const { data, isLoading, isError, refetch } = useGetCommunitiesQuery({
     visibility: visibilityFilter === "all" ? undefined : visibilityFilter,
     start_date: dateRange?.start_date,
@@ -25,7 +25,7 @@ export default function CommunityManagementTable() {
     search: searchQuery.trim() || undefined,
   });
   const [deleteCommunity] = useDeleteCommunityMutation();
-  
+
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCommunity, setSelectedCommunity] = useState<CommunityItem | null>(null);
 
@@ -41,7 +41,7 @@ export default function CommunityManagementTable() {
       const day = date.getDate();
       const month = date.toLocaleDateString("en-GB", { month: "short" });
       const year = date.getFullYear();
-      
+
       return `${day} ${month} ${year}`;
     } catch {
       return "N/A";
@@ -68,7 +68,7 @@ export default function CommunityManagementTable() {
         refetch();
       }
     } catch (error: unknown) {
-      const errorMessage = 
+      const errorMessage =
         (error as { data?: { error?: string } })?.data?.error ||
         (error as { message?: string })?.message ||
         "Failed to delete community";
@@ -254,7 +254,7 @@ export default function CommunityManagementTable() {
         isError={isError}
         errorMessage="Failed to load communities. Please try again later"
       />
-      
+
       <ConfirmDialog
         open={deleteDialogOpen}
         title="Delete Community?"

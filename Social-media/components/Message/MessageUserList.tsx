@@ -435,7 +435,7 @@ const MessageUserList = ({ searchQuery, onUserSelect }: MessageUserListProps) =>
 
                 {/* Dropdown Menu */}
                 {openMenuId === conversation.id && (
-                  <div className="user-menu-dropdown absolute right-0 top-full mt-1 w-40 bg-[#06133f] border border-gray-700 rounded-lg shadow-xl z-50">
+                  <div className="user-menu-dropdown absolute right-8 top-full -mt-[46px] w-40 bg-[#06133f] border border-gray-700 rounded-lg shadow-xl z-50">
                     <button
                       onClick={() => handleBlockUser(conversation.id, conversation.name)}
                       disabled={isBlocking || isUnblocking}

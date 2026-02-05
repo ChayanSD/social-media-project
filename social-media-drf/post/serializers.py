@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from django.core.files.storage import default_storage
+from utils.image_processing import compress_image
 from accounts.models import Profile
 from accounts.serializers import UserSerializer
 from interest.models import SubCategory
@@ -240,9 +241,12 @@ class PostSerializer(serializers.ModelSerializer):
         if media_files:
             file_paths = []
             for media_file in media_files:
+                # Compress image before saving
+                compressed_file = compress_image(media_file)
+                
                 file_path = default_storage.save(
-                    f'posts/{post.id}/{media_file.name}',
-                    media_file
+                    f'posts/{post.id}/{compressed_file.name}',
+                    compressed_file
                 )
                 file_paths.append(file_path)
 
@@ -284,9 +288,12 @@ class PostSerializer(serializers.ModelSerializer):
             # Save new files
             file_paths = []
             for media_file in media_files:
+                # Compress image before saving
+                compressed_file = compress_image(media_file)
+                
                 file_path = default_storage.save(
-                    f'posts/{instance.id}/{media_file.name}',
-                    media_file
+                    f'posts/{instance.id}/{compressed_file.name}',
+                    compressed_file
                 )
                 file_paths.append(file_path)
             
@@ -495,7 +502,7 @@ class UserSuggestionSerializer(serializers.Serializer):
 class PostReportSerializer(serializers.ModelSerializer):
     """ Serializer for Post Report """
     reporter = UserSerializer(read_only=True)
-    post_author_details = UserSerializer(source='post.user', read_only=True)
+    post_author_details = serializers.SerializerMethodField()
     reviewed_by_details = UserSerializer(source='reviewed_by', read_only=True)
     post_title = serializers.CharField(source='post.title', read_only=True)
     post_id = serializers.IntegerField(source='post.id', read_only=True)
@@ -509,6 +516,14 @@ class PostReportSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = ['reporter', 'status', 'reviewed_by', 'reviewed_at', 'created_at', 'updated_at']
+
+    def get_post_author_details(self, obj):
+        if obj.post and obj.post.user:
+            # Pass reporter_id to context to check local block status correctly
+            context = self.context.copy()
+            context['reporter_id'] = obj.reporter_id
+            return UserSerializer(obj.post.user, context=context).data
+        return None
 
     def validate(self, data):
         # Prevent users from reporting their own posts

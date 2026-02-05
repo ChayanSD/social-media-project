@@ -31,7 +31,7 @@ urlpatterns = [
     path('admin/payments/', AdminPaymentListView.as_view(), name='admin-payments'),
     path('admin/subscriptions/', AdminSubscriptionListView.as_view(), name='admin-subscriptions'),
     path('admin/communities/', AdminCommunitiesListView.as_view(), name='admin-communities'),
-    path('admin/communities/<int:community_id>/delete/', AdminDeleteCommunityView.as_view(), name='admin-delete-community'),
+    path('communities/<int:community_id>/delete/', AdminDeleteCommunityView.as_view(), name='delete-community'),
     # Public endpoints (for authenticated users)
     path('users/', PublicUsersListView.as_view(), name='public-users'),
     # Public stats endpoint (no authentication required)

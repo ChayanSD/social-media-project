@@ -26,7 +26,7 @@ const Profile = () => {
   const observerTargetOverview = useRef<HTMLDivElement>(null);
   const observerTargetPosts = useRef<HTMLDivElement>(null);
 
-  const { data: postsResponse, isLoading, isError, refetch } = useGetMyPostsQuery(
+  const { data: postsResponse, isLoading, isFetching, isError, refetch } = useGetMyPostsQuery(
     { page: currentPage }
   );
   const { data: profileResponse } = useGetCurrentUserProfileQuery();
@@ -245,8 +245,11 @@ const Profile = () => {
 
         {/* Infinite scroll trigger */}
         <div ref={observerTargetOverview} className="h-10 flex items-center justify-center">
-          {isLoading && hasMore && (
-            <div className="text-white/60 text-sm">Loading more posts...</div>
+          {(isLoading || isFetching) && hasMore && (
+            <div className="text-white/60 text-sm flex items-center gap-2">
+              <div className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              Loading more posts...
+            </div>
           )}
         </div>
         {!hasMore && allLoadedPosts.length > 0 && (

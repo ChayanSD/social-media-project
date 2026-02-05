@@ -168,3 +168,28 @@ class AcceptedMessage(models.Model):
         ).exists()
 
 """ End of Chat Models """
+
+class MessageReaction(models.Model):
+    """Model for message reactions"""
+    REACTION_TYPES = [
+        ('like', 'Like'),
+        ('love', 'Love'),
+        ('haha', 'Haha'),
+        ('wow', 'Wow'),
+        ('sad', 'Sad'),
+        ('angry', 'Angry'),
+    ]
+    
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='reactions')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='message_reactions')
+    reaction_type = models.CharField(max_length=20, choices=REACTION_TYPES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('message', 'user')
+        indexes = [
+            models.Index(fields=['message', 'reaction_type']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} reacted {self.reaction_type} to message {self.message.id}"

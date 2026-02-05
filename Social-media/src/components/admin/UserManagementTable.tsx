@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { useGetUsersQuery, User, useBlockUserMutation, useUnblockUserMutation, useDeleteUserMutation } from "@/store/authApi";
+import { useGetUsersQuery, User, useAdminBlockUserMutation, useAdminUnblockUserMutation, useAdminDeleteUserMutation } from "@/store/authApi";
 import { CustomTable, Column } from "@/components/admin/CustomTable";
 import { TableFilters } from "@/components/admin/TableFilters";
 import { DateFilter, DateRangePreset, DateRange } from "@/components/admin/DateFilter";
@@ -23,9 +23,9 @@ export default function UserManagementTable() {
     end_date: dateRange?.end_date,
     search: searchQuery.trim() || undefined,
   });
-  const [blockUser] = useBlockUserMutation();
-  const [unblockUser] = useUnblockUserMutation();
-  const [deleteUser] = useDeleteUserMutation();
+  const [blockUser] = useAdminBlockUserMutation();
+  const [unblockUser] = useAdminUnblockUserMutation();
+  const [deleteUser] = useAdminDeleteUserMutation();
 
   const [blockDialogOpen, setBlockDialogOpen] = useState(false);
   const [unblockDialogOpen, setUnblockDialogOpen] = useState(false);
