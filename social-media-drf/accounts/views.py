@@ -486,8 +486,8 @@ class AdminCommunitiesListView(APIView):
 
 """ Admin Community Delete View """
 class AdminDeleteCommunityView(APIView):
-    """Delete a community (admin only)"""
-    permission_classes = [permissions.IsAuthenticated, IsAdmin]
+    """Delete a community (Admin or Creator)"""
+    permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request, community_id):
         """Delete a community"""
@@ -501,6 +501,14 @@ class AdminDeleteCommunityView(APIView):
                     "success": False,
                     "error": "Community not found"
                 }, status=404)
+            
+            # Check permissions: Admin or Community Creator
+            is_admin = getattr(request.user, 'role', None) == 'admin'
+            if not (is_admin or community.created_by == request.user):
+                return Response({
+                    "success": False,
+                    "error": "You do not have permission to delete this community."
+                }, status=403)
             
             community_name = community.name
             # Delete the community (this will cascade delete related data)

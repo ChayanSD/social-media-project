@@ -177,10 +177,18 @@ class RoomViewSet(viewsets.ModelViewSet):
         if not room.is_group:
             other_participant = room.get_other_participant(request.user)
             if other_participant:
+                # Check if user is blocked by other participant
                 if BlockedUser.objects.filter(blocker=other_participant, blocked=request.user).exists():
                     return Response({
                         "success": False,
                         "error": "This user has blocked you"
+                    }, status=status.HTTP_403_FORBIDDEN)
+                
+                # Check if user has blocked the other participant
+                if BlockedUser.objects.filter(blocker=request.user, blocked=other_participant).exists():
+                    return Response({
+                        "success": False,
+                        "error": "You have blocked this user"
                     }, status=status.HTTP_403_FORBIDDEN)
         
         message = Message.objects.create(
