@@ -32,7 +32,7 @@ export function SearchFilter({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="pl-10 pr-4 py-2 min-w-[250px] h-9 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm cursor-pointer"
+          className="pl-10 pr-4 py-2 w-full h-9 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm cursor-pointer"
         />
       </div>
     </div>

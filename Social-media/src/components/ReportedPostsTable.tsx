@@ -455,6 +455,7 @@ export default function ReportedPostsTable() {
               />
               <SearchFilter
                 value={searchQuery}
+
                 onChange={setSearchQuery}
                 placeholder="Search by reporter, reason, or content..."
                 label="Search"

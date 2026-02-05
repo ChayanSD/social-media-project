@@ -175,7 +175,7 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
   };
 
   return (
-    <div 
+    <div
       className={`w-[88vw] lg:w-full rounded-2xl border bg-black/30 backdrop-blur-sm border-white/20 flex flex-col ${className}`}
       style={enableScroll ? { maxHeight } : {}}
     >
@@ -196,14 +196,14 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
             )}
             {/* Right side - Filters */}
             {filters && (
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-nowrap items-center gap-3">
                 {filters}
               </div>
             )}
           </div>
         </div>
       )}
-      <div 
+      <div
         className={`relative w-full ${enableScroll ? 'overflow-hidden flex flex-col' : ''}`}
         style={enableScroll ? { maxHeight: `calc(${maxHeight} - ${title ? '120px' : '0px'})` } : {}}
       >
@@ -212,7 +212,7 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
             <TableHeader className={enableScroll ? 'sticky top-0 z-10 bg-black/30 backdrop-blur-sm' : ''}>
               <TableRow className={`bg-white/10 text-left ${headerClassName}`}>
                 {columns.map((column, index) => {
-                  const headerContent = typeof column.header === 'function' 
+                  const headerContent = typeof column.header === 'function'
                     ? column.header(data[0] || {} as T)
                     : column.header;
                   return (
@@ -224,108 +224,108 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
               </TableRow>
             </TableHeader>
             <TableBody>
-            {isLoading ? (
-              // Loading State - Skeleton
-              <>
-                {Array.from({ length: ITEMS_PER_PAGE }).map((_, rowIndex) => (
-                  <TableRow key={`skeleton-${rowIndex}`} className="border-t border-white/10">
-                    {columns.map((_, colIndex) => (
-                      <TableCell
-                        key={colIndex}
-                        className={`px-4 py-5 ${cellClassName}`.trim()}
-                      >
-                        <div className="animate-pulse">
-                          <div className="h-5 bg-white/10 rounded w-full" />
-                        </div>
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </>
-            ) : isError ? (
-              // Error State
-              <TableRow className="hover:!bg-transparent cursor-default">
-                <TableCell
-                  colSpan={columns.length}
-                  className="px-4 py-12 text-center"
-                  style={{ height: `${ITEMS_PER_PAGE * 60}px` }}
-                >
-                  <div className="flex flex-col items-center justify-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
-                      <AlertCircle className="w-8 h-8 text-red-400" />
-                    </div>
-                    <div>
-                      <p className="text-red-400 text-lg font-medium mb-1">
-                        Error Loading Data
-                      </p>
-                      <p className="text-white/60 text-sm">
-                        {errorMessage}
-                      </p>
-                    </div>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : data.length === 0 ? (
-              // Empty State
-              <TableRow className="hover:!bg-transparent cursor-default">
-                <TableCell
-                  colSpan={columns.length}
-                  className="px-4 py-12 text-center"
-                  style={{ height: `${ITEMS_PER_PAGE * 60}px` }}
-                >
-                  <div className="flex flex-col items-center justify-center gap-4">
-                    {emptyIcon || (
-                      <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
-                        <Inbox className="w-8 h-8 text-white/40" />
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-white/80 text-lg font-medium mb-1">
-                        {emptyMessage}
-                      </p>
-                    </div>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              <>
-                {/* Render paginated rows */}
-                {paginatedData.map((row, rowIndex) => {
-                  const originalIndex = (currentPage - 1) * ITEMS_PER_PAGE + rowIndex;
-                  return (
-                    <TableRow
-                      key={getRowKey(row, originalIndex)}
-                      className={getRowClassName(row, originalIndex)}
-                      onClick={() => onRowClick?.(row, originalIndex)}
-                    >
-                      {columns.map((column, colIndex) => (
-                        <TableCell
-                          key={colIndex}
-                          className={`px-4 py-3 ${cellClassName} ${column.className || ""}`.trim()}
-                        >
-                          {column.accessor(row, originalIndex)}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  );
-                })}
-                {/* Fill remaining rows to maintain consistent height */}
-                {paginatedData.length < ITEMS_PER_PAGE && (
-                  Array.from({ length: ITEMS_PER_PAGE - paginatedData.length }).map((_, emptyIndex) => (
-                    <TableRow key={`empty-${emptyIndex}`} className="border-t border-white/10">
+              {isLoading ? (
+                // Loading State - Skeleton
+                <>
+                  {Array.from({ length: ITEMS_PER_PAGE }).map((_, rowIndex) => (
+                    <TableRow key={`skeleton-${rowIndex}`} className="border-t border-white/10">
                       {columns.map((_, colIndex) => (
                         <TableCell
                           key={colIndex}
-                          className={`px-4 py-3 ${cellClassName}`.trim()}
+                          className={`px-4 py-5 ${cellClassName}`.trim()}
                         >
-                          <span className="invisible">-</span>
+                          <div className="animate-pulse">
+                            <div className="h-5 bg-white/10 rounded w-full" />
+                          </div>
                         </TableCell>
                       ))}
                     </TableRow>
-                  ))
-                )}
-              </>
-            )}
+                  ))}
+                </>
+              ) : isError ? (
+                // Error State
+                <TableRow className="hover:!bg-transparent cursor-default">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="px-4 py-12 text-center"
+                    style={{ height: `${ITEMS_PER_PAGE * 60}px` }}
+                  >
+                    <div className="flex flex-col items-center justify-center gap-4">
+                      <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
+                        <AlertCircle className="w-8 h-8 text-red-400" />
+                      </div>
+                      <div>
+                        <p className="text-red-400 text-lg font-medium mb-1">
+                          Error Loading Data
+                        </p>
+                        <p className="text-white/60 text-sm">
+                          {errorMessage}
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : data.length === 0 ? (
+                // Empty State
+                <TableRow className="hover:!bg-transparent cursor-default">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="px-4 py-12 text-center"
+                    style={{ height: `${ITEMS_PER_PAGE * 60}px` }}
+                  >
+                    <div className="flex flex-col items-center justify-center gap-4">
+                      {emptyIcon || (
+                        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
+                          <Inbox className="w-8 h-8 text-white/40" />
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-white/80 text-lg font-medium mb-1">
+                          {emptyMessage}
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <>
+                  {/* Render paginated rows */}
+                  {paginatedData.map((row, rowIndex) => {
+                    const originalIndex = (currentPage - 1) * ITEMS_PER_PAGE + rowIndex;
+                    return (
+                      <TableRow
+                        key={getRowKey(row, originalIndex)}
+                        className={getRowClassName(row, originalIndex)}
+                        onClick={() => onRowClick?.(row, originalIndex)}
+                      >
+                        {columns.map((column, colIndex) => (
+                          <TableCell
+                            key={colIndex}
+                            className={`px-4 py-3 ${cellClassName} ${column.className || ""}`.trim()}
+                          >
+                            {column.accessor(row, originalIndex)}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    );
+                  })}
+                  {/* Fill remaining rows to maintain consistent height */}
+                  {paginatedData.length < ITEMS_PER_PAGE && (
+                    Array.from({ length: ITEMS_PER_PAGE - paginatedData.length }).map((_, emptyIndex) => (
+                      <TableRow key={`empty-${emptyIndex}`} className="border-t border-white/10">
+                        {columns.map((_, colIndex) => (
+                          <TableCell
+                            key={colIndex}
+                            className={`px-4 py-3 ${cellClassName}`.trim()}
+                          >
+                            <span className="invisible">-</span>
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  )}
+                </>
+              )}
             </TableBody>
           </Table>
         </div>
@@ -337,17 +337,16 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
           <div className="text-sm text-white/60">
             Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, data.length)} of {data.length} entries
           </div>
-          
+
           <div className="flex items-center gap-2">
             {/* Previous Button */}
             <button
               onClick={handlePreviousPage}
               disabled={currentPage === 1}
-              className={`p-2 rounded-lg transition ${
-                currentPage === 1
-                  ? "bg-white/5 text-white/30 cursor-not-allowed"
-                  : "bg-white/10 text-white hover:bg-white/20 cursor-pointer"
-              }`}
+              className={`p-2 rounded-lg transition ${currentPage === 1
+                ? "bg-white/5 text-white/30 cursor-not-allowed"
+                : "bg-white/10 text-white hover:bg-white/20 cursor-pointer"
+                }`}
               aria-label="Previous page"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -368,11 +367,10 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
                   <button
                     key={pageNum}
                     onClick={() => handlePageClick(pageNum)}
-                    className={`px-3 py-1 rounded-lg text-sm transition ${
-                      currentPage === pageNum
-                        ? "bg-[#6B83FA] text-white"
-                        : "bg-white/10 text-white/80 hover:bg-white/20"
-                    }`}
+                    className={`px-3 py-1 rounded-lg text-sm transition ${currentPage === pageNum
+                      ? "bg-[#6B83FA] text-white"
+                      : "bg-white/10 text-white/80 hover:bg-white/20"
+                      }`}
                     aria-label={`Go to page ${pageNum}`}
                     aria-current={currentPage === pageNum ? "page" : undefined}
                   >
@@ -386,11 +384,10 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
             <button
               onClick={handleNextPage}
               disabled={currentPage === totalPages}
-              className={`p-2 rounded-lg transition ${
-                currentPage === totalPages
-                  ? "bg-white/5 text-white/30 cursor-not-allowed"
-                  : "bg-white/10 text-white hover:bg-white/20 cursor-pointer"
-              }`}
+              className={`p-2 rounded-lg transition ${currentPage === totalPages
+                ? "bg-white/5 text-white/30 cursor-not-allowed"
+                : "bg-white/10 text-white hover:bg-white/20 cursor-pointer"
+                }`}
               aria-label="Next page"
             >
               <ChevronRight className="w-4 h-4" />
@@ -423,17 +420,16 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             {/* Previous Button */}
             <button
               onClick={serverPagination.handlePreviousPage}
               disabled={!serverPagination.hasPrevious || serverPagination.currentPage === 1}
-              className={`p-2 rounded-lg transition ${
-                !serverPagination.hasPrevious || serverPagination.currentPage === 1
-                  ? "bg-white/5 text-white/30 cursor-not-allowed"
-                  : "bg-white/10 text-white hover:bg-white/20 cursor-pointer"
-              }`}
+              className={`p-2 rounded-lg transition ${!serverPagination.hasPrevious || serverPagination.currentPage === 1
+                ? "bg-white/5 text-white/30 cursor-not-allowed"
+                : "bg-white/10 text-white hover:bg-white/20 cursor-pointer"
+                }`}
               aria-label="Previous page"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -454,11 +450,10 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
                   <button
                     key={pageNum}
                     onClick={() => serverPagination.onPageChange(pageNum)}
-                    className={`px-3 py-1 rounded-lg text-sm transition cursor-pointer ${
-                      serverPagination.currentPage === pageNum
-                        ? "bg-[#6B83FA] text-white"
-                        : "bg-white/10 text-white/80 hover:bg-white/20"
-                    }`}
+                    className={`px-3 py-1 rounded-lg text-sm transition cursor-pointer ${serverPagination.currentPage === pageNum
+                      ? "bg-[#6B83FA] text-white"
+                      : "bg-white/10 text-white/80 hover:bg-white/20"
+                      }`}
                     aria-label={`Go to page ${pageNum}`}
                     aria-current={serverPagination.currentPage === pageNum ? "page" : undefined}
                   >
@@ -472,11 +467,10 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
             <button
               onClick={serverPagination.handleNextPage}
               disabled={!serverPagination.hasNext || serverPagination.currentPage === Math.ceil(serverPagination.totalCount / serverPagination.pageSize)}
-              className={`p-2 rounded-lg transition ${
-                !serverPagination.hasNext || serverPagination.currentPage === Math.ceil(serverPagination.totalCount / serverPagination.pageSize)
-                  ? "bg-white/5 text-white/30 cursor-not-allowed"
-                  : "bg-white/10 text-white hover:bg-white/20 cursor-pointer"
-              }`}
+              className={`p-2 rounded-lg transition ${!serverPagination.hasNext || serverPagination.currentPage === Math.ceil(serverPagination.totalCount / serverPagination.pageSize)
+                ? "bg-white/5 text-white/30 cursor-not-allowed"
+                : "bg-white/10 text-white hover:bg-white/20 cursor-pointer"
+                }`}
               aria-label="Next page"
             >
               <ChevronRight className="w-4 h-4" />
