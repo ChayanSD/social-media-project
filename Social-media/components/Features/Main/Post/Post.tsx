@@ -55,7 +55,8 @@ const Post = ({ post, profile }: PostProps) => {
   const [postToDelete, setPostToDelete] = useState<number | string | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isSharePreviewModalOpen, setIsSharePreviewModalOpen] = useState(false);
-  
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+
   const [likePost, { isLoading: isLiking }] = useLikePostMutation();
   const [deletePost, { isLoading: isDeletingPost }] = useDeletePostMutation();
   const [sharePost, { isLoading: isSharing }] = useSharePostMutation();
@@ -96,7 +97,7 @@ const Post = ({ post, profile }: PostProps) => {
         const results = followingData.results as { data?: FollowItem[] };
         following = Array.isArray(results?.data) ? results.data : [];
       }
-      
+
       // Find if the post's user ID is in the following list
       // The following API returns items where 'following' is the user ID being followed
       const followItem = following.find((item: FollowItem) => {
@@ -115,7 +116,7 @@ const Post = ({ post, profile }: PostProps) => {
       // Fallback to post data if following API hasn't loaded yet
       const postFollowingId = (post as { following_id?: number | string })?.following_id;
       const postIsFollowing = (post as { is_following?: boolean })?.is_following;
-      
+
       if (postFollowingId) {
         setFollowingId(postFollowingId);
         setIsFollowingUser(true);
@@ -169,40 +170,58 @@ const Post = ({ post, profile }: PostProps) => {
       const mediaPath = post.media_file[index].toLowerCase();
       const videoExtensions = ['.mp4', '.mov', '.webm', '.avi', '.mkv'];
       const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
-      
+
       // Check if it ends with video extension
       const hasVideoExt = videoExtensions.some(ext => mediaPath.endsWith(ext));
       // Check if it ends with image extension (to exclude false positives)
       const hasImageExt = imageExtensions.some(ext => mediaPath.endsWith(ext));
-      
+
       if (hasImageExt) return false; // Definitely an image
       if (hasVideoExt) return true; // Definitely a video
     }
-    
+
     // Fallback: Check URL filename extension
     const videoExtensions = ['.mp4', '.mov', '.webm', '.avi', '.mkv'];
     const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
     const lowerUrl = url.toLowerCase();
-    
+
     // Extract filename from URL (remove query params if any)
     const urlWithoutParams = lowerUrl.split('?')[0];
     const urlParts = urlWithoutParams.split('/');
     const filename = urlParts[urlParts.length - 1];
-    
+
     // Check if filename ends with image extension first (to exclude false positives)
     if (imageExtensions.some(ext => filename.endsWith(ext))) {
       return false;
     }
-    
+
     // Check if filename ends with video extension
     if (videoExtensions.some(ext => filename.endsWith(ext))) {
       return true;
     }
-    
+
     // Last resort: check URL path (but be cautious)
     // Only return true if URL explicitly contains '/video/' and not '/image/'
     return lowerUrl.includes('/video/') && !lowerUrl.includes('/image/') && !lowerUrl.includes('/media/images/');
   };
+
+  const getEmbedUrl = (url: string) => {
+    if (!url) return null;
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      const videoId = url.includes('v=')
+        ? url.split('v=')[1].split('&')[0]
+        : url.split('/').pop();
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+    if (url.includes('vimeo.com')) {
+      const videoId = url.split('/').pop();
+      return `https://player.vimeo.com/video/${videoId}`;
+    }
+    return url;
+  };
+
+  const videoUrl = post?.video_url;
+  const embedUrl = getEmbedUrl(videoUrl || "");
 
   const comments = useMemo(() => {
     const source =
@@ -214,8 +233,8 @@ const Post = ({ post, profile }: PostProps) => {
     const data = Array.isArray(source)
       ? source
       : Array.isArray((source as { data?: CommentItem[] }).data)
-      ? (source as { data?: CommentItem[] }).data!
-      : [];
+        ? (source as { data?: CommentItem[] }).data!
+        : [];
     // Organize comments into parent-child structure
     const commentMap = new Map<number | string, CommentItem & { replies: CommentItem[] }>();
     const topLevelComments: (CommentItem & { replies: CommentItem[] })[] = [];
@@ -285,20 +304,20 @@ const Post = ({ post, profile }: PostProps) => {
   const handleLikeClick = async () => {
     // Like the post itself (for shared posts, like the shared post, not the original)
     const postIdToLike = post?.id;
-    
+
     if (!postIdToLike || isLiking) return;
-    
+
     // Redirect to login if not authenticated
     if (!token) {
       router.push('/auth/login');
       return;
     }
-    
+
     // Helper function to update post in any TanStack Query cache
     const updatePostInCache = (queryKey: string[]) => {
       queryClient.setQueryData(queryKey, (oldData: { pages?: unknown[]; posts?: PostItem[]; pageParams?: unknown[] } | undefined) => {
         if (!oldData) return oldData;
-        
+
         const updatePost = (p: PostItem): PostItem => {
           if (p.id === postIdToLike) {
             // Use the component's isLiked prop (source of truth) to determine the action
@@ -309,7 +328,7 @@ const Post = ({ post, profile }: PostProps) => {
             const countChange = isLiked ? -1 : 1;
             const currentCount = p.likes_count || 0;
             const newCount = Math.max(0, currentCount + countChange);
-            
+
             return {
               ...p,
               is_liked: newLikedState,
@@ -318,15 +337,15 @@ const Post = ({ post, profile }: PostProps) => {
           }
           return p;
         };
-        
+
         // Update posts in the flattened structure
         const updatedPosts = (oldData.posts || []).map(updatePost);
-        
+
         // Update posts in pages
         const updatedPages = (oldData.pages || []).map((page: unknown) => {
           const pageData = page as { data?: PostItem[]; posts?: PostItem[]; results?: PostItem[] | { data?: PostItem[] } };
           let posts: PostItem[] = [];
-          
+
           if (Array.isArray(pageData.data)) {
             posts = pageData.data;
           } else if (Array.isArray(pageData.posts)) {
@@ -338,9 +357,9 @@ const Post = ({ post, profile }: PostProps) => {
               posts = pageData.results.data;
             }
           }
-          
+
           const updatedPagePosts = posts.map(updatePost);
-          
+
           if (Array.isArray(pageData.data)) {
             return { ...pageData, data: updatedPagePosts };
           } else if (Array.isArray(pageData.posts)) {
@@ -354,7 +373,7 @@ const Post = ({ post, profile }: PostProps) => {
           }
           return pageData;
         });
-        
+
         return {
           ...oldData,
           pages: updatedPages,
@@ -362,11 +381,11 @@ const Post = ({ post, profile }: PostProps) => {
         };
       });
     };
-    
+
     // Optimistically update all TanStack Query caches before API call
     // Update news feed cache
     updatePostInCache(["newsFeed"]);
-    
+
     // Update all user posts queries (they have queryKey: ["userPosts", userId])
     queryClient.getQueryCache().getAll().forEach((query) => {
       const queryKey = query.queryKey as readonly unknown[];
@@ -374,7 +393,7 @@ const Post = ({ post, profile }: PostProps) => {
         updatePostInCache([...queryKey] as string[]);
       }
     });
-    
+
     try {
       // Perform the API call in the background
       // The optimistic update already shows the change, no need to refetch
@@ -400,25 +419,25 @@ const Post = ({ post, profile }: PostProps) => {
       router.push('/auth/login');
       return;
     }
-    
+
     if (!post?.id) return;
-    
+
     // Open share preview modal
     setIsSharePreviewModalOpen(true);
   };
 
   const handleConfirmShare = async () => {
     if (!post?.id || isSharing) return;
-    
+
     try {
       await sharePost({ post: post.id }).unwrap();
       toast.success("Post shared successfully!");
       setIsSharePreviewModalOpen(false);
     } catch (error: unknown) {
       console.error("Failed to share post:", error);
-      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'Failed to share post';
+      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        'Failed to share post';
       toast.error('Failed to share post', {
         description: errorMessage,
       });
@@ -430,13 +449,13 @@ const Post = ({ post, profile }: PostProps) => {
     // Comment on the post itself (for shared posts, comment on the shared post, not the original)
     const postIdForComment = post?.id;
     if (!commentText.trim() || !postIdForComment || isCreatingComment) return;
-    
+
     // Redirect to login if not authenticated
     if (!token) {
       router.push('/auth/login');
       return;
     }
-    
+
     try {
       await createComment({
         post: postIdForComment,
@@ -453,7 +472,7 @@ const Post = ({ post, profile }: PostProps) => {
     // Reply on the post itself (for shared posts, reply on the shared post, not the original)
     const postIdForReply = post?.id;
     if (!replyText.trim() || !postIdForReply || !replyingTo || isCreatingComment) return;
-    
+
     try {
       await createComment({
         post: postIdForReply,
@@ -473,7 +492,7 @@ const Post = ({ post, profile }: PostProps) => {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
-    
+
     if (hours < 1) {
       const minutes = Math.floor(diff / (1000 * 60));
       return minutes < 1 ? "just now" : `${minutes}m ago`;
@@ -504,7 +523,7 @@ const Post = ({ post, profile }: PostProps) => {
   const handleUpdateComment = async (e: React.FormEvent, commentId: number | string) => {
     e.preventDefault();
     if (!editText.trim() || !post?.id || isUpdatingComment) return;
-    
+
     try {
       await updateComment({
         commentId,
@@ -547,7 +566,7 @@ const Post = ({ post, profile }: PostProps) => {
       router.push('/auth/login');
       return;
     }
-    
+
     if (!postUserId) {
       console.error("User ID not found in post data");
       return;
@@ -562,10 +581,10 @@ const Post = ({ post, profile }: PostProps) => {
       } else {
         // Follow
         const result = await followUser({ userId: postUserId }).unwrap();
-        const followId = (result as { id?: number | string; following_id?: number | string; data?: { id?: number | string; following_id?: number | string } })?.id || 
-                         (result as { id?: number | string; following_id?: number | string; data?: { id?: number | string; following_id?: number | string } })?.following_id ||
-                         (result as { id?: number | string; following_id?: number | string; data?: { id?: number | string; following_id?: number | string } })?.data?.id ||
-                         (result as { id?: number | string; following_id?: number | string; data?: { id?: number | string; following_id?: number | string } })?.data?.following_id;
+        const followId = (result as { id?: number | string; following_id?: number | string; data?: { id?: number | string; following_id?: number | string } })?.id ||
+          (result as { id?: number | string; following_id?: number | string; data?: { id?: number | string; following_id?: number | string } })?.following_id ||
+          (result as { id?: number | string; following_id?: number | string; data?: { id?: number | string; following_id?: number | string } })?.data?.id ||
+          (result as { id?: number | string; following_id?: number | string; data?: { id?: number | string; following_id?: number | string } })?.data?.following_id;
         if (followId) {
           setFollowingId(followId);
           setIsFollowingUser(true);
@@ -575,10 +594,10 @@ const Post = ({ post, profile }: PostProps) => {
       console.error("Failed to follow/unfollow user:", error);
     }
   };
-  
+
   // Check if post is created by another user (not the current user)
   const isOtherUserPost = postUserId && profile?.id && String(postUserId) !== String(profile.id);
-  
+
   // Check if post belongs to current user
   const isCurrentUserPost = postUserId && profile?.id && String(postUserId) === String(profile.id);
 
@@ -626,14 +645,14 @@ const Post = ({ post, profile }: PostProps) => {
         {depth > 0 && (
           <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-slate-700" />
         )}
-        
+
         <div className={`${depth > 0 ? "ml-10" : ""} pb-4`}>
           <div className="flex gap-2">
             {authorAvatar ? (
               <Image
                 src={
-                  authorAvatar.startsWith('http') 
-                    ? authorAvatar 
+                  authorAvatar.startsWith('http')
+                    ? authorAvatar
                     : `${getApiBaseUrl()}${authorAvatar.startsWith('/') ? authorAvatar.slice(1) : authorAvatar}`
                 }
                 alt={authorName}
@@ -646,13 +665,13 @@ const Post = ({ post, profile }: PostProps) => {
                 {authorName.charAt(0).toUpperCase()}
               </div>
             )}
-            
+
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-sm font-medium text-white">{authorName}</span>
                 <span className="text-xs text-white/50">• {formatCommentTime(comment.created_at)}</span>
               </div>
-              
+
               {isEditing ? (
                 <form onSubmit={(e) => handleUpdateComment(e, comment.id)} className="space-y-2">
                   <input
@@ -685,9 +704,9 @@ const Post = ({ post, profile }: PostProps) => {
               ) : (
                 <>
                   <p className="text-sm text-white/90 mb-2 break-words">{comment.content}</p>
-                  
+
                   <div className="flex items-center gap-4">
-                    
+
                     <button
                       onClick={() => setReplyingTo({ id: comment.id, username: authorName })}
                       className="text-xs text-white/60 hover:text-white transition-colors"
@@ -775,12 +794,12 @@ const Post = ({ post, profile }: PostProps) => {
                 onClick={() => toggleReplies(comment.id)}
                 className="ml-10 px-3 py-1 bg-slate-700/50 hover:bg-slate-700 text-xs text-white/80 rounded-full transition-colors"
               >
-                {isExpanded 
+                {isExpanded
                   ? `Hide ${comment.replies.length} ${comment.replies.length === 1 ? "reply" : "replies"}`
                   : `View ${comment.replies.length} ${comment.replies.length === 1 ? "reply" : "replies"}`
                 }
               </button>
-              
+
               {isExpanded && (
                 <div className="mt-3">
                   {comment.replies.map((reply) => renderComment({ ...reply, replies: reply.replies || [] }, depth + 1))}
@@ -1128,7 +1147,7 @@ const Post = ({ post, profile }: PostProps) => {
 
   // Get username for navigation
   const username = post?.user_name || post?.username || post?.author?.username || post?.user_id;
-  
+
   const handleUserClick = () => {
     if (username) {
       router.push(`/main/user/${username}`);
@@ -1138,14 +1157,14 @@ const Post = ({ post, profile }: PostProps) => {
   return (
     <div className="border border-slate-600 md:p-6 p-4 w-full rounded">
       <div className="flex justify-between items-center mb-5">
-        <div 
+        <div
           className="flex items-center gap-[7px] cursor-pointer hover:opacity-80 transition-opacity"
           onClick={handleUserClick}
         >
           {post?.avatar && typeof post.avatar === 'string' ? (
             <Image
-              src={post.avatar.startsWith('http') 
-                ? post.avatar 
+              src={post.avatar.startsWith('http')
+                ? post.avatar
                 : `${getApiBaseUrl()}${post.avatar.startsWith('/') ? post.avatar.slice(1) : post.avatar}`}
               alt={post?.author?.name || post?.user_name || post?.username || "Author Avatar"}
               width={32}
@@ -1199,17 +1218,16 @@ const Post = ({ post, profile }: PostProps) => {
             </button>
           )}
           {isOtherUserPost && (
-            <button 
+            <button
               onClick={handleFollowClick}
               disabled={isFollowing || isUnfollowing}
-              className={`text-xs cursor-pointer text-white px-4 py-1.5 rounded-full border border-white/10 transition-colors ${
-                (isFollowing || isUnfollowing)
-                  && "bg-slate-600 opacity-50 cursor-not-allowed" 
-               
-              }`}
+              className={`text-xs cursor-pointer text-white px-4 py-1.5 rounded-full border border-white/10 transition-colors ${(isFollowing || isUnfollowing)
+                && "bg-slate-600 opacity-50 cursor-not-allowed"
+
+                }`}
             >
-              {isFollowing || isUnfollowing 
-                ? (isFollowing ? "Following..." : "Unfollowing...") 
+              {isFollowing || isUnfollowing
+                ? (isFollowing ? "Following..." : "Unfollowing...")
                 : (isFollowingUser ? "Unfollow" : "Follow")}
             </button>
           )}
@@ -1223,7 +1241,7 @@ const Post = ({ post, profile }: PostProps) => {
           const originalPostId = post.original_post.id;
           const contentValue = post.original_post.content;
           const originalPostContent: string | null = typeof contentValue === 'string' && contentValue ? contentValue : null;
-          
+
           const renderContent = (): React.ReactNode => {
             if (!originalPostContent) return null;
             return React.createElement('div', {
@@ -1231,9 +1249,9 @@ const Post = ({ post, profile }: PostProps) => {
               className: "text-base text-white whitespace-pre-line mb-3"
             });
           };
-          
+
           return (
-            <div 
+            <div
               className="mb-4 p-3 bg-slate-800/50 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-800/70 transition-colors"
               onClick={() => {
                 if (originalPostId) {
@@ -1265,8 +1283,8 @@ const Post = ({ post, profile }: PostProps) => {
                 <div className="flex items-center gap-2 mb-3">
                   {post.original_post.avatar && typeof post.original_post.avatar === 'string' ? (
                     <Image
-                      src={post.original_post.avatar.startsWith('http') 
-                        ? post.original_post.avatar 
+                      src={post.original_post.avatar.startsWith('http')
+                        ? post.original_post.avatar
                         : `${getApiBaseUrl()}${post.original_post.avatar.startsWith('/') ? post.original_post.avatar.slice(1) : post.original_post.avatar}`}
                       alt={post.original_post.user_name || "Original Author"}
                       width={32}
@@ -1283,18 +1301,18 @@ const Post = ({ post, profile }: PostProps) => {
                     {post.original_post.user_name || "Original Author"}
                   </span>
                 </div>
-                
+
                 {/* Original Post Title */}
                 {post.original_post.title && (
                   <h3 className="text-xl font-bold text-white mb-3 break-words">
                     {post.original_post.title}
                   </h3>
                 )}
-                
+
                 {/* Original Post Content */}
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {renderContent() as any}
-                
+
                 {/* Original Post Media - Full Gallery */}
                 {originalPostMediaUrls.length > 0 && (
                   <div className="mb-3">
@@ -1357,7 +1375,7 @@ const Post = ({ post, profile }: PostProps) => {
                     )}
                   </div>
                 )}
-                
+
                 {/* Original Post Link */}
                 {post.original_post.link && typeof post.original_post.link === 'string' && (
                   <div className="mt-3">
@@ -1390,12 +1408,12 @@ const Post = ({ post, profile }: PostProps) => {
             </div>
           );
         })()) as React.ReactElement | null}
-        
+
         <div className="mb-5">
           {/* Post Title - Bold - Only show if not a shared post */}
           {/* For shared posts, title is shown in the original_post section, so don't show it here */}
           {post?.title && !post?.original_post && (
-            <h2 
+            <h2
               className="text-xl font-bold text-white mb-3 break-words cursor-pointer hover:text-blue-400 transition-colors"
               onClick={() => {
                 if (post.id) {
@@ -1447,6 +1465,42 @@ const Post = ({ post, profile }: PostProps) => {
             </div>
           )}
         </div>
+
+        {videoUrl && !post?.original_post && (
+          <div className="mb-5">
+            <div
+              className="relative w-full aspect-video rounded-lg overflow-hidden bg-black/40 border border-white/10 cursor-pointer group"
+              onClick={() => setIsVideoModalOpen(true)}
+            >
+              {embedUrl?.includes('youtube.com/embed') ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Image
+                    src={`https://img.youtube.com/vi/${embedUrl.split('/').pop()}/maxresdefault.jpg`}
+                    alt="Video thumbnail"
+                    fill
+                    className="object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                    unoptimized
+                  />
+                  <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform z-10">
+                    <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                  <p className="absolute bottom-4 text-white/70 text-sm">Play external video</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {!post?.original_post && allMediaUrls.length > 0 && (
           <div className="mb-5">
             {renderImageGallery()}
@@ -1471,11 +1525,10 @@ const Post = ({ post, profile }: PostProps) => {
         <button
           onClick={handleLikeClick}
           disabled={isLiking}
-          className={`text-sm text-white cursor-pointer flex items-center gap-2 px-2.5 py-[5px] rounded-full transition-colors ${
-            isLiked
-              ? "bg-blue-600 hover:bg-blue-700"
-              : "bg-slate-700 hover:bg-slate-600"
-          } ${isLiking ? "opacity-50 cursor-not-allowed" : ""}`}
+          className={`text-sm text-white cursor-pointer flex items-center gap-2 px-2.5 py-[5px] rounded-full transition-colors ${isLiked
+            ? "bg-blue-600 hover:bg-blue-700"
+            : "bg-slate-700 hover:bg-slate-600"
+            } ${isLiking ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           {isLiked ? (
             <AiFillLike size={18} className="text-blue-200" />
@@ -1490,7 +1543,7 @@ const Post = ({ post, profile }: PostProps) => {
         >
           <FaRegComment size={18} /> {post?.comments_count as number || 0}
         </button>
-        <button 
+        <button
           type="button"
           onClick={() => {
             console.log("Share button onClick triggered");
@@ -1577,66 +1630,80 @@ const Post = ({ post, profile }: PostProps) => {
         contentClassName="p-0 bg-black/80 border-none"
       >
         <div className="relative w-full h-[90vh] flex items-center justify-center">
-            {/* Close Button */}
-            {/* <button
-              onClick={() => setIsImageModalOpen(false)}
-              className="absolute top-4 right-4 z-50 rounded-full hover:scale-105 duration-300 ease-in-out bg-black cursor-pointer p-2 text-white hover:bg-black/90 transition-colors"
+          {/* Previous Button */}
+          {allMediaUrls.length > 1 && (
+            <button
+              onClick={handlePreviousImage}
+              className="absolute left-4 z-50 rounded-full bg-black/70 p-3 text-white hover:bg-black/90 transition-colors"
             >
-              <IoMdClose size={24} />
-            </button> */}
+              <IoChevronBack size={28} />
+            </button>
+          )}
 
-            {/* Previous Button */}
-            {allMediaUrls.length > 1 && (
-              <button
-                onClick={handlePreviousImage}
-                className="absolute left-4 z-50 rounded-full bg-black/70 p-3 text-white hover:bg-black/90 transition-colors"
-              >
-                <IoChevronBack size={28} />
-              </button>
-            )}
+          {/* Media (Image or Video) */}
+          {allMediaUrls[currentImageIndex] && (
+            <div className="relative w-full h-full flex items-center justify-center">
+              {isVideoUrl(allMediaUrls[currentImageIndex], currentImageIndex) ? (
+                <video
+                  src={allMediaUrls[currentImageIndex]}
+                  className="max-w-full max-h-full object-contain"
+                  controls
+                  autoPlay
+                  playsInline
+                />
+              ) : (
+                <Image
+                  src={allMediaUrls[currentImageIndex]}
+                  alt={`${post?.title || "post"} ${currentImageIndex + 1}`}
+                  width={1200}
+                  height={800}
+                  className="max-w-full max-h-full object-contain"
+                  unoptimized
+                />
+              )}
+            </div>
+          )}
 
-            {/* Media (Image or Video) */}
-            {allMediaUrls[currentImageIndex] && (
-              <div className="relative w-full h-full flex items-center justify-center">
-                {isVideoUrl(allMediaUrls[currentImageIndex], currentImageIndex) ? (
-                  <video
-                    src={allMediaUrls[currentImageIndex]}
-                    className="max-w-full max-h-full object-contain"
-                    controls
-                    autoPlay
-                    playsInline
-                  />
-                ) : (
-                  <Image
-                    src={allMediaUrls[currentImageIndex]}
-                    alt={`${post?.title || "post"} ${currentImageIndex + 1}`}
-                    width={1200}
-                    height={800}
-                    className="max-w-full max-h-full object-contain"
-                    unoptimized
-                  />
-                )}
-              </div>
-            )}
+          {/* Next Button */}
+          {allMediaUrls.length > 1 && (
+            <button
+              onClick={handleNextImage}
+              className="absolute right-4 z-50 rounded-full bg-black/70 p-3 text-white hover:bg-black/90 transition-colors"
+            >
+              <IoChevronForward size={28} />
+            </button>
+          )}
 
-            {/* Next Button */}
-            {allMediaUrls.length > 1 && (
-              <button
-                onClick={handleNextImage}
-                className="absolute right-4 z-50 rounded-full bg-black/70 p-3 text-white hover:bg-black/90 transition-colors"
-              >
-                <IoChevronForward size={28} />
-              </button>
-            )}
-
-            {/* Image Counter */}
-            {allMediaUrls.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 px-4 py-2 rounded-full text-white text-sm">
-                {currentImageIndex + 1} / {allMediaUrls.length}
-              </div>
-            )}
-          </div>
+          {/* Image Counter */}
+          {allMediaUrls.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 px-4 py-2 rounded-full text-white text-sm">
+              {currentImageIndex + 1} / {allMediaUrls.length}
+            </div>
+          )}
+        </div>
       </CustomDialog>
+
+      {/* Video Embed Modal */}
+      <CustomDialog
+        open={isVideoModalOpen}
+        onOpenChange={setIsVideoModalOpen}
+        maxWidth="4xl"
+        maxHeight="90vh"
+        title="Video Preview"
+        contentClassName="bg-black/95 p-0 border-none"
+      >
+        <div className="relative w-full aspect-video">
+          {embedUrl && (
+            <iframe
+              src={embedUrl}
+              className="w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          )}
+        </div>
+      </CustomDialog>
+
       {/* Delete Comment Confirm Dialog */}
       <ConfirmDialog
         open={commentToDelete !== null}
@@ -1648,7 +1715,7 @@ const Post = ({ post, profile }: PostProps) => {
         onConfirm={confirmDeleteComment}
         onCancel={cancelDeleteComment}
       />
-      
+
       {/* Delete Post Confirm Dialog */}
       <ConfirmDialog
         open={postToDelete !== null}
@@ -1660,7 +1727,7 @@ const Post = ({ post, profile }: PostProps) => {
         onConfirm={confirmDeletePost}
         onCancel={cancelDeletePost}
       />
-      
+
       {/* Edit Post Modal */}
       <EditPost
         post={post}
@@ -1689,12 +1756,12 @@ const Post = ({ post, profile }: PostProps) => {
         <div className="p-6">
           <h2 className="text-2xl font-bold text-white mb-4">Share Post</h2>
           <p className="text-white/70 mb-6">This is how your shared post will appear:</p>
-          
+
           {/* Preview of Shared Post */}
           {(() => {
             const contentValue = post?.content;
             const previewContent: string | null = typeof contentValue === 'string' && contentValue ? contentValue : null;
-            
+
             const renderPreviewContent = (): React.ReactNode => {
               if (!previewContent) return null;
               return React.createElement('div', {
@@ -1702,7 +1769,7 @@ const Post = ({ post, profile }: PostProps) => {
                 className: "text-base text-white whitespace-pre-line mb-3"
               });
             };
-            
+
             return (
               <div className="border border-slate-600 rounded-lg p-4 bg-slate-800/50">
                 <div className="flex items-center gap-2 mb-3">
@@ -1713,15 +1780,15 @@ const Post = ({ post, profile }: PostProps) => {
                     <span className="font-semibold text-white">{post?.user_name || post?.username || "someone"}&apos;s post</span>
                   </span>
                 </div>
-                
+
                 {/* Original Post Content Preview */}
                 <div className="pl-4 border-l-2 border-slate-600">
                   {/* Original Post Author */}
                   <div className="flex items-center gap-2 mb-3">
                     {post?.avatar && typeof post.avatar === 'string' ? (
                       <Image
-                        src={post.avatar.startsWith('http') 
-                          ? post.avatar 
+                        src={post.avatar.startsWith('http')
+                          ? post.avatar
                           : `${getApiBaseUrl()}${post.avatar.startsWith('/') ? post.avatar.slice(1) : post.avatar}`}
                         alt={post?.user_name || post?.username || "Author"}
                         width={32}
@@ -1738,122 +1805,122 @@ const Post = ({ post, profile }: PostProps) => {
                       {post?.user_name || post?.username || "Author"}
                     </span>
                   </div>
-                  
+
                   {/* Original Post Title */}
                   {post?.title && (
                     <h3 className="text-xl font-bold text-white mb-3 break-words">
                       {post.title}
                     </h3>
                   )}
-                  
+
                   {/* Original Post Content */}
                   {/* Original Post Content */}
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {renderPreviewContent() as any}
-              
-              {/* Original Post Media Preview */}
-              {allMediaUrls.length > 0 && (
-                <div className="mb-3">
-                  {allMediaUrls.length === 1 ? (
-                    <div className="rounded-lg overflow-hidden">
-                      {isVideoUrl(allMediaUrls[0], 0) ? (
-                        <video
-                          src={allMediaUrls[0]}
-                          className="w-full h-auto max-h-[40vh] object-contain"
-                          muted
-                          preload="metadata"
-                          playsInline
-                        />
-                      ) : (
-                        <Image
-                          src={allMediaUrls[0]}
-                          alt={post?.title || "Post media"}
-                          width={800}
-                          height={400}
-                          className="w-full h-auto max-h-[40vh] object-contain rounded-lg"
-                          unoptimized
-                        />
-                      )}
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-2 rounded-lg overflow-hidden">
-                      {allMediaUrls.slice(0, 4).map((url, idx) => (
-                        <div key={idx} className="relative aspect-square">
-                          {isVideoUrl(url, idx) ? (
+
+                  {/* Original Post Media Preview */}
+                  {allMediaUrls.length > 0 && (
+                    <div className="mb-3">
+                      {allMediaUrls.length === 1 ? (
+                        <div className="rounded-lg overflow-hidden">
+                          {isVideoUrl(allMediaUrls[0], 0) ? (
                             <video
-                              src={url}
-                              className="w-full h-full object-cover"
+                              src={allMediaUrls[0]}
+                              className="w-full h-auto max-h-[40vh] object-contain"
                               muted
                               preload="metadata"
                               playsInline
                             />
                           ) : (
                             <Image
-                              src={url}
-                              alt={`${post?.title || "Post"} ${idx + 1}`}
-                              fill
-                              className="object-cover"
+                              src={allMediaUrls[0]}
+                              alt={post?.title || "Post media"}
+                              width={800}
+                              height={400}
+                              className="w-full h-auto max-h-[40vh] object-contain rounded-lg"
                               unoptimized
                             />
                           )}
                         </div>
-                      ))}
-                      {allMediaUrls.length > 4 && (
-                        <div className="relative aspect-square bg-slate-700 flex items-center justify-center">
-                          <span className="text-white text-lg font-semibold">
-                            +{allMediaUrls.length - 4}
-                          </span>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2 rounded-lg overflow-hidden">
+                          {allMediaUrls.slice(0, 4).map((url, idx) => (
+                            <div key={idx} className="relative aspect-square">
+                              {isVideoUrl(url, idx) ? (
+                                <video
+                                  src={url}
+                                  className="w-full h-full object-cover"
+                                  muted
+                                  preload="metadata"
+                                  playsInline
+                                />
+                              ) : (
+                                <Image
+                                  src={url}
+                                  alt={`${post?.title || "Post"} ${idx + 1}`}
+                                  fill
+                                  className="object-cover"
+                                  unoptimized
+                                />
+                              )}
+                            </div>
+                          ))}
+                          {allMediaUrls.length > 4 && (
+                            <div className="relative aspect-square bg-slate-700 flex items-center justify-center">
+                              <span className="text-white text-lg font-semibold">
+                                +{allMediaUrls.length - 4}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
                   )}
-                </div>
-              )}
-              
-              {/* Original Post Link */}
-              {post?.link && typeof post.link === 'string' && (
-                <div className="mt-3">
-                  <a
-                    href={post.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 hover:underline transition-colors break-all"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                      />
-                    </svg>
-                    <span className="break-all">{post.link}</span>
-                  </a>
-                </div>
-              )}
-              
-              {/* Original Post Engagement (Like/Comment counts) */}
-              <div className="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t border-slate-700">
-                <div className="text-sm text-white flex items-center gap-2">
-                  <VscThumbsup size={18} />
-                  <span>{post?.likes_count || 0}</span>
-                </div>
-                <div className="text-sm text-white flex items-center gap-2">
-                  <FaRegComment size={18} />
-                  <span>{post?.comments_count || 0}</span>
+
+                  {/* Original Post Link */}
+                  {post?.link && typeof post.link === 'string' && (
+                    <div className="mt-3">
+                      <a
+                        href={post.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 hover:underline transition-colors break-all"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 flex-shrink-0"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                          />
+                        </svg>
+                        <span className="break-all">{post.link}</span>
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Original Post Engagement (Like/Comment counts) */}
+                  <div className="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t border-slate-700">
+                    <div className="text-sm text-white flex items-center gap-2">
+                      <VscThumbsup size={18} />
+                      <span>{post?.likes_count || 0}</span>
+                    </div>
+                    <div className="text-sm text-white flex items-center gap-2">
+                      <FaRegComment size={18} />
+                      <span>{post?.comments_count || 0}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            </div>
-          );
-        })() as React.ReactElement | null}
-          
+            );
+          })() as React.ReactElement | null}
+
           {/* Action Buttons */}
           <div className="flex justify-end gap-3 mt-6">
             <button

@@ -9,6 +9,7 @@ export interface CreatePostRequest {
   media_files?: File[];
   post_type: "media" | "text" | "link";
   community?: number | string;
+  video_url?: string;
   status?: "draft" | "approved" | "pending" | "rejected";
 }
 
@@ -20,6 +21,7 @@ export interface UpdatePostRequest {
   media_files?: File[];
   post_type?: "media" | "text" | "link";
   community?: number | string;
+  video_url?: string;
   status?: "draft" | "approved" | "pending" | "rejected";
 }
 
@@ -42,6 +44,7 @@ export interface PostItem {
   content?: string;
   media?: string[];
   media_file?: string[];
+  video_url?: string;
   tags?: string[];
   created_at?: string;
   user_name?: string;
@@ -179,6 +182,9 @@ export const postApi = baseApi.injectEndpoints({
         if (typeof data.link === "string" && data.link.trim().length > 0) {
           formData.append("link", data.link);
         }
+        if (typeof data.video_url === "string" && data.video_url.trim().length > 0) {
+          formData.append("video_url", data.video_url);
+        }
         if (Array.isArray(data.tags) && data.tags.length > 0) {
           formData.append("tags", JSON.stringify(data.tags));
         }
@@ -219,6 +225,9 @@ export const postApi = baseApi.injectEndpoints({
         if (typeof data.link === "string" && data.link.trim().length > 0) {
           formData.append("link", data.link);
         }
+        if (typeof data.video_url === "string" && data.video_url.trim().length > 0) {
+          formData.append("video_url", data.video_url);
+        }
         if (Array.isArray(data.tags) && data.tags.length > 0) {
           formData.append("tags", JSON.stringify(data.tags));
         }
@@ -253,6 +262,7 @@ export const postApi = baseApi.injectEndpoints({
               if (data.content !== undefined) post.content = data.content;
               if (data.tags) post.tags = data.tags;
               if (data.link) post.link = data.link;
+              if (data.video_url) post.video_url = data.video_url;
             }
           };
           if (draft.posts) updatePost(draft.posts);

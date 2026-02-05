@@ -26,6 +26,7 @@ interface FormData {
   tags: string[];
   postType: "text" | "image" | "link";
   linkUrl?: string;
+  videoUrl?: string;
   files?: File[];
 }
 
@@ -84,6 +85,7 @@ const CreatePost = ({
       tags: [],
       postType: sharedPostData?.mediaUrls && sharedPostData.mediaUrls.length > 0 ? "image" : "text",
       linkUrl: "",
+      videoUrl: "",
       files: [],
     },
   });
@@ -234,10 +236,12 @@ const CreatePost = ({
         title: data.title,
         content: data.content ?? "",
         link: data.linkUrl ?? "",
+        video_url: data.videoUrl ?? "",
         tags: data.tags ?? [],
         media_files: data.files ?? [],
         post_type: derivePostType(),
         ...(communityId && { community: communityId }),
+        ...(data.videoUrl && { post_type: "media" }),
         ...(isDraft && { status: "draft" }),
       }).unwrap();
 
@@ -448,7 +452,7 @@ const CreatePost = ({
             {activeTab === "image" && (
               <div className="space-y-4">
                 <label className="block text-white font-medium">
-                  Upload Images & Videos
+                  Upload Images
                 </label>
                 <div
                   onClick={() => fileInputRef.current?.click()}
@@ -456,23 +460,33 @@ const CreatePost = ({
                 >
                   <FiImage size={48} className="mx-auto text-gray-400 mb-4" />
                   <p className="text-white mb-2">
-                    Click to upload or drag and drop
+                    Click to upload Image
                   </p>
                   <p className="text-gray-400 text-sm">
-                    Images and videos up to 10MB each
+                    Images up to 10MB each
                   </p>
                   <p className="text-gray-500 text-xs mt-1">
-                    Supported: JPG, PNG, GIF, MP4, MOV, WEBM
+                    Supported: JPG, PNG, WEBP, JPEG
                   </p>
                 </div>
                 <input
                   ref={fileInputRef}
                   type="file"
                   multiple
-                  accept="image/*,video/*"
+                  accept="image/*"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
+
+                <div className="space-y-2 mt-4">
+                  <label className="block text-white text-sm font-medium">Or paste a video link (YouTube, Vimeo, etc.)</label>
+                  <input
+                    {...register("videoUrl")}
+                    type="url"
+                    className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                  />
+                </div>
                 {mediaPreviews.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                     {mediaPreviews.slice(0, 5).map((media, idx) => {

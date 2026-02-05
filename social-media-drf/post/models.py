@@ -38,6 +38,7 @@ class Post(models.Model):
     content = RichTextField(blank=True, null=True)
     media_file = models.JSONField(default=list, blank=True, null=True)
     link = models.URLField(blank=True, null=True)
+    video_url = models.URLField(blank=True, null=True, help_text='Link to external video (YouTube, Vimeo, etc.)')
     tags = models.JSONField(default=list, blank=True)
     subcategories = models.ManyToManyField(
         SubCategory,
