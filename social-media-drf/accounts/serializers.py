@@ -3,6 +3,7 @@ from .models import User, Profile, Contact
 import re
 from django.contrib.auth.password_validation import validate_password
 from interest.models import SubCategory
+from utils.image_processing import compress_image
 
 class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField(read_only=True)
@@ -330,6 +331,18 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         """Optional: Add validation for subcategories"""
         if len(value) > 20:  # Example: limit to 20 interests
             raise serializers.ValidationError("You can select a maximum of 20 interests.")
+        return value
+
+    def validate_avatar(self, value):
+        """Compress avatar image before saving"""
+        if value and hasattr(value, 'file'):
+            return compress_image(value)
+        return value
+
+    def validate_cover_photo(self, value):
+        """Compress cover photo image before saving"""
+        if value and hasattr(value, 'file'):
+            return compress_image(value)
         return value
 
 """ Contact Section """

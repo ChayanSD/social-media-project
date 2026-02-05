@@ -2,9 +2,10 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.text import slugify
 from django.conf import settings
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
+from django.core.files.storage import default_storage
 from interest.models import SubCategory
 class User(AbstractUser):
     ROLE_CHOICES = [
@@ -49,7 +50,17 @@ class Profile(models.Model):
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        Profile.objects.create(user=instance, display_name=instance.username)
+
+@receiver(post_delete, sender=Profile)
+def delete_profile_images(sender, instance, **kwargs):
+    """Delete avatar and cover photo from storage when Profile is deleted"""
+    if instance.avatar:
+        if default_storage.exists(instance.avatar.name):
+            default_storage.delete(instance.avatar.name)
+    if instance.cover_photo:
+        if default_storage.exists(instance.cover_photo.name):
+            default_storage.delete(instance.cover_photo.name)
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

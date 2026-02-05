@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.core.validators import RegexValidator, MinLengthValidator
 from django.db.models import F
 from django.conf import settings
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+from django.core.files.storage import default_storage
 from post.models import *
 
 User = settings.AUTH_USER_MODEL
@@ -196,3 +199,13 @@ class CommunityJoinRequest(models.Model):
     
     def __str__(self):
         return f"{self.user.username} wants to join {self.community.name} - {self.status}"
+
+@receiver(post_delete, sender=Community)
+def delete_community_images(sender, instance, **kwargs):
+    """Delete profile and cover images from storage when Community is deleted"""
+    if instance.profile_image:
+        if default_storage.exists(instance.profile_image.name):
+            default_storage.delete(instance.profile_image.name)
+    if instance.cover_image:
+        if default_storage.exists(instance.cover_image.name):
+            default_storage.delete(instance.cover_image.name)

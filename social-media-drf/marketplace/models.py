@@ -3,6 +3,9 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 from django.utils import timezone
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+from django.core.files.storage import default_storage
 
 User = get_user_model()
 
@@ -65,6 +68,13 @@ class Product(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+
+@receiver(post_delete, sender=Product)
+def delete_product_image(sender, instance, **kwargs):
+    """Delete image file from storage when Product is deleted"""
+    if instance.image:
+        if default_storage.exists(instance.image.name):
+            default_storage.delete(instance.image.name)
 
 
 # Payment Models

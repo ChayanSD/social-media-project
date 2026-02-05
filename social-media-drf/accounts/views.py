@@ -188,6 +188,11 @@ class SetCredentialsView(APIView):
         user.username_set = True
         user.save()
 
+        # Update display_name in profile to match the new username
+        if hasattr(user, 'profile'):
+            user.profile.display_name = username
+            user.profile.save()
+
         return Response({
             "success": True,
             "message": "Credentials set successfully. You are now logged in.",

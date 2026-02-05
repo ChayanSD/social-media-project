@@ -201,7 +201,11 @@ export const postApi = baseApi.injectEndpoints({
           body: formData,
         };
       },
-      invalidatesTags: ["Communities"],
+      invalidatesTags: [
+        { type: "Communities" },
+        { type: "UserProfile" },
+        { type: "NewsFeed" }
+      ],
     }),
     updatePost: builder.mutation<CreatePostResponse, { postId: number | string; data: UpdatePostRequest }>({
       query: ({ postId, data }) => {
@@ -336,7 +340,17 @@ export const postApi = baseApi.injectEndpoints({
           method: "GET",
         };
       },
-      providesTags: () => [{ type: 'UserProfile' }],
+      providesTags: (result) =>
+        result
+          ? [
+            ...((result.results && Array.isArray(result.results))
+              ? result.results.map(({ id }) => ({ type: "UserProfile" as const, id }))
+              : (result.data && Array.isArray(result.data))
+                ? result.data.map(({ id }) => ({ type: "UserProfile" as const, id }))
+                : []),
+            { type: "UserProfile", id: "MY-POSTS" },
+          ]
+          : [{ type: "UserProfile", id: "MY-POSTS" }],
       // Merge pages for infinite scrolling
       serializeQueryArgs: ({ endpointName }) => {
         return endpointName;
@@ -345,17 +359,15 @@ export const postApi = baseApi.injectEndpoints({
         // For infinite scrolling, we handle merging in the component
         return newItems;
       },
-      forceRefetch: ({ currentArg, previousArg }) => {
-        // Only refetch if page number changes
-        return currentArg?.page !== previousArg?.page;
-      },
     }),
     getUserPosts: builder.query<GetPostsResponse, number | string>({
       query: (userId) => ({
         url: `/api/posts/user_posts/?user_id=${userId}`,
         method: "GET",
       }),
-      providesTags: () => [{ type: 'UserProfile' }],
+      providesTags: (result, error, userId) => [
+        { type: 'UserProfile', id: userId }
+      ],
     }),
     getNewsFeed: builder.query<GetPostsResponse, { page?: number } | void>({
       query: (params) => {
@@ -369,6 +381,17 @@ export const postApi = baseApi.injectEndpoints({
           method: "GET",
         };
       },
+      providesTags: (result) =>
+        result
+          ? [
+            ...((result.results && Array.isArray(result.results))
+              ? result.results.map(({ id }) => ({ type: "NewsFeed" as const, id }))
+              : (result.data && Array.isArray(result.data))
+                ? result.data.map(({ id }) => ({ type: "NewsFeed" as const, id }))
+                : []),
+            { type: "NewsFeed", id: "PARTIAL-LIST" },
+          ]
+          : [{ type: "NewsFeed", id: "PARTIAL-LIST" }],
       // Merge pages for infinite scrolling
       serializeQueryArgs: ({ endpointName }) => {
         return endpointName;

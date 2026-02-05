@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from django.core.files.storage import default_storage
+from utils.image_processing import compress_image
 from accounts.models import Profile
 from accounts.serializers import UserSerializer
 from interest.models import SubCategory
@@ -240,9 +241,12 @@ class PostSerializer(serializers.ModelSerializer):
         if media_files:
             file_paths = []
             for media_file in media_files:
+                # Compress image before saving
+                compressed_file = compress_image(media_file)
+                
                 file_path = default_storage.save(
-                    f'posts/{post.id}/{media_file.name}',
-                    media_file
+                    f'posts/{post.id}/{compressed_file.name}',
+                    compressed_file
                 )
                 file_paths.append(file_path)
 
@@ -284,9 +288,12 @@ class PostSerializer(serializers.ModelSerializer):
             # Save new files
             file_paths = []
             for media_file in media_files:
+                # Compress image before saving
+                compressed_file = compress_image(media_file)
+                
                 file_path = default_storage.save(
-                    f'posts/{instance.id}/{media_file.name}',
-                    media_file
+                    f'posts/{instance.id}/{compressed_file.name}',
+                    compressed_file
                 )
                 file_paths.append(file_path)
             

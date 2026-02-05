@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from django.contrib.auth import get_user_model
+from utils.image_processing import compress_image
 
 User = get_user_model()
 
@@ -146,6 +147,18 @@ class CommunitySerializer(serializers.ModelSerializer):
         """Calculate accurate posts count dynamically"""
         from post.models import Post
         return Post.objects.filter(community=obj, status='approved').count()
+
+    def validate_profile_image(self, value):
+        """Compress profile image before saving"""
+        if value and hasattr(value, 'file'):
+            return compress_image(value)
+        return value
+
+    def validate_cover_image(self, value):
+        """Compress cover image before saving"""
+        if value and hasattr(value, 'file'):
+            return compress_image(value)
+        return value
     
     def create(self, validated_data):
         request = self.context.get('request')
