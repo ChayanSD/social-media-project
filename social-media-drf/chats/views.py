@@ -6,10 +6,11 @@ from django.db.models import Q, Max, Count
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from .models import Room, Message, BlockedUser, UserReport, MessageRequest, AcceptedMessage
+from .models import Room, Message, BlockedUser, UserReport, MessageRequest, AcceptedMessage, MessageReaction
 from .serializers import (
     RoomSerializer, MessageSerializer, BlockedUserSerializer, 
-    UserReportSerializer, CreateUserReportSerializer, MessageRequestSerializer
+    UserReportSerializer, CreateUserReportSerializer, MessageRequestSerializer,
+    MessageReactionSerializer
 )
 from accounts.serializers import UserSerializer
 from accounts.permissions import IsAdmin
@@ -490,6 +491,104 @@ class RoomViewSet(viewsets.ModelViewSet):
                 "success": False,
                 "error": "User not found"
             }, status=status.HTTP_404_NOT_FOUND)
+
+
+class MessageReactionViewSet(viewsets.GenericViewSet):
+    """Viewset for Message Reactions"""
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = MessageReaction.objects.all()
+    serializer_class = MessageReactionSerializer
+
+    @action(detail=False, methods=['post'])
+    def toggle(self, request):
+        """Toggle a reaction on a message"""
+        message_id = request.data.get('message_id')
+        reaction_type = request.data.get('reaction_type')
+
+        if not message_id or not reaction_type:
+            return Response({
+                "success": False,
+                "error": "message_id and reaction_type are required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        valid_reactions = [r[0] for r in MessageReaction.REACTION_TYPES]
+        if reaction_type not in valid_reactions:
+            return Response({
+                "success": False,
+                "error": f"Invalid reaction type. Valid types are: {', '.join(valid_reactions)}"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            message = Message.objects.get(id=message_id)
+        except Message.DoesNotExist:
+            return Response({
+                "success": False,
+                "error": "Message not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if user is a participant in the room or is the receiver
+        if message.room:
+            if request.user not in message.room.participants.all():
+                return Response({
+                    "success": False,
+                    "error": "You don't have access to this chat"
+                }, status=status.HTTP_403_FORBIDDEN)
+        else:
+            if request.user != message.sender and request.user != message.receiver:
+                return Response({
+                    "success": False,
+                    "error": "You don't have access to this message"
+                }, status=status.HTTP_403_FORBIDDEN)
+
+        reaction, created = MessageReaction.objects.get_or_create(
+            message=message,
+            user=request.user,
+            defaults={'reaction_type': reaction_type}
+        )
+
+        action_taken = "added"
+        if not created:
+            if reaction.reaction_type == reaction_type:
+                # Same reaction - remove it
+                reaction.delete()
+                action_taken = "removed"
+            else:
+                # Different reaction - update it
+                reaction.reaction_type = reaction_type
+                reaction.save()
+                action_taken = "updated"
+
+        # Broadcast update via WebSocket
+        from channels.layers import get_channel_layer
+        from asgiref.sync import async_to_sync
+        
+        channel_layer = get_channel_layer()
+        if channel_layer:
+            broadcast_data = {
+                'type': 'message_reaction',
+                'reaction': {
+                    'message_id': message.id,
+                    'user_id': request.user.id,
+                    'username': request.user.username,
+                    'reaction_type': reaction_type if action_taken != "removed" else None,
+                    'action': action_taken
+                }
+            }
+
+            if message.room:
+                async_to_sync(channel_layer.group_send)(f'chat_{message.room.id}', broadcast_data)
+            else:
+                async_to_sync(channel_layer.group_send)(f'user_{message.sender.id}', broadcast_data)
+                async_to_sync(channel_layer.group_send)(f'user_{message.receiver.id}', broadcast_data)
+
+        return Response({
+            "success": True,
+            "message": f"Reaction {action_taken} successfully",
+            "data": {
+                "action": action_taken,
+                "reaction_type": reaction_type if action_taken != "removed" else None
+            }
+        }, status=status.HTTP_200_OK)
 
 
 class ChatUserListView(APIView):

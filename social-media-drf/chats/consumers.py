@@ -143,6 +143,13 @@ class DirectMessageConsumer(AsyncWebsocketConsumer):
             'message': event['message']
         }))
     
+    async def message_reaction(self, event):
+        """Send message reaction to WebSocket"""
+        await self.send(text_data=json.dumps({
+            'type': 'message_reaction',
+            'reaction': event['reaction']
+        }))
+    
     async def message_request(self, event):
         """Send message request notification to WebSocket"""
         await self.send(text_data=json.dumps({
@@ -302,6 +309,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'type': 'message',
             'message': event['message']  # Changed from 'data' to 'message' for consistency
+        }))
+
+    async def message_reaction(self, event):
+        """Send message reaction to WebSocket"""
+        await self.send(text_data=json.dumps({
+            'type': 'message_reaction',
+            'reaction': event['reaction']
         }))
 
     @database_sync_to_async

@@ -37,6 +37,8 @@ export interface ChatMessage {
   content?: string;
   created_at?: string;
   is_read?: boolean;
+  reactions?: Record<string, number>;
+  user_reaction?: string | null;
   [key: string]: unknown;
 }
 
@@ -230,11 +232,11 @@ export const chatApi = baseApi.injectEndpoints({
       providesTags: (result) =>
         result
           ? [
-              ...(result.data || result.results || result.rooms || []).map(
-                (room: ChatRoom) => ({ type: "ChatRooms" as const, id: room.id })
-              ),
-              { type: "ChatRooms", id: "LIST" },
-            ]
+            ...(result.data || result.results || result.rooms || []).map(
+              (room: ChatRoom) => ({ type: "ChatRooms" as const, id: room.id })
+            ),
+            { type: "ChatRooms", id: "LIST" },
+          ]
           : [{ type: "ChatRooms", id: "LIST" }],
     }),
     createChatRoom: builder.mutation<CreateChatRoomResponse, CreateChatRoomRequest>({
@@ -260,7 +262,7 @@ export const chatApi = baseApi.injectEndpoints({
       }),
       async onQueryStarted({ room }, { dispatch, queryFulfilled }) {
         if (!room) return;
-        
+
         try {
           await queryFulfilled;
           // Invalidate to refetch with the new message
@@ -327,10 +329,10 @@ export const chatApi = baseApi.injectEndpoints({
           dispatch(chatApi.util.invalidateTags(["ChatUsers"]));
         } catch (error: unknown) {
           // Check if error is about message request
-          const errorData = error && typeof error === 'object' && 'data' in error 
+          const errorData = error && typeof error === 'object' && 'data' in error
             ? error.data as { error?: string; message?: string; request_id?: number | string }
             : null;
-          
+
           if (errorData?.error?.includes('message request') || errorData?.request_id) {
             // Invalidate message requests to refresh the list
             dispatch(chatApi.util.invalidateTags(["MessageRequests"]));
@@ -493,7 +495,7 @@ export const chatApi = baseApi.injectEndpoints({
     }),
     // Admin endpoints
     getAdminAllConversations: builder.query<
-      { 
+      {
         count?: number;
         next?: string | null;
         previous?: string | null;
@@ -631,6 +633,22 @@ export const chatApi = baseApi.injectEndpoints({
         }
       },
     }),
+    toggleReaction: builder.mutation<{ success: boolean; data: { action: 'added' | 'updated' | 'removed'; reaction_type: string | null } }, { message_id: number | string; reaction_type: string }>({
+      query: (data) => ({
+        url: "/api/chat/reactions/toggle/",
+        method: "POST",
+        body: data,
+      }),
+      async onQueryStarted({ message_id }, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          // Invalidate messages to refetch reactions
+          dispatch(chatApi.util.invalidateTags(["Messages"]));
+        } catch {
+          // Error handling
+        }
+      },
+    }),
   }),
 });
 
@@ -664,4 +682,5 @@ export const {
   useGetAdminAllConversationsQuery,
   useGetAdminConversationMessagesQuery,
   useDeleteAdminConversationMutation,
+  useToggleReactionMutation,
 } = chatApi;

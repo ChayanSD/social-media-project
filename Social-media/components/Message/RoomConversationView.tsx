@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { AiOutlineArrowLeft, AiOutlineMore } from 'react-icons/ai';
 import MessageBubble from './MessageBubble';
 import { PiPaperPlaneRightFill } from 'react-icons/pi';
-import { useGetRoomMessagesQuery, useSendMessageMutation, useUpdateChatRoomMutation, useDeleteChatRoomMutation, useGetChatRoomsQuery, useUpdateRoomMessageMutation, useDeleteRoomMessageMutation, chatApi, type ChatRoom } from '@/store/chatApi';
+import { useGetRoomMessagesQuery, useSendMessageMutation, useUpdateChatRoomMutation, useDeleteChatRoomMutation, useGetChatRoomsQuery, useUpdateRoomMessageMutation, useDeleteRoomMessageMutation, useToggleReactionMutation, chatApi, type ChatRoom } from '@/store/chatApi';
 import { useGetCurrentUserProfileQuery } from '@/store/authApi';
 import { useChatWebSocket } from '@/hooks/useChatWebSocket';
 import { store } from '@/store/store';
@@ -38,19 +38,19 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
   }, [room.roomId, room.id]);
   const { data: currentUser } = useGetCurrentUserProfileQuery();
   const { data: roomsResponse } = useGetChatRoomsQuery();
-  
+
   const currentRoom = useMemo(() => {
     if (!roomsResponse) return null;
     const rooms = roomsResponse.data ?? roomsResponse.results ?? roomsResponse.rooms ?? [];
     return rooms.find((r: ChatRoom) => r.id === roomId) as ChatRoom | undefined;
   }, [roomsResponse, roomId]);
-  
+
   const isAdmin = useMemo(() => {
     return currentRoom?.is_admin || false;
   }, [currentRoom]);
   const { data: messagesResponse, isLoading: isLoadingMessages, error: messagesError } = useGetRoomMessagesQuery(
     roomId as number | string,
-    { 
+    {
       skip: !roomId || roomId === 0 || roomId === '0',
       refetchOnMountOrArgChange: true,
     }
@@ -60,24 +60,25 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
   const [deleteRoom, { isLoading: isDeleting }] = useDeleteChatRoomMutation();
   const [updateMessage, { isLoading: isUpdatingMessage }] = useUpdateRoomMessageMutation();
   const [deleteMessage, { isLoading: isDeletingMessage }] = useDeleteRoomMessageMutation();
+  const [toggleReaction, { isLoading: isReacting }] = useToggleReactionMutation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
   const currentUserId = useMemo(() => {
     return currentUser?.data?.id || currentUser?.id || currentUser?.user?.id;
   }, [currentUser]);
-  
+
   // Enable WebSocket for real-time messages in this room
-  useChatWebSocket({ 
+  useChatWebSocket({
     enabled: !!roomId && typeof roomId !== 'undefined',
     roomId: typeof roomId === 'string' && !isNaN(Number(roomId)) ? Number(roomId) : roomId,
     onMessage: (data) => {
       // Invalidate messages to refetch when new message arrives via WebSocket
       // Backend sends 'data' field for room messages, 'message' for direct messages
       const message = (data as { message?: unknown; data?: unknown }).message || (data as { data?: unknown }).data || data;
-      const messageObj = message as { room_id?: number | string; room?: number | string; [key: string]: unknown };
+      const messageObj = message as { room_id?: number | string; room?: number | string;[key: string]: unknown };
       const messageRoomId = messageObj.room_id || messageObj.room || (data as { room?: number | string }).room;
-      
-      if ((data as { type?: string }).type === 'message' && messageRoomId && String(messageRoomId) === String(roomId)) {
+
+      if (((data as { type?: string }).type === 'message' || (data as { type?: string }).type === 'message_reaction') && messageRoomId && String(messageRoomId) === String(roomId)) {
         console.log('RoomConversationView - Invalidating cache for room:', roomId);
         // Invalidate to trigger refetch
         store.dispatch(chatApi.util.invalidateTags([{ type: "Messages", id: roomId }]));
@@ -91,15 +92,15 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
       console.log('RoomConversationView - No messagesResponse, roomId:', roomId);
       return [];
     }
-    
-    const messagesData = 
+
+    const messagesData =
       messagesResponse.data ??
       messagesResponse.results?.data ??
       messagesResponse.messages ??
       [];
-    
+
     console.log('RoomConversationView - messagesData:', messagesData, 'roomId:', roomId);
-    
+
     return messagesData.map((msg: {
       id: number | string;
       content?: string;
@@ -112,16 +113,18 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
     }) => {
       const senderId = msg.sender?.id || msg.sender_id;
       const isCurrentUser = String(senderId) === String(currentUserId);
-      
+
       return {
         id: String(msg.id),
         text: msg.content || msg.text || '',
         senderId: isCurrentUser ? 'current-user' : String(senderId),
         senderName: msg.sender?.display_name || msg.sender?.username || msg.sender_username || 'Unknown',
-        timestamp: msg.created_at 
+        timestamp: msg.created_at
           ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
           : 'just now',
         isRead: msg.is_read !== false,
+        reactions: (msg as any).reactions || {},
+        user_reaction: (msg as any).user_reaction || null,
       };
     });
   }, [messagesResponse, currentUserId, roomId]);
@@ -137,20 +140,20 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !roomId || isSending) return;
-    
+
     const messageContent = newMessage.trim();
     setNewMessage('');
-    
+
     try {
       await sendMessage({
         content: messageContent,
         room: roomId,
       }).unwrap();
-      
+
       // Invalidate to refetch messages
       store.dispatch(chatApi.util.invalidateTags([{ type: "Messages", id: roomId }]));
       store.dispatch(chatApi.util.invalidateTags(["ChatRooms"]));
-      
+
       setTimeout(() => scrollToBottom(), 100);
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -194,19 +197,19 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b border-gray-700 bg-[#06133f] rounded-t-3xl">
-        <button 
+        <button
           onClick={onBack}
           className="p-1 hover:bg-gray-500 rounded-full transition-colors text-white"
         >
           <AiOutlineArrowLeft size={18} />
         </button>
-        
+
         <div className="relative flex-shrink-0">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6c3f79] via-[#995a98] to-[#6c3f79] flex items-center justify-center text-white text-xs font-semibold">
             {room.name.substring(0, 2).toUpperCase()}
           </div>
         </div>
-        
+
         <div className="flex-1 min-w-0">
           <h3 className="font-medium text-white text-sm truncate">{room.name}</h3>
           <p className="text-xs text-gray-500">Group chat</p>
@@ -220,7 +223,7 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
             >
               <AiOutlineMore size={18} />
             </button>
-            
+
             {showMenu && (
               <div className="absolute right-0 top-10 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-10 min-w-[150px]">
                 <button
@@ -287,7 +290,7 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scroll">
+      <div className="flex-1 overflow-y-auto px-4 pb-4 pt-14 space-y-3 custom-scroll">
         {isLoadingMessages ? (
           <div className="flex items-center justify-center py-8">
             <div className="text-center">
@@ -313,13 +316,12 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
                 {message.senderId !== 'current-user' && (
                   <p className="text-xs text-gray-500 mb-1 px-2">{message.senderName}</p>
                 )}
-                <MessageBubble 
-                  message={message} 
+                <MessageBubble
+                  message={message}
                   isCurrentUser={message.senderId === 'current-user'}
                   onEdit={async (messageId, newText) => {
                     try {
                       await updateMessage({ roomId, message_id: messageId, content: newText }).unwrap();
-                      toast.success('Message updated');
                     } catch (error) {
                       toast.error('Failed to update message');
                     }
@@ -332,8 +334,18 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
                       toast.error('Failed to delete message');
                     }
                   }}
+                  onReact={async (messageId, reactionType) => {
+                    try {
+                      await toggleReaction({ message_id: messageId, reaction_type: reactionType }).unwrap();
+                      // Refetch manual approach if invalidation doesn't trigger
+                      store.dispatch(chatApi.util.invalidateTags([{ type: "Messages", id: roomId }]));
+                    } catch (error) {
+                      toast.error('Failed to react to message');
+                    }
+                  }}
                   isEditing={isUpdatingMessage}
                   isDeleting={isDeletingMessage}
+                  isReacting={isReacting}
                 />
               </div>
             ))}
@@ -358,7 +370,7 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
             placeholder={`Message ${room.name}...`}
             className="flex-1 px-3 py-3 bg-gray-800 border border-gray-700 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-transparent text-sm text-white resize-none custom-scroll"
           />
-          <button 
+          <button
             type="submit"
             disabled={!newMessage.trim() || isSending}
             className="p-2 bg-[#0059ff] text-white rounded-full hover:bg-[#0059ffcd] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"

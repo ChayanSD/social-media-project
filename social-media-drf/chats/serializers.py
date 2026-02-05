@@ -1,5 +1,5 @@
 from rest_framework import serializers 
-from .models import Room, Message, BlockedUser, UserReport, MessageRequest, AcceptedMessage
+from .models import Room, Message, BlockedUser, UserReport, MessageRequest, AcceptedMessage, MessageReaction
 from accounts.serializers import UserSerializer
 
 """ Serializers for Chat """
@@ -11,11 +11,27 @@ class MessageSerializer(serializers.ModelSerializer):
     receiver = UserSerializer(read_only=True)
     receiver_id = serializers.IntegerField(source='receiver.id', read_only=True)
     room_id = serializers.IntegerField(source='room.id', read_only=True)
+    reactions = serializers.SerializerMethodField()
+    user_reaction = serializers.SerializerMethodField()
     
     class Meta:
         model = Message
-        fields = ['id', 'sender', 'sender_id', 'sender_username', 'receiver', 'receiver_id', 'room_id', 'content', 'is_read', 'created_at']
+        fields = ['id', 'sender', 'sender_id', 'sender_username', 'receiver', 'receiver_id', 'room_id', 'content', 'is_read', 'created_at', 'reactions', 'user_reaction']
         read_only_fields = ['sender', 'receiver', 'created_at']
+
+    def get_reactions(self, obj):
+        """Return counts of each reaction type"""
+        from django.db.models import Count
+        reactions = obj.reactions.values('reaction_type').annotate(count=Count('reaction_type'))
+        return {r['reaction_type']: r['count'] for r in reactions}
+
+    def get_user_reaction(self, obj):
+        """Return current user's reaction to this message"""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            reaction = obj.reactions.filter(user=request.user).first()
+            return reaction.reaction_type if reaction else None
+        return None
 
 class RoomSerializer(serializers.ModelSerializer):
     """ Serializer for Room """
@@ -125,5 +141,14 @@ class AcceptedMessageSerializer(serializers.ModelSerializer):
         model = AcceptedMessage
         fields = ['id', 'user1', 'user2', 'accepted_by', 'accepted_at']
         read_only_fields = ['accepted_at']
+
+class MessageReactionSerializer(serializers.ModelSerializer):
+    """Serializer for MessageReaction model"""
+    username = serializers.CharField(source='user.username', read_only=True)
+
+    class Meta:
+        model = MessageReaction
+        fields = ['id', 'user', 'username', 'reaction_type', 'created_at']
+        read_only_fields = ['user', 'created_at']
 
 """ End of Serializers for Chat """
