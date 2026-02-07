@@ -324,7 +324,8 @@ const Login = () => {
                 </div>
 
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={() => loginForm.handleSubmit(onLoginSubmit)()}
                   disabled={isLoggingIn}
                   className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-3 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
@@ -376,7 +377,8 @@ const Login = () => {
                 </div>
 
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={() => resetStep1Form.handleSubmit(onResetStep1Submit)()}
                   disabled={isSendingOtp}
                   className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-3 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -447,7 +449,8 @@ const Login = () => {
                 </button>
 
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={() => resetStep2Form.handleSubmit(onResetStep2Submit)()}
                   disabled={isVerifyingOtp}
                   className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-3 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -514,7 +517,8 @@ const Login = () => {
                 </p>
 
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={() => resetStep3Form.handleSubmit(onResetStep3Submit)()}
                   disabled={isResettingPassword}
                   className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-3 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
