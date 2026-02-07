@@ -31,3 +31,6 @@ nginx/certbot/conf/accounts/
 nginx/certbot/conf/archive/
 nginx/certbot/conf/live/
 nginx/certbot/conf/renewal/
+
+usefull-command.md
+agentContext.json

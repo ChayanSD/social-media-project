@@ -241,7 +241,14 @@ const Login = () => {
                 <span className="text-blue-300">Privacy Policy</span>.
               </p>
 
-              <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+              <form
+                noValidate
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  loginForm.handleSubmit(onLoginSubmit)(event);
+                }}
+                className="space-y-4"
+              >
                 <div>
                   <input
                     {...loginForm.register("email", {
@@ -340,7 +347,14 @@ const Login = () => {
                 Enter your email address and we&apos;ll send you a verification code to reset your password.
               </p>
 
-              <form onSubmit={resetStep1Form.handleSubmit(onResetStep1Submit)} className="space-y-4">
+              <form
+                noValidate
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  resetStep1Form.handleSubmit(onResetStep1Submit)(event);
+                }}
+                className="space-y-4"
+              >
                 <div>
                   <input
                     {...resetStep1Form.register("email", {
@@ -386,7 +400,14 @@ const Login = () => {
                 Enter the verification code sent to <span className="text-blue-300">{resetEmail}</span>
               </p>
 
-              <form onSubmit={resetStep2Form.handleSubmit(onResetStep2Submit)} className="space-y-4">
+              <form
+                noValidate
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  resetStep2Form.handleSubmit(onResetStep2Submit)(event);
+                }}
+                className="space-y-4"
+              >
                 <div>
                   <input
                     {...resetStep2Form.register("otp", {
@@ -444,7 +465,14 @@ const Login = () => {
                 Enter your new password below.
               </p>
 
-              <form onSubmit={resetStep3Form.handleSubmit(onResetStep3Submit)} className="space-y-4">
+              <form
+                noValidate
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  resetStep3Form.handleSubmit(onResetStep3Submit)(event);
+                }}
+                className="space-y-4"
+              >
                 <div>
                   <input
                     {...resetStep3Form.register("newPassword", {
