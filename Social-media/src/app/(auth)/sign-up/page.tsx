@@ -1,5 +1,5 @@
 import React from 'react'
-import SignUp from '../../../../../components/Features/Auth/SignUp'
+import SignUp from '../../../../components/Features/Auth/SignUp'
 
 export default function SignUpPage() {
   return (

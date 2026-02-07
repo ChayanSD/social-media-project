@@ -231,13 +231,13 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
           ) : (
             <div className="flex items-center flex-col gap-2 flex-shrink-0">
               <button
-                onClick={() => router.push("/auth/login")}
+                onClick={() => router.push("/login")}
                 className="px-6 md:px-8 py-2 md:py-2 rounded-full bg-gradient-to-b from-[#8081F9] via-[#8081F9] via-30% to-pink-400 hover:opacity-90 text-white transition-all duration-300 cursor-pointer text-sm md:text-base font-semibold shadow-lg shadow-purple-500/20"
               >
                 Login
               </button>
               <button
-                onClick={() => router.push("/auth/sign-up")}
+                onClick={() => router.push("/sign-up")}
                 className="px-4 md:px-6 py-2 md:py-2 rounded-full bg-gradient-to-t from-[#8081F9] via-[#8081F9] via-20% to-pink-400 hover:opacity-90 text-white transition-all duration-300 cursor-pointer text-sm md:text-base font-semibold shadow-lg shadow-purple-500/20"
               >
                 Sign Up
