@@ -311,7 +311,7 @@ const Login = () => {
                   >
                     Forgot Password?
                   </button>
-                  <Link href="/auth/sign-up" className="text-[#299616] hover:underline">
+                  <Link href="/sign-up" className="text-[#299616] hover:underline">
                     Sign Up
                   </Link>
                 </div>

@@ -215,7 +215,7 @@ CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only allow all origins in development
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
-CORS_ALLOWED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS if origin]
+CORS_ALLOWED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS if origin.strip()]
 
 # Defaults
 if not CORS_ALLOWED_ORIGINS:
@@ -249,7 +249,7 @@ CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
 # =============================================================================
 
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
-CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in CSRF_TRUSTED_ORIGINS if origin]
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in CSRF_TRUSTED_ORIGINS if origin.strip()]
 
 # Defaults
 if not CSRF_TRUSTED_ORIGINS:
@@ -281,10 +281,11 @@ if not DEBUG:
 # ALLAUTH CONFIGURATION
 # =============================================================================
 
+ACCOUNT_LOGIN_METHODS = {'email', 'username'}
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'none'
-ACCOUNT_AUTHENTICATION_METHOD = 'username'
 ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_SIGNUP_FIELDS = ['email', 'username']
 SOCIALACCOUNT_AUTO_SIGNUP = True
 REST_USE_JWT = True
 ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
