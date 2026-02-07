@@ -62,7 +62,7 @@ export default function ProtectedLayout({
 
     if (!token || isExpired) {
       clearStoredTokens();
-      const redirectTarget = unauthenticatedRedirect || "/auth/login";
+      const redirectTarget = unauthenticatedRedirect || "/login";
       router.replace(redirectTarget);
       return;
     }

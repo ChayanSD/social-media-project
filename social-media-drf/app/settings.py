@@ -225,6 +225,8 @@ if not CORS_ALLOWED_ORIGINS:
         'http://127.0.0.1:3000',
         'http://127.0.0.1:3001',
         'http://frontend:3000',
+        "https://interdimensionalcafe.com",
+        "https://www.interdimensionalcafe.com",
     ]
 
 # Add production frontend URL if set
@@ -259,6 +261,8 @@ if not CSRF_TRUSTED_ORIGINS:
         'http://127.0.0.1:3000',
         'http://127.0.0.1:3001',
         'http://frontend:3000',
+        "https://interdimensionalcafe.com",
+        "https://www.interdimensionalcafe.com",
     ]
 
 if FRONTEND_URL and FRONTEND_URL not in CSRF_TRUSTED_ORIGINS:
@@ -290,8 +294,8 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 REST_USE_JWT = True
 ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
 
-LOGIN_URL = '/auth/login/'
-LOGIN_REDIRECT_URL = '/swagger/'
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
 
 # OAuth Client IDs
 GOOGLE_OAUTH_CLIENT_ID = os.environ.get(

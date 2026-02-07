@@ -309,7 +309,7 @@ const Post = ({ post, profile }: PostProps) => {
 
     // Redirect to login if not authenticated
     if (!token) {
-      router.push('/auth/login');
+      router.push('/login');
       return;
     }
 
@@ -416,7 +416,7 @@ const Post = ({ post, profile }: PostProps) => {
   const handleShareClick = () => {
     // Redirect to login if not authenticated
     if (!token) {
-      router.push('/auth/login');
+      router.push('/login');
       return;
     }
 
@@ -452,7 +452,7 @@ const Post = ({ post, profile }: PostProps) => {
 
     // Redirect to login if not authenticated
     if (!token) {
-      router.push('/auth/login');
+      router.push('/login');
       return;
     }
 
@@ -563,7 +563,7 @@ const Post = ({ post, profile }: PostProps) => {
   const handleFollowClick = async () => {
     // Redirect to login if not authenticated
     if (!token) {
-      router.push('/auth/login');
+      router.push('/login');
       return;
     }
 
@@ -1206,7 +1206,7 @@ const Post = ({ post, profile }: PostProps) => {
             <button
               onClick={() => {
                 if (!token) {
-                  router.push("/auth/login");
+                  router.push("/login");
                   return;
                 }
                 setIsReportModalOpen(true);

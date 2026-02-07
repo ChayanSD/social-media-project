@@ -122,7 +122,7 @@ const ProfileSidebar = ({
       window.sessionStorage.removeItem("role");
     }
     onClose();
-    router.push("/auth/login");
+    router.push("/login");
   }, [onClose, router]);
 
   useEffect(() => {
