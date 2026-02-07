@@ -5,10 +5,10 @@ import {
   getStoredRefreshToken,
   storeAuthTokens,
 } from "@/lib/auth";
+import { getApiBaseUrl } from "@/lib/utils";
 
 // Define your base API URL
-const baseUrl =
-  process.env.NEXT_PUBLIC_API_URL || "https://socialmedia.lumivancelabs.com/";
+const baseUrl = getApiBaseUrl().replace(/\/$/, "");
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl,
