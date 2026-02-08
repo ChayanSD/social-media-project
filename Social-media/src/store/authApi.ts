@@ -249,7 +249,7 @@ export const authApi = baseApi.injectEndpoints({
         formData.append("password", data.password);
 
         return {
-          url: "/login/",
+          url: "/auth/login/",
           method: "POST",
           body: formData,
         };
