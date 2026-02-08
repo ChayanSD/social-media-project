@@ -13,7 +13,7 @@ const ProfileSidebar = () => {
             <div className='bg-[#06133F]/75 backdrop-blur-[17.5px] rounded-2xl'>
                 <div className='relative'>
                     {profile?.cover_photo ? (
-                        <Image src={profile.cover_photo} alt="Cover Image" width={500} height={500} className='rounded-t-2xl h-32 object-cover' />
+                        <Image src={profile.cover_photo} alt="Cover Image" width={500} height={500} className='rounded-t-2xl h-32 object-cover' unoptimized={true} />
                     ) : (
                         <div className=' rounded-t-2xl h-32 bg-gradient-to-br from-[#6c3f79] from-10% via-[#081a55] via-99% to-[#995a98] to-100%' />
                     )}
@@ -49,14 +49,14 @@ const ProfileSidebar = () => {
                 <h3 className='text-white text-lg font-semibold mb-4'>Settings</h3>
                 <div className='space-y-4'>
                     {/* Avatar Option */}
-                    <button 
+                    <button
                         onClick={() => router.push('/main/edit-profile')}
                         className='w-full flex items-center justify-between p-3 hover:bg-[#06133F]/50 rounded-lg transition-colors group'
                     >
                         <div className='flex items-center space-x-3'>
                             <div className='w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border border-white/20 flex-shrink-0'>
                                 {profile?.avatar ? (
-                                    <Image src={profile.avatar} alt="avatar" width={48} height={48} className='rounded-full object-cover w-full h-full' />
+                                    <Image src={profile.avatar} alt="avatar" width={48} height={48} className='rounded-full object-cover w-full h-full' unoptimized={true} />
                                 ) : (
                                     <div className='w-full h-full bg-gradient-to-br from-[#6c3f79] via-[#995a98] to-[#6c3f79] flex items-center justify-center'>
                                         <IoPersonOutline className='text-white' size={24} />
@@ -72,14 +72,14 @@ const ProfileSidebar = () => {
                     </button>
 
                     {/* Cover Photo Option */}
-                    <button 
+                    <button
                         onClick={() => router.push('/main/edit-profile')}
                         className='w-full flex items-center justify-between p-3 hover:bg-[#06133F]/50 rounded-lg transition-colors group'
                     >
                         <div className='flex items-center space-x-3'>
                             <div className='w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden border border-white/20 flex-shrink-0'>
                                 {profile?.cover_photo ? (
-                                    <Image src={profile.cover_photo} alt="cover photo" width={48} height={48} className='object-cover w-full h-full' />
+                                    <Image src={profile.cover_photo} alt="cover photo" width={48} height={48} className='object-cover w-full h-full' unoptimized={true} />
                                 ) : (
                                     <div className='w-full h-full bg-gradient-to-br from-[#6c3f79] from-10% via-[#081a55] via-99% to-[#995a98] to-100% flex items-center justify-center'>
                                         <IoImageOutline className='text-white' size={20} />
@@ -95,7 +95,7 @@ const ProfileSidebar = () => {
                     </button>
 
                     {/* Details Option */}
-                    <button 
+                    <button
                         onClick={() => router.push('/main/edit-profile')}
                         className='w-full flex items-center justify-between p-3 hover:bg-[#06133F]/50 rounded-lg transition-colors group'
                     >

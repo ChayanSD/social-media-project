@@ -3,11 +3,11 @@
 import React from "react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { 
-  useGetMessageRequestsQuery, 
-  useAcceptMessageRequestMutation, 
+import {
+  useGetMessageRequestsQuery,
+  useAcceptMessageRequestMutation,
   useRejectMessageRequestMutation,
-  type MessageRequest 
+  type MessageRequest
 } from "@/store/chatApi";
 import { Loader2, Check, X, MessageSquare } from "lucide-react";
 import CustomDialog from "@/components/ui/CustomDialog";
@@ -21,7 +21,7 @@ export default function MessageRequests({ isOpen, onClose }: MessageRequestsProp
   const { data, isLoading, refetch } = useGetMessageRequestsQuery(undefined, {
     skip: !isOpen, // Only fetch when modal is open
   });
-  
+
   const [acceptRequest, { isLoading: isAccepting }] = useAcceptMessageRequestMutation();
   const [rejectRequest, { isLoading: isRejecting }] = useRejectMessageRequestMutation();
 
@@ -33,11 +33,11 @@ export default function MessageRequests({ isOpen, onClose }: MessageRequestsProp
       toast.success("Message request accepted! You can now message each other.");
       refetch();
     } catch (error: unknown) {
-      const errorMessage = 
-        (error && typeof error === 'object' && 'data' in error && 
-         error.data && typeof error.data === 'object' && 'message' in error.data
-         ? String(error.data.message)
-         : null) ||
+      const errorMessage =
+        (error && typeof error === 'object' && 'data' in error &&
+          error.data && typeof error.data === 'object' && 'message' in error.data
+          ? String(error.data.message)
+          : null) ||
         "Failed to accept message request";
       toast.error(errorMessage);
     }
@@ -49,11 +49,11 @@ export default function MessageRequests({ isOpen, onClose }: MessageRequestsProp
       toast.success("Message request rejected.");
       refetch();
     } catch (error: unknown) {
-      const errorMessage = 
-        (error && typeof error === 'object' && 'data' in error && 
-         error.data && typeof error.data === 'object' && 'message' in error.data
-         ? String(error.data.message)
-         : null) ||
+      const errorMessage =
+        (error && typeof error === 'object' && 'data' in error &&
+          error.data && typeof error.data === 'object' && 'message' in error.data
+          ? String(error.data.message)
+          : null) ||
         "Failed to reject message request";
       toast.error(errorMessage);
     }
@@ -93,6 +93,7 @@ export default function MessageRequests({ isOpen, onClose }: MessageRequestsProp
                         width={48}
                         height={48}
                         className="rounded-full object-cover"
+                        unoptimized={true}
                       />
                     ) : (
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
@@ -108,12 +109,12 @@ export default function MessageRequests({ isOpen, onClose }: MessageRequestsProp
                         {request.sender?.display_name || request.sender_username || "Unknown User"}
                       </h4>
                       <span className="text-xs text-white/50">
-                        {request.created_at 
+                        {request.created_at
                           ? new Date(request.created_at).toLocaleDateString()
                           : ""}
                       </span>
                     </div>
-                    
+
                     <p className="text-white/70 text-sm mb-3 line-clamp-2">
                       {request.content || "No message content"}
                     </p>

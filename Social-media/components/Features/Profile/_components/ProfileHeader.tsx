@@ -17,13 +17,13 @@ const ProfileHeader = ({ onAvatarClick }: ProfileHeaderProps) => {
             <div className='flex items-center gap-4'>
                 <div className='relative'>
                     {profile?.avatar ? (
-                        <Image src={profile.avatar} alt="profile" width={60} height={60} className='rounded-full object-cover h-12 w-12' />
+                        <Image src={profile.avatar} alt="profile" width={60} height={60} className='rounded-full object-cover h-12 w-12' unoptimized={true} />
                     ) : (
                         <div className='h-12 w-12 rounded-full bg-gradient-to-br from-[#6c3f79] via-[#995a98] to-[#6c3f79] flex items-center justify-center'>
                             <IoPersonOutline className='text-white' size={28} />
                         </div>
                     )}
-                    <button 
+                    <button
                         onClick={onAvatarClick}
                         className='bg-[#06133F]/75 backdrop-blur-[17.5px] hover:bg-[#06133F]/90 transition-all duration-300 text-white p-2 rounded-full absolute -bottom-1 -right-2 cursor-pointer'
                     >
