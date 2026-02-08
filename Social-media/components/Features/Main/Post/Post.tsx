@@ -659,6 +659,7 @@ const Post = ({ post, profile }: PostProps) => {
                 width={32}
                 height={32}
                 className="h-8 w-8 rounded-full object-cover flex-shrink-0"
+                unoptimized={true}
               />
             ) : (
               <div className="h-8 w-8 rounded-full bg-slate-600 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
@@ -746,6 +747,7 @@ const Post = ({ post, profile }: PostProps) => {
                     width={28}
                     height={28}
                     className="h-7 w-7 rounded-full object-cover flex-shrink-0"
+                    unoptimized={true}
                   />
                 ) : (
                   <div className="h-7 w-7 rounded-full bg-slate-600 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
@@ -1170,7 +1172,7 @@ const Post = ({ post, profile }: PostProps) => {
               width={32}
               height={32}
               className="h-[30px] w-[30px] md:h-[32px] md:w-[32px] rounded-full object-cover"
-              unoptimized
+              unoptimized={true}
             />
           ) : (
             <div className="h-[30px] w-[30px] md:h-[32px] md:w-[32px] rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-medium">
@@ -1290,7 +1292,7 @@ const Post = ({ post, profile }: PostProps) => {
                       width={32}
                       height={32}
                       className="h-8 w-8 rounded-full object-cover"
-                      unoptimized
+                      unoptimized={true}
                     />
                   ) : (
                     <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-medium">
@@ -1568,6 +1570,7 @@ const Post = ({ post, profile }: PostProps) => {
                   width={32}
                   height={32}
                   className="h-8 w-8 rounded-full object-cover flex-shrink-0"
+                  unoptimized={true}
                 />
               ) : (
                 <div className="h-8 w-8 rounded-full bg-slate-600 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">

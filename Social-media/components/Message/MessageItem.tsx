@@ -64,7 +64,7 @@ const MessageItem = ({ message, onUserSelect, onManageRoom, onDeleteRoom }: Mess
     if ((e.target as HTMLElement).closest('.room-menu')) {
       return;
     }
-    
+
     const user: User = {
       id: message.isGroup ? String(message.roomId || message.id) : message.id, // For rooms, use roomId
       name: message.sender.name,
@@ -100,7 +100,7 @@ const MessageItem = ({ message, onUserSelect, onManageRoom, onDeleteRoom }: Mess
   };
 
   return (
-    <div 
+    <div
       className="flex items-center gap-3 p-3 hover:bg-slate-800 cursor-pointer border-b border-gray-800 last:border-b-0 transition-colors group relative"
       onClick={handleClick}
     >
@@ -113,6 +113,7 @@ const MessageItem = ({ message, onUserSelect, onManageRoom, onDeleteRoom }: Mess
             width={36}
             height={36}
             className="rounded-full object-cover"
+            unoptimized={true}
           />
         ) : (
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#6c3f79] via-[#995a98] to-[#6c3f79] flex items-center justify-center text-white text-xs font-semibold">
@@ -135,7 +136,7 @@ const MessageItem = ({ message, onUserSelect, onManageRoom, onDeleteRoom }: Mess
             {message.timestamp}
           </span>
         </div>
-        
+
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-600 truncate flex-1">
             {message.lastMessage}
@@ -158,7 +159,7 @@ const MessageItem = ({ message, onUserSelect, onManageRoom, onDeleteRoom }: Mess
           >
             <AiOutlineMore size={16} />
           </button>
-          
+
           {showMenu && (
             <div className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[100] min-w-[150px]">
               <button

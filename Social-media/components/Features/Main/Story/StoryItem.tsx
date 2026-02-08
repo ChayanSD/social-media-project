@@ -19,6 +19,7 @@ const StoryItem: React.FC<StoryItemProps> = ({ story, onClick }) => {
             width={100}
             height={100}
             className="object-cover h-full w-full rounded-full"
+            unoptimized={true}
           />
         </div>
         <Image
@@ -26,6 +27,7 @@ const StoryItem: React.FC<StoryItemProps> = ({ story, onClick }) => {
           alt={story.author}
           fill
           className="object-cover"
+          unoptimized={true}
         />
         {!story.isViewed && (
           <div className="absolute inset-0  rounded-full p-0.5">
@@ -35,6 +37,7 @@ const StoryItem: React.FC<StoryItemProps> = ({ story, onClick }) => {
                 alt={story.author}
                 fill
                 className="object-cover"
+                unoptimized={true}
               />
             </div>
           </div>

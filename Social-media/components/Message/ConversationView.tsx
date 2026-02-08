@@ -412,6 +412,7 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
               width={32}
               height={32}
               className="rounded-full object-cover"
+              unoptimized={true}
             />
           ) : (
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6c3f79] via-[#995a98] to-[#6c3f79] flex items-center justify-center text-white text-xs font-semibold">

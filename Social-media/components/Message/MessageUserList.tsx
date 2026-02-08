@@ -306,6 +306,7 @@ const MessageUserList = ({ searchQuery, onUserSelect }: MessageUserListProps) =>
                         width={36}
                         height={36}
                         className="object-cover"
+                        unoptimized={true}
                       />
                     ) : (
                       <span className="text-white text-xs font-semibold">

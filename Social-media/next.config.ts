@@ -3,17 +3,22 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Required for Docker standalone build
   output: "standalone",
-  
+
   eslint: {
     ignoreDuringBuilds: true,
   },
-  
+
   typescript: {
     ignoreBuildErrors: true,
   },
-  
+
   images: {
     remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "interdimensionalcafe.com",
+        pathname: "/**",
+      },
       {
         protocol: "https",
         hostname: "socialmedia.lumivancelabs.com",

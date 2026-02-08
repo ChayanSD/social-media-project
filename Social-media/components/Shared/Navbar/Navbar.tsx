@@ -219,6 +219,7 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
                       width={30}
                       height={30}
                       className="h-full w-full object-cover"
+                      unoptimized={true}
                     />
                   ) : (
                     <div className="h-full w-full bg-gradient-to-br from-[#6c3f79] via-[#995a98] to-[#6c3f79] flex items-center justify-center">
