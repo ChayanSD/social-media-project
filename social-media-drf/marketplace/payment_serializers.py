@@ -7,17 +7,17 @@ User = get_user_model()
 
 
 class SubscriptionPlanSerializer(serializers.ModelSerializer):
-    stripe_product_id = serializers.CharField(read_only=True, allow_null=True)
-    stripe_price_id = serializers.CharField(read_only=True, allow_null=True)
+    stripe_product_id = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    stripe_price_id = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     
     class Meta:
         model = SubscriptionPlan
         fields = [
             'id', 'name', 'display_name', 'price', 'posts_per_month', 
-            'features', 'is_active', 'is_recommended', 'stripe_product_id', 'stripe_price_id',
+            'billing_cycle', 'billing_interval_count', 'features', 'is_active', 'is_recommended', 'stripe_product_id', 'stripe_price_id',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at', 'stripe_product_id', 'stripe_price_id']
+        read_only_fields = ['id', 'created_at', 'updated_at']
     
     def validate_name(self, value):
         """Validate plan name is unique"""
@@ -38,6 +38,11 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
         """Validate posts_per_month is non-negative"""
         if value < 0:
             raise serializers.ValidationError("Posts per month cannot be negative.")
+        return value
+
+    def validate_billing_interval_count(self, value):
+        if value < 1:
+            raise serializers.ValidationError("billing_interval_count must be at least 1.")
         return value
 
 
@@ -126,4 +131,3 @@ class SubscriptionUsageSerializer(serializers.Serializer):
     can_post = serializers.BooleanField()
     has_credits = serializers.BooleanField()
     credit_count = serializers.IntegerField()
-

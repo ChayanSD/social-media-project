@@ -46,3 +46,4 @@ class UserSubscriptionAdmin(admin.ModelAdmin):
 
 admin.site.register(Payment)
 admin.site.register(PostCredit)
+admin.site.register(StripeWebhookEvent)
