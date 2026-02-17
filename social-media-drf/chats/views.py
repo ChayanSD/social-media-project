@@ -6,6 +6,7 @@ from django.db.models import Q, Max, Count
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from datetime import timedelta
 from .models import Room, Message, BlockedUser, UserReport, MessageRequest, AcceptedMessage, MessageReaction
 from .serializers import (
     RoomSerializer, MessageSerializer, BlockedUserSerializer, 
@@ -2061,6 +2062,135 @@ class AdminDeleteConversationView(APIView):
                     "success": False,
                     "error": "Room not found"
                 }, status=status.HTTP_404_NOT_FOUND)
+        
+        else:
+            return Response({
+                "success": False,
+                "error": "type must be 'direct' or 'room'"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AdminCleanupConversationView(APIView):
+    """Cleanup messages within a specific date range from a conversation - admin only"""
+    permission_classes = [permissions.IsAuthenticated, IsAdmin]
+    
+    def post(self, request):
+        """Cleanup messages in range - admin only"""
+        conversation_type = request.data.get('type')  # 'direct' or 'room'
+        user1_id = request.data.get('user1_id')
+        user2_id = request.data.get('user2_id')
+        room_id = request.data.get('room_id')
+        
+        # Get date range from request
+        start_date_str = request.data.get('start_date')
+        end_date_str = request.data.get('end_date')
+
+        if not start_date_str or not end_date_str:
+            return Response({
+                "success": False,
+                "error": "start_date and end_date are required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            # Parse dates (expecting YYYY-MM-DD or ISO format)
+            # Make them timezone aware if they are naive
+            from django.utils.dateparse import parse_datetime, parse_date
+            import datetime
+            
+            # Simple parsing handling
+            def parse_input_date(d_str):
+                d = parse_datetime(d_str)
+                if d is None:
+                    d_date = parse_date(d_str)
+                    if d_date:
+                        d = datetime.datetime.combine(d_date, datetime.time.min)
+                return d
+
+            start_date = parse_input_date(start_date_str)
+            # For end date, we want end of day if only date provided, or exact if datetime
+            end_input = parse_datetime(end_date_str)
+            if end_input:
+                end_date = end_input
+            else:
+                end_d_date = parse_date(end_date_str)
+                if end_d_date:
+                    end_date = datetime.datetime.combine(end_d_date, datetime.time.max)
+                else:
+                    end_date = None
+
+            if not start_date or not end_date:
+                 return Response({
+                    "success": False,
+                    "error": "Invalid date format. Use YYYY-MM-DD"
+                }, status=status.HTTP_400_BAD_REQUEST)
+                
+            if timezone.is_naive(start_date):
+                start_date = timezone.make_aware(start_date)
+            if timezone.is_naive(end_date):
+                end_date = timezone.make_aware(end_date)
+                
+        except Exception as e:
+            return Response({
+                "success": False,
+                "error": f"Date parsing error: {str(e)}"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        
+        if conversation_type == 'direct':
+            if not user1_id or not user2_id:
+                return Response({
+                    "success": False,
+                    "error": "user1_id and user2_id are required for direct conversations"
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            try:
+                user1 = User.objects.get(id=user1_id)
+                user2 = User.objects.get(id=user2_id)
+            except User.DoesNotExist:
+                return Response({
+                    "success": False,
+                    "error": "One or both users not found"
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            # Delete messages in range
+            deleted_count, _ = Message.objects.filter(
+                (Q(sender=user1, receiver=user2) | Q(sender=user2, receiver=user1)),
+                room__isnull=True,
+                created_at__range=(start_date, end_date)
+            ).delete()
+            
+            return Response({
+                "success": True,
+                "message": f"Cleaned up {deleted_count} message(s) between {start_date.date()} and {end_date.date()}",
+                "deleted_count": deleted_count
+            })
+        
+        elif conversation_type == 'room':
+            if not room_id:
+                return Response({
+                    "success": False,
+                    "error": "room_id is required for room conversations"
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            try:
+                room = Room.objects.get(id=room_id)
+            except Room.DoesNotExist:
+                return Response({
+                    "success": False,
+                    "error": "Room not found"
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            # Delete messages in room in range
+            deleted_count, _ = Message.objects.filter(
+                room=room,
+                created_at__range=(start_date, end_date)
+            ).delete()
+            
+            return Response({
+                "success": True,
+                "message": f"Cleaned up {deleted_count} message(s) between {start_date.date()} and {end_date.date()} from room '{room.name or 'Unnamed'}'",
+                "deleted_count": deleted_count
+            })
         
         else:
             return Response({

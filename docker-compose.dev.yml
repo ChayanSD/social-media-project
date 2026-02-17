@@ -51,8 +51,10 @@ services:
       SESSION_COOKIE_SECURE: "False"
       CSRF_COOKIE_SECURE: "False"
     volumes:
+      - ./social-media-drf:/app
       - media_files_dev:/app/media
       - static_files_dev:/app/staticfiles
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
     depends_on:

@@ -571,6 +571,25 @@ export const chatApi = baseApi.injectEndpoints({
         }
       },
     }),
+    cleanupAdminConversation: builder.mutation<
+      { success?: boolean; message?: string; error?: string; deleted_count?: number },
+      { type: 'direct' | 'room'; user1_id?: number | string; user2_id?: number | string; room_id?: number | string; start_date: string; end_date: string }
+    >({
+      query: (data) => ({
+        url: "/api/chat/admin/conversation/cleanup/",
+        method: "POST",
+        body: data,
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(chatApi.util.invalidateTags(["Conversations"]));
+          dispatch(chatApi.util.invalidateTags(["Messages"]));
+        } catch {
+          // Error handling
+        }
+      },
+    }),
     // Message request endpoints
     getMessageRequests: builder.query<GetMessageRequestsResponse, void>({
       query: () => ({
@@ -682,5 +701,6 @@ export const {
   useGetAdminAllConversationsQuery,
   useGetAdminConversationMessagesQuery,
   useDeleteAdminConversationMutation,
+  useCleanupAdminConversationMutation,
   useToggleReactionMutation,
 } = chatApi;

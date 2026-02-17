@@ -3,13 +3,14 @@
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import { CustomTable, Column } from "@/components/admin/CustomTable";
-import { useGetAdminAllConversationsQuery, useGetAdminConversationMessagesQuery, useDeleteAdminConversationMutation, AdminConversation } from "@/store/chatApi";
+import { useGetAdminAllConversationsQuery, useGetAdminConversationMessagesQuery, useDeleteAdminConversationMutation, useCleanupAdminConversationMutation, AdminConversation } from "@/store/chatApi";
 import { getApiBaseUrl } from "@/lib/utils";
-import { MessageSquare, Users } from "lucide-react";
+import { MessageSquare, Users, Eraser } from "lucide-react";
 import ConversationMessagesModal from "./ConversationMessagesModal";
 import { TableFilters } from "@/components/admin/TableFilters";
 import { SearchFilter } from "@/components/admin/SearchFilter";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import CleanupConversationDialog from "./CleanupConversationDialog";
 import { toast } from "sonner";
 
 export default function ConversationsManagementTable() {
@@ -21,6 +22,8 @@ export default function ConversationsManagementTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState<AdminConversation | null>(null);
+  const [cleanupDialogOpen, setCleanupDialogOpen] = useState(false);
+  const [conversationToCleanup, setConversationToCleanup] = useState<AdminConversation | null>(null);
 
   const { data, isLoading, isError, refetch } = useGetAdminAllConversationsQuery({
     page: currentPage,
@@ -41,6 +44,7 @@ export default function ConversationsManagementTable() {
   );
 
   const [deleteConversation, { isLoading: isDeleting }] = useDeleteAdminConversationMutation();
+  const [cleanupConversation, { isLoading: isCleaning }] = useCleanupAdminConversationMutation();
 
   const conversations = useMemo(() => {
     if (!data) return [];
@@ -86,7 +90,7 @@ export default function ConversationsManagementTable() {
       const day = date.getDate();
       const month = date.toLocaleDateString("en-GB", { month: "short" });
       const year = date.getFullYear();
-      
+
       return `${day} ${month} ${year}`;
     } catch {
       return "N/A";
@@ -109,6 +113,12 @@ export default function ConversationsManagementTable() {
     setDeleteDialogOpen(true);
   };
 
+  const handleCleanupClick = (conversation: AdminConversation, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setConversationToCleanup(conversation);
+    setCleanupDialogOpen(true);
+  };
+
   const handleDeleteConfirm = async () => {
     if (!conversationToDelete) return;
 
@@ -127,11 +137,40 @@ export default function ConversationsManagementTable() {
         refetch();
       }
     } catch (error: unknown) {
-      const errorMessage = 
+      const errorMessage =
         (error as { data?: { error?: string; message?: string } })?.data?.error ||
         (error as { data?: { error?: string; message?: string } })?.data?.message ||
         (error as { message?: string })?.message ||
         "Failed to delete conversation";
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleCleanupConfirm = async (startDate: string, endDate: string) => {
+    if (!conversationToCleanup) return;
+
+    try {
+      const result = await cleanupConversation({
+        type: conversationToCleanup.type,
+        user1_id: conversationToCleanup.type === 'direct' ? conversationToCleanup.user1?.id : undefined,
+        user2_id: conversationToCleanup.type === 'direct' ? conversationToCleanup.user2?.id : undefined,
+        room_id: conversationToCleanup.type === 'room' ? conversationToCleanup.room_id : undefined,
+        start_date: startDate,
+        end_date: endDate,
+      }).unwrap();
+
+      if (result.success) {
+        toast.success(result.message || "Messages cleaned up successfully");
+        setCleanupDialogOpen(false);
+        setConversationToCleanup(null);
+        refetch();
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        (error as { message?: string })?.message ||
+        "Failed to clean up conversation";
       toast.error(errorMessage);
     }
   };
@@ -141,6 +180,11 @@ export default function ConversationsManagementTable() {
     setConversationToDelete(null);
   };
 
+  const handleCleanupCancel = () => {
+    setCleanupDialogOpen(false);
+    setConversationToCleanup(null);
+  };
+
   const getDeleteDialogTitle = () => {
     if (!conversationToDelete) return "Delete Conversation";
     if (conversationToDelete.type === "direct") {
@@ -148,6 +192,11 @@ export default function ConversationsManagementTable() {
     } else {
       return "Delete Room Conversation";
     }
+  };
+
+  const getCleanupDialogTitle = () => {
+    if (!conversationToCleanup) return "Cleanup Conversation";
+    return "Cleanup Old Messages";
   };
 
   const getDeleteDialogDescription = () => {
@@ -160,6 +209,11 @@ export default function ConversationsManagementTable() {
       const roomName = conversationToDelete.name || "Unnamed Room";
       return `Are you sure you want to delete the room "${roomName}"? This will permanently delete the room and all messages in it. This action cannot be undone.`;
     }
+  };
+
+  const getCleanupDialogDescription = () => {
+    if (!conversationToCleanup) return "";
+    return `Select the time period for messages you want to delete from this conversation.`;
   };
 
   const getMessages = () => {
@@ -308,7 +362,7 @@ export default function ConversationsManagementTable() {
       accessor: (row) => {
         const lastMessage = row.last_message;
         if (!lastMessage) return <span className="text-white/60 text-sm">No messages</span>;
-        
+
         const content = lastMessage.content || "(No content)";
         const truncated = content.length > 50 ? content.substring(0, 50) + "..." : content;
         return (
@@ -338,22 +392,33 @@ export default function ConversationsManagementTable() {
     {
       header: "Actions",
       accessor: (row) => (
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={(e) => handleCleanupClick(row, e)}
+            disabled={isCleaning}
+            className={`p-2 rounded-lg bg-white/10 hover:bg-white/20 transition ${isCleaning
+              ? "opacity-50 cursor-not-allowed"
+              : "cursor-pointer"
+              }`}
+            title="Cleanup messages older than 3 months"
+          >
+            <Eraser className="w-4 h-4 text-orange-400" />
+          </button>
+
           <button
             onClick={(e) => handleDeleteClick(row, e)}
             disabled={isDeleting}
-            className={`p-2 rounded-lg bg-white/10 hover:bg-white/20 transition ${
-              isDeleting
-                ? "opacity-50 cursor-not-allowed"
-                : "cursor-pointer"
-            }`}
+            className={`p-2 rounded-lg bg-white/10 hover:bg-white/20 transition ${isDeleting
+              ? "opacity-50 cursor-not-allowed"
+              : "cursor-pointer"
+              }`}
             title="Delete conversation"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
-              className="w-4 h-4"
+              className="w-4 h-4 text-red-400"
             >
               <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
             </svg>
@@ -501,7 +566,16 @@ export default function ConversationsManagementTable() {
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
       />
+
+      {/* Cleanup Conversation Confirmation Dialog */}
+      <CleanupConversationDialog
+        open={cleanupDialogOpen}
+        title={getCleanupDialogTitle()}
+        description={getCleanupDialogDescription()}
+        isCleaning={isCleaning}
+        onConfirm={handleCleanupConfirm}
+        onClose={handleCleanupCancel}
+      />
     </div>
   );
 }
-
