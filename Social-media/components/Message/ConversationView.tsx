@@ -6,6 +6,7 @@ import { MdBlock, MdReport } from 'react-icons/md';
 import Image from 'next/image';
 import MessageBubble from './MessageBubble';
 import { PiPaperPlaneRightFill } from 'react-icons/pi';
+import { BsEmojiSmile } from 'react-icons/bs';
 import { useGetConversationQuery, useSendDirectMessageMutation, useBlockUserMutation, useUnblockUserMutation, useGetBlockedUsersQuery, useUpdateDirectMessageMutation, useDeleteDirectMessageMutation, useAcceptMessageRequestMutation, useRejectMessageRequestMutation, useCancelMessageRequestMutation, useToggleReactionMutation, chatApi, type MessageRequest } from '@/store/chatApi';
 import { useGetCurrentUserProfileQuery } from '@/store/authApi';
 import { useChatWebSocket } from '@/hooks/useChatWebSocket';
@@ -30,8 +31,10 @@ interface ConversationViewProps {
 }
 
 const ConversationView = ({ user, onBack }: ConversationViewProps) => {
+  const QUICK_EMOJIS = ['😀', '😂', '😊', '😍', '🤔', '👍', '🙏', '🎉', '🔥', '❤️', '👏', '😢'];
   const apiBase = useMemo(() => getApiBaseUrl(), []);
   const [newMessage, setNewMessage] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   // Memoize userId to prevent unnecessary re-renders
@@ -87,6 +90,7 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
   const [cancelRequest, { isLoading: isCancelling }] = useCancelMessageRequestMutation();
   const [toggleReaction, { isLoading: isReacting }] = useToggleReactionMutation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
   const currentUserId = useMemo(() => {
     return currentUser?.data?.id || currentUser?.id || currentUser?.user?.id;
@@ -377,6 +381,26 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
     setShowReportModal(true);
   };
 
+  const handleSelectEmoji = (emoji: string) => {
+    const textarea = messageInputRef.current;
+    if (!textarea) {
+      setNewMessage((prev) => prev + emoji);
+      return;
+    }
+
+    const start = textarea.selectionStart || 0;
+    const end = textarea.selectionEnd || 0;
+    const nextText = `${newMessage.slice(0, start)}${emoji}${newMessage.slice(end)}`;
+    setNewMessage(nextText);
+    setShowEmojiPicker(false);
+
+    setTimeout(() => {
+      textarea.focus();
+      const cursorPos = start + emoji.length;
+      textarea.setSelectionRange(cursorPos, cursorPos);
+    }, 0);
+  };
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -575,6 +599,23 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
 
       {/* Message Input or Blocked Message */}
       <div className="p-4 border-t border-gray-700 bg-[#06133f] rounded-b-3xl">
+        {showEmojiPicker && !blockStatus.i_blocked_them && !blockStatus.they_blocked_me && (
+          <div className="mb-3 p-3 rounded-xl border border-gray-700 bg-gray-800/80">
+            <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
+              {QUICK_EMOJIS.map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onClick={() => handleSelectEmoji(emoji)}
+                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg bg-gray-700/60 hover:bg-gray-600 text-lg flex items-center justify-center transition-colors"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {blockStatus.i_blocked_them ? (
           <div className="flex items-center justify-center p-4 bg-gray-800/50 rounded-lg border border-gray-700">
             <div className="text-center flex">
@@ -594,7 +635,16 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
           </div>
         ) : (
           <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowEmojiPicker((prev) => !prev)}
+              className="p-2 text-white rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+              aria-label="Open emoji picker"
+            >
+              <BsEmojiSmile size={16} />
+            </button>
             <textarea
+              ref={messageInputRef}
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => {
