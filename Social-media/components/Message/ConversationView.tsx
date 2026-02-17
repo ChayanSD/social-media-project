@@ -7,6 +7,7 @@ import Image from 'next/image';
 import MessageBubble from './MessageBubble';
 import { PiPaperPlaneRightFill } from 'react-icons/pi';
 import { BsEmojiSmile } from 'react-icons/bs';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { useGetConversationQuery, useSendDirectMessageMutation, useBlockUserMutation, useUnblockUserMutation, useGetBlockedUsersQuery, useUpdateDirectMessageMutation, useDeleteDirectMessageMutation, useAcceptMessageRequestMutation, useRejectMessageRequestMutation, useCancelMessageRequestMutation, useToggleReactionMutation, chatApi, type MessageRequest } from '@/store/chatApi';
 import { useGetCurrentUserProfileQuery } from '@/store/authApi';
 import { useChatWebSocket } from '@/hooks/useChatWebSocket';
@@ -31,7 +32,6 @@ interface ConversationViewProps {
 }
 
 const ConversationView = ({ user, onBack }: ConversationViewProps) => {
-  const QUICK_EMOJIS = ['😀', '😂', '😊', '😍', '🤔', '👍', '🙏', '🎉', '🔥', '❤️', '👏', '😢'];
   const apiBase = useMemo(() => getApiBaseUrl(), []);
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -91,6 +91,9 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
   const [toggleReaction, { isLoading: isReacting }] = useToggleReactionMutation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const emojiButtonRef = useRef<HTMLButtonElement>(null);
+  const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0, width: 320, height: 360 });
 
   const currentUserId = useMemo(() => {
     return currentUser?.data?.id || currentUser?.id || currentUser?.user?.id;
@@ -401,6 +404,28 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
     }, 0);
   };
 
+  const updateEmojiPickerPosition = useCallback(() => {
+    const button = emojiButtonRef.current;
+    if (!button) return;
+
+    const rect = button.getBoundingClientRect();
+    const horizontalMargin = 8;
+    const verticalMargin = 8;
+    const width = Math.min(360, window.innerWidth - horizontalMargin * 2);
+    const height = Math.min(420, Math.max(280, Math.floor(window.innerHeight * 0.52)));
+    const left = Math.min(
+      Math.max(horizontalMargin, rect.left),
+      window.innerWidth - width - horizontalMargin
+    );
+
+    let top = rect.top - height - verticalMargin;
+    if (top < verticalMargin) {
+      top = Math.min(rect.bottom + verticalMargin, window.innerHeight - height - verticalMargin);
+    }
+
+    setEmojiPickerPosition({ top, left, width, height });
+  }, []);
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -408,10 +433,20 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
       if (showMenu && !target.closest('.user-menu-container')) {
         setShowMenu(false);
       }
+      if (showEmojiPicker && emojiPickerRef.current && !emojiPickerRef.current.contains(target)) {
+        setShowEmojiPicker(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showMenu]);
+  }, [showMenu, showEmojiPicker]);
+
+  useEffect(() => {
+    if (!showEmojiPicker) return;
+    updateEmojiPickerPosition();
+    window.addEventListener('resize', updateEmojiPickerPosition);
+    return () => window.removeEventListener('resize', updateEmojiPickerPosition);
+  }, [showEmojiPicker, updateEmojiPickerPosition]);
 
   return (
     <div className="flex flex-col h-full">
@@ -599,23 +634,6 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
 
       {/* Message Input or Blocked Message */}
       <div className="p-4 border-t border-gray-700 bg-[#06133f] rounded-b-3xl">
-        {showEmojiPicker && !blockStatus.i_blocked_them && !blockStatus.they_blocked_me && (
-          <div className="mb-3 p-3 rounded-xl border border-gray-700 bg-gray-800/80">
-            <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
-              {QUICK_EMOJIS.map((emoji) => (
-                <button
-                  key={emoji}
-                  type="button"
-                  onClick={() => handleSelectEmoji(emoji)}
-                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg bg-gray-700/60 hover:bg-gray-600 text-lg flex items-center justify-center transition-colors"
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {blockStatus.i_blocked_them ? (
           <div className="flex items-center justify-center p-4 bg-gray-800/50 rounded-lg border border-gray-700">
             <div className="text-center flex">
@@ -634,41 +652,71 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
             <p className="text-xs text-gray-400">This person has blocked you. Can&apos;t send message anymore.</p>
           </div>
         ) : (
-          <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setShowEmojiPicker((prev) => !prev)}
-              className="p-2 text-white rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
-              aria-label="Open emoji picker"
-            >
-              <BsEmojiSmile size={16} />
-            </button>
-            <textarea
-              ref={messageInputRef}
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSendMessage(e);
-                }
-              }}
-              rows={1}
-              placeholder={`Message ${user.name}...`}
-              className="flex-1 px-3 py-3 bg-gray-800 border border-gray-700 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-transparent text-sm text-white resize-none custom-scroll"
-            />
-            <button
-              type="submit"
-              disabled={!newMessage.trim() || isSending}
-              className="p-2 bg-[#0059ff] text-white rounded-full hover:bg-[#0059ffcd] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {isSending ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              ) : (
-                <PiPaperPlaneRightFill size={16} />
-              )}
-            </button>
-          </form>
+          <div className="relative" ref={emojiPickerRef}>
+            {showEmojiPicker && (
+              <div
+                className="fixed z-[70] shadow-2xl"
+                style={{
+                  top: emojiPickerPosition.top,
+                  left: emojiPickerPosition.left,
+                  width: emojiPickerPosition.width,
+                }}
+              >
+                <EmojiPicker
+                  onEmojiClick={(emojiData) => handleSelectEmoji(emojiData.emoji)}
+                  theme={Theme.DARK}
+                  width="100%"
+                  height={emojiPickerPosition.height}
+                  previewConfig={{ showPreview: false }}
+                  searchPlaceHolder="Search emoji"
+                  skinTonesDisabled={false}
+                  lazyLoadEmojis={true}
+                />
+              </div>
+            )}
+
+            <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+              <button
+                ref={emojiButtonRef}
+                type="button"
+                onClick={() => {
+                  if (!showEmojiPicker) {
+                    updateEmojiPickerPosition();
+                  }
+                  setShowEmojiPicker((prev) => !prev);
+                }}
+                className="p-2 text-white rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+                aria-label="Open emoji picker"
+              >
+                <BsEmojiSmile size={16} />
+              </button>
+              <textarea
+                ref={messageInputRef}
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage(e);
+                  }
+                }}
+                rows={1}
+                placeholder={`Message ${user.name}...`}
+                className="flex-1 px-3 py-3 bg-gray-800 border border-gray-700 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-transparent text-sm text-white resize-none custom-scroll"
+              />
+              <button
+                type="submit"
+                disabled={!newMessage.trim() || isSending}
+                className="p-2 bg-[#0059ff] text-white rounded-full hover:bg-[#0059ffcd] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {isSending ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                ) : (
+                  <PiPaperPlaneRightFill size={16} />
+                )}
+              </button>
+            </form>
+          </div>
         )}
       </div>
 
