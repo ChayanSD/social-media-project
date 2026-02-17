@@ -1422,7 +1422,14 @@ class AdminSubscriptionListView(APIView):
                 plan__isnull=False
             ).select_related('plan')
             
-            mrr = sum(float(sub.plan.price) for sub in active_subs if sub.plan)
+            mrr = 0.0
+            for sub in active_subs:
+                if not sub.plan:
+                    continue
+                interval = sub.plan.billing_interval_count or 1
+                cycle = sub.plan.billing_cycle or 'month'
+                monthly_divisor = interval if cycle == 'month' else (interval * 12)
+                mrr += float(sub.plan.price) / monthly_divisor
             
             return Response({
                 "success": True,
@@ -1462,12 +1469,6 @@ class AdminSubscriptionListView(APIView):
                     "message": "subscription_id is required"
                 }, status=400)
             
-            if not plan_id:
-                return Response({
-                    "success": False,
-                    "message": "plan_id is required to restore subscription"
-                }, status=400)
-            
             try:
                 subscription = UserSubscription.objects.select_related('user', 'plan').get(id=subscription_id)
             except UserSubscription.DoesNotExist:
@@ -1476,35 +1477,44 @@ class AdminSubscriptionListView(APIView):
                     "message": "Subscription not found"
                 }, status=404)
             
-            # Check if subscription is canceled
-            if subscription.status != 'canceled':
+            if subscription.status not in ['canceled', 'active']:
                 return Response({
                     "success": False,
-                    "message": "Only canceled subscriptions can be uncanceled"
+                    "message": "Only canceled or canceling subscriptions can be restored"
                 }, status=400)
-            
-            # Get the plan
-            try:
-                from marketplace.models import SubscriptionPlan
-                plan = SubscriptionPlan.objects.get(id=plan_id, is_active=True)
-            except SubscriptionPlan.DoesNotExist:
-                return Response({
-                    "success": False,
-                    "message": "Plan not found or inactive"
-                }, status=404)
-            
-            # Restore the subscription
-            subscription.status = 'active'
-            subscription.plan = plan
+
+            if subscription.stripe_subscription_id:
+                try:
+                    import stripe
+                    stripe.api_key = getattr(settings, 'STRIPE_SECRET_KEY', None)
+                    if stripe.api_key:
+                        stripe_sub = stripe.Subscription.modify(
+                            subscription.stripe_subscription_id,
+                            cancel_at_period_end=False
+                        )
+                        subscription.status = stripe_sub.status or 'active'
+                except Exception as stripe_error:
+                    logger.warning(f"Failed to resume Stripe subscription: {str(stripe_error)}")
+                    subscription.status = 'active'
+            else:
+                subscription.status = 'active'
+                if plan_id:
+                    try:
+                        from marketplace.models import SubscriptionPlan
+                        plan = SubscriptionPlan.objects.get(id=plan_id, is_active=True)
+                        subscription.plan = plan
+                    except SubscriptionPlan.DoesNotExist:
+                        return Response({
+                            "success": False,
+                            "message": "Plan not found or inactive"
+                        }, status=404)
+                elif not subscription.plan:
+                    return Response({
+                        "success": False,
+                        "message": "plan_id is required to restore a subscription without a plan"
+                    }, status=400)
+
             subscription.cancel_at_period_end = False
-            
-            # Reset period if needed
-            from django.utils import timezone
-            from datetime import timedelta
-            if not subscription.current_period_end or subscription.current_period_end < timezone.now():
-                subscription.current_period_start = timezone.now()
-                subscription.current_period_end = timezone.now() + timedelta(days=30)
-            
             subscription.save()
             
             logger.info(f"Admin uncanceled subscription {subscription_id} for user {subscription.user.username}")
@@ -1518,7 +1528,7 @@ class AdminSubscriptionListView(APIView):
                         'username': subscription.user.username,
                         'email': subscription.user.email
                     },
-                    "plan": plan.display_name,
+                    "plan": subscription.plan.display_name if subscription.plan else None,
                     "new_status": "active"
                 }
             }, status=200)
@@ -1536,6 +1546,7 @@ class AdminSubscriptionListView(APIView):
         try:
             subscription_id = request.data.get('subscription_id')
             permanent_delete = request.data.get('permanent_delete', False)
+            immediate_cancel = request.data.get('immediate_cancel', False)
             
             if not subscription_id:
                 return Response({
@@ -1586,38 +1597,40 @@ class AdminSubscriptionListView(APIView):
                     }
                 }, status=200)
             
-            # Cancel the subscription
-            subscription.status = 'canceled'
+            # Default behavior: cancel at period end
             subscription.cancel_at_period_end = True
-            
-            # If there's a Stripe subscription, cancel it
+
+            stripe_status = None
             if subscription.stripe_subscription_id:
                 try:
                     import stripe
                     stripe.api_key = getattr(settings, 'STRIPE_SECRET_KEY', None)
                     if stripe.api_key:
-                        stripe.Subscription.modify(
-                            subscription.stripe_subscription_id,
-                            cancel_at_period_end=False
-                        )
-                        stripe.Subscription.delete(subscription.stripe_subscription_id)
+                        if immediate_cancel:
+                            stripe_sub = stripe.Subscription.delete(subscription.stripe_subscription_id)
+                        else:
+                            stripe_sub = stripe.Subscription.modify(
+                                subscription.stripe_subscription_id,
+                                cancel_at_period_end=True
+                            )
+                        stripe_status = stripe_sub.status if stripe_sub else None
                 except Exception as stripe_error:
                     logger.warning(f"Failed to cancel Stripe subscription: {str(stripe_error)}")
-            
-            # Remove the plan to revoke posting privileges immediately
-            subscription.plan = None
+
+            subscription.status = 'canceled' if immediate_cancel else (stripe_status or subscription.status or 'active')
             subscription.save()
             
             logger.info(f"Admin canceled subscription {subscription_id} for user {subscription.user.username}")
             
             return Response({
                 "success": True,
-                "message": f"Subscription canceled successfully for {user_info['username']}. User posting privileges have been revoked.",
+                "message": f"Subscription cancellation updated for {user_info['username']}.",
                 "data": {
                     "subscription_id": subscription_id,
                     "user": user_info,
                     "previous_plan": plan_name,
-                    "new_status": "canceled"
+                    "new_status": subscription.status,
+                    "cancel_at_period_end": subscription.cancel_at_period_end
                 }
             }, status=200)
             

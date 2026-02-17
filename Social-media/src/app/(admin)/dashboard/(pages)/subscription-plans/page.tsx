@@ -17,11 +17,92 @@ interface PlanFormData {
   name: string;
   display_name: string;
   price: number;
+  billing_cycle: "month" | "year";
+  billing_interval_count: number;
   posts_per_month: number;
   features: string[];
   is_active: boolean;
   is_recommended: boolean;
+  stripe_product_id?: string | null;
+  stripe_price_id?: string | null;
 }
+
+type PlanPresetKey =
+  | "starter-monthly"
+  | "starter-yearly"
+  | "growth-monthly"
+  | "growth-yearly"
+  | "platinum-monthly"
+  | "platinum-yearly";
+
+const PLAN_PRESETS: Record<PlanPresetKey, Omit<PlanFormData, "stripe_product_id" | "stripe_price_id">> = {
+  "starter-monthly": {
+    name: "starter-monthly",
+    display_name: "Starter Plan - Monthly",
+    price: 14.99,
+    billing_cycle: "month",
+    billing_interval_count: 1,
+    posts_per_month: 5,
+    features: ["Starter access", "Auto-renew every month"],
+    is_active: true,
+    is_recommended: false,
+  },
+  "starter-yearly": {
+    name: "starter-yearly",
+    display_name: "Starter Plan - Yearly",
+    price: 119.88,
+    billing_cycle: "year",
+    billing_interval_count: 1,
+    posts_per_month: 5,
+    features: ["Starter access", "Auto-renew every 12 months"],
+    is_active: true,
+    is_recommended: false,
+  },
+  "growth-monthly": {
+    name: "growth-monthly",
+    display_name: "Growth Plan - Monthly",
+    price: 19.99,
+    billing_cycle: "month",
+    billing_interval_count: 1,
+    posts_per_month: 15,
+    features: ["Growth access", "Auto-renew every month"],
+    is_active: true,
+    is_recommended: true,
+  },
+  "growth-yearly": {
+    name: "growth-yearly",
+    display_name: "Growth Plan - Yearly",
+    price: 179.88,
+    billing_cycle: "year",
+    billing_interval_count: 1,
+    posts_per_month: 15,
+    features: ["Growth access", "Auto-renew every 12 months"],
+    is_active: true,
+    is_recommended: false,
+  },
+  "platinum-monthly": {
+    name: "platinum-monthly",
+    display_name: "Platinum Plan - Monthly",
+    price: 24.99,
+    billing_cycle: "month",
+    billing_interval_count: 1,
+    posts_per_month: 0,
+    features: ["Platinum access", "Auto-renew every month"],
+    is_active: true,
+    is_recommended: false,
+  },
+  "platinum-yearly": {
+    name: "platinum-yearly",
+    display_name: "Platinum Plan - Yearly",
+    price: 239.88,
+    billing_cycle: "year",
+    billing_interval_count: 1,
+    posts_per_month: 0,
+    features: ["Platinum access", "Auto-renew every 12 months"],
+    is_active: true,
+    is_recommended: false,
+  },
+};
 
 // Skeleton Loader Component
 const PlanCardSkeleton = () => {
@@ -72,12 +153,17 @@ export default function SubscriptionPlansPage() {
     name: "",
     display_name: "",
     price: 0,
+    billing_cycle: "month",
+    billing_interval_count: 1,
     posts_per_month: 0,
     features: [],
     is_active: true,
     is_recommended: false,
+    stripe_product_id: "",
+    stripe_price_id: "",
   });
   const [featureInput, setFeatureInput] = useState("");
+  const [selectedPreset, setSelectedPreset] = useState<string>("");
 
   const { data, isLoading, refetch } = useGetSubscriptionPlansQuery();
   const [createPlan, { isLoading: isCreating }] = useCreateSubscriptionPlanMutation();
@@ -92,12 +178,17 @@ export default function SubscriptionPlansPage() {
       name: "",
       display_name: "",
       price: 0,
+      billing_cycle: "month",
+      billing_interval_count: 1,
       posts_per_month: 0,
       features: [],
       is_active: true,
       is_recommended: false,
+      stripe_product_id: "",
+      stripe_price_id: "",
     });
     setFeatureInput("");
+    setSelectedPreset("");
     setSelectedPlan(null);
     setIsCreateModalOpen(true);
   };
@@ -108,13 +199,27 @@ export default function SubscriptionPlansPage() {
       name: plan.name,
       display_name: plan.display_name,
       price: plan.price,
+      billing_cycle: plan.billing_cycle || "month",
+      billing_interval_count: plan.billing_interval_count || 1,
       posts_per_month: plan.posts_per_month,
       features: plan.features || [],
       is_active: plan.is_active,
       is_recommended: plan.is_recommended || false,
+      stripe_product_id: plan.stripe_product_id || "",
+      stripe_price_id: plan.stripe_price_id || "",
     });
     setFeatureInput("");
+    setSelectedPreset("");
     setIsEditModalOpen(true);
+  };
+
+  const applyPlanPreset = (presetKey: PlanPresetKey) => {
+    const preset = PLAN_PRESETS[presetKey];
+    setFormData((prev) => ({
+      ...prev,
+      ...preset,
+    }));
+    setSelectedPreset(presetKey);
   };
 
   const handleDelete = (plan: SubscriptionPlan) => {
@@ -254,7 +359,7 @@ export default function SubscriptionPlansPage() {
                 <h3 className="text-xl font-semibold text-white mb-1">{plan.display_name}</h3>
                 <p className="text-2xl font-bold text-white">
                   ${plan.price}
-                  <span className="text-sm font-normal text-white/60">/month</span>
+                  <span className="text-sm font-normal text-white/60">/{plan.billing_interval_count > 1 ? `${plan.billing_interval_count} ${plan.billing_cycle}s` : plan.billing_cycle}</span>
                 </p>
               </div>
 
@@ -329,6 +434,36 @@ export default function SubscriptionPlansPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {!selectedPlan && (
+                <div>
+                  <label className="block text-sm font-medium text-white/80 mb-2">
+                    Quick Preset (6 plans)
+                  </label>
+                  <select
+                    value={selectedPreset}
+                    onChange={(e) => {
+                      const value = e.target.value as PlanPresetKey | "";
+                      if (!value) {
+                        setSelectedPreset("");
+                        return;
+                      }
+                      applyPlanPreset(value);
+                    }}
+                    className="w-full px-4 py-2 bg-black/30 border border-white/20 rounded-lg text-white focus:outline-none focus:border-purple-400"
+                  >
+                    <option value="">Select preset...</option>
+                    <option value="starter-monthly">Starter Monthly ($14.99)</option>
+                    <option value="starter-yearly">Starter Yearly ($119.88)</option>
+                    <option value="growth-monthly">Growth Monthly ($19.99)</option>
+                    <option value="growth-yearly">Growth Yearly ($179.88)</option>
+                    <option value="platinum-monthly">Platinum Monthly ($24.99)</option>
+                    <option value="platinum-yearly">Platinum Yearly ($239.88)</option>
+                  </select>
+                  <p className="mt-1 text-xs text-white/60">
+                    Select one preset, then only paste Stripe Product ID and Price ID.
+                  </p>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-white/80 mb-2">
@@ -377,6 +512,36 @@ export default function SubscriptionPlansPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-white/80 mb-2">
+                    Billing Cycle
+                  </label>
+                  <select
+                    value={formData.billing_cycle}
+                    onChange={(e) => setFormData({ ...formData, billing_cycle: e.target.value as "month" | "year" })}
+                    className="w-full px-4 py-2 bg-black/30 border border-white/20 rounded-lg text-white focus:outline-none focus:border-purple-400"
+                  >
+                    <option value="month">Monthly</option>
+                    <option value="year">Yearly</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-white/80 mb-2">
+                    Billing Interval Count
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={formData.billing_interval_count}
+                    onChange={(e) => setFormData({ ...formData, billing_interval_count: parseInt(e.target.value) || 1 })}
+                    className="w-full px-4 py-2 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400"
+                    placeholder="1"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-white/80 mb-2">
                     Posts per Month (0 = unlimited)
                   </label>
                   <input
@@ -387,6 +552,33 @@ export default function SubscriptionPlansPage() {
                     className="w-full px-4 py-2 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400"
                     placeholder="0"
                     required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-white/80 mb-2">
+                    Stripe Product ID (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.stripe_product_id || ""}
+                    onChange={(e) => setFormData({ ...formData, stripe_product_id: e.target.value })}
+                    className="w-full px-4 py-2 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400"
+                    placeholder="prod_..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-white/80 mb-2">
+                    Stripe Price ID (required to subscribe)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.stripe_price_id || ""}
+                    onChange={(e) => setFormData({ ...formData, stripe_price_id: e.target.value })}
+                    className="w-full px-4 py-2 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400"
+                    placeholder="price_..."
                   />
                 </div>
               </div>
@@ -506,7 +698,7 @@ export default function SubscriptionPlansPage() {
         }
         description={
           <div className="space-y-3">
-            <p>Are you sure you want to delete <span className="font-bold text-white underline decoration-red-500/50">"{selectedPlan?.display_name}"</span> entirely from the system?</p>
+            <p>Are you sure you want to delete <span className="font-bold text-white underline decoration-red-500/50">&quot;{selectedPlan?.display_name}&quot;</span> entirely from the system?</p>
             <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
               <p className="text-xs text-red-400 font-medium uppercase tracking-wider mb-1">Danger Zone</p>
               <ul className="text-[11px] text-red-300/80 list-disc pl-4 space-y-1">

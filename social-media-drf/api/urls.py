@@ -83,6 +83,7 @@ urlpatterns = [
     path('chat/admin/conversations/', AdminAllConversationsView.as_view(), name='admin-all-conversations'),
     path('chat/admin/conversation/messages/', AdminGetConversationMessagesView.as_view(), name='admin-conversation-messages'),
     path('chat/admin/conversation/delete/', AdminDeleteConversationView.as_view(), name='admin-delete-conversation'),
+    path('chat/admin/conversation/cleanup/', AdminCleanupConversationView.as_view(), name='admin-cleanup-conversation'),
     path('chat/admin/history/', AdminChatHistoryView.as_view(), name='admin-chat-history'),
     # Unified reports endpoint (must import UnifiedReportsView from post.views)
     path('reports/all/', UnifiedReportsView.as_view(), name='unified-reports'),

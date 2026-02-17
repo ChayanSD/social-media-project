@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 from django.utils import timezone
+from django.conf import settings
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.core.files.storage import default_storage
@@ -80,16 +81,16 @@ def delete_product_image(sender, instance, **kwargs):
 # Payment Models
 class SubscriptionPlan(models.Model):
     """Subscription plans for promotion posts"""
-    PLAN_TIERS = (
-        ('free', 'Free'),
-        ('basic', 'Basic'),
-        ('pro', 'Pro'),
-        ('enterprise', 'Enterprise'),
+    BILLING_CYCLE_CHOICES = (
+        ('month', 'Monthly'),
+        ('year', 'Yearly'),
     )
     
     name = models.CharField(max_length=50, unique=True, help_text="Unique identifier for the plan (e.g., 'premium', 'starter')")
     display_name = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    billing_cycle = models.CharField(max_length=10, choices=BILLING_CYCLE_CHOICES, default='month')
+    billing_interval_count = models.PositiveIntegerField(default=1, help_text="Number of billing cycle units between renewals (e.g. 12 for annual when cycle is month)")
     posts_per_month = models.IntegerField(default=0)  # 0 means unlimited
     stripe_price_id = models.CharField(max_length=255, blank=True, null=True, help_text="Stripe Price ID for subscription")
     stripe_product_id = models.CharField(max_length=255, blank=True, null=True, help_text="Stripe Product ID")
@@ -100,7 +101,9 @@ class SubscriptionPlan(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"{self.display_name} - ${self.price}/month"
+        cycle = "month" if self.billing_cycle == "month" else "year"
+        interval = f"{self.billing_interval_count} {cycle}{'s' if self.billing_interval_count != 1 else ''}"
+        return f"{self.display_name} - ${self.price}/{interval}"
     
     class Meta:
         ordering = ['price']
@@ -114,6 +117,8 @@ class UserSubscription(models.Model):
         ('past_due', 'Past Due'),
         ('trialing', 'Trialing'),
         ('incomplete', 'Incomplete'),
+        ('incomplete_expired', 'Incomplete Expired'),
+        ('unpaid', 'Unpaid'),
     )
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
@@ -144,10 +149,13 @@ class UserSubscription(models.Model):
     def can_post(self):
         """Check if user can post based on their subscription"""
         self.reset_monthly_usage()
+        active_statuses = {'active', 'trialing'}
+        if self.status not in active_statuses:
+            return False
         
         if not self.plan:
-            # Free tier - 1 post per month
-            return self.posts_used_this_month < 1
+            # Free tier quota from settings
+            return self.posts_used_this_month < getattr(settings, 'FREE_TIER_POSTS', 1)
         
         if self.plan.posts_per_month == 0:
             # Unlimited plan
@@ -158,9 +166,12 @@ class UserSubscription(models.Model):
     def get_remaining_posts(self):
         """Get remaining posts for current month"""
         self.reset_monthly_usage()
+        active_statuses = {'active', 'trialing'}
+        if self.status not in active_statuses:
+            return 0
         
         if not self.plan:
-            return max(0, 1 - self.posts_used_this_month)
+            return max(0, getattr(settings, 'FREE_TIER_POSTS', 1) - self.posts_used_this_month)
         
         if self.plan.posts_per_month == 0:
             return -1  # Unlimited
@@ -234,3 +245,16 @@ class PostCredit(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+
+
+class StripeWebhookEvent(models.Model):
+    """Tracks processed Stripe webhook events for idempotency."""
+    event_id = models.CharField(max_length=255, unique=True)
+    event_type = models.CharField(max_length=100)
+    processed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.event_type} ({self.event_id})"
+
+    class Meta:
+        ordering = ['-processed_at']

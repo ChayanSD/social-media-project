@@ -19,6 +19,7 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "emoji-picker-react": "^4.18.0",
     "lucide-react": "^0.548.0",
     "next": "15.5.7",
     "react": "19.1.0",

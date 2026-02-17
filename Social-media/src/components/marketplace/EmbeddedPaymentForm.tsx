@@ -10,25 +10,24 @@ import { Loader2, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
   useCreateSubscriptionWithPaymentMethodMutation,
-  useCreatePostPaymentWithPaymentMethodMutation,
 } from "@/store/paymentApi";
 
 interface EmbeddedPaymentFormProps {
   planId: number;
   planName: string;
   amount: number;
+  billingLabel?: string;
   onSuccess: () => void;
   onCancel: () => void;
-  paymentType: "subscription" | "one_time";
 }
 
 export default function EmbeddedPaymentForm({
   planId,
   planName,
   amount,
+  billingLabel,
   onSuccess,
   onCancel,
-  paymentType,
 }: EmbeddedPaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -38,7 +37,6 @@ export default function EmbeddedPaymentForm({
   >("idle");
   
   const [createSubscription] = useCreateSubscriptionWithPaymentMethodMutation();
-  const [createPostPayment] = useCreatePostPaymentWithPaymentMethodMutation();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -84,22 +82,13 @@ export default function EmbeddedPaymentForm({
       // Call backend to create subscription/payment
       let result;
       try {
-        if (paymentType === "subscription") {
-          if (!planId || planId === 0) {
-            throw new Error("Invalid plan ID. Please select a valid subscription plan.");
-          }
-          console.log("Creating subscription:", { plan_id: planId, payment_method_id: paymentMethod.id });
-          result = await createSubscription({
-            plan_id: planId,
-            payment_method_id: paymentMethod.id,
-          }).unwrap();
-        } else {
-          console.log("Creating post payment:", { payment_method_id: paymentMethod.id });
-          result = await createPostPayment({
-            payment_method_id: paymentMethod.id,
-            return_url: window.location.href,
-          }).unwrap();
+        if (!planId || planId === 0) {
+          throw new Error("Invalid plan ID. Please select a valid subscription plan.");
         }
+        result = await createSubscription({
+          plan_id: planId,
+          payment_method_id: paymentMethod.id,
+        }).unwrap();
 
         if (!result || !result.success) {
           setPaymentStatus("error");
@@ -137,9 +126,18 @@ export default function EmbeddedPaymentForm({
         return;
       }
 
-      // Handle 3D Secure if required
-      if (result.data.requires_action && result.data.client_secret) {
-        const { error: confirmError } = await stripe.confirmCardPayment(
+      let finalPaymentStatus = result.data.payment_status;
+
+      // Handle Stripe confirmation when required (3DS or confirmation step)
+      if (result.data.requires_action) {
+        if (!result.data.client_secret) {
+          setPaymentStatus("error");
+          toast.error("Payment confirmation is required but client secret is missing.");
+          setIsProcessing(false);
+          return;
+        }
+
+        const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
           result.data.client_secret
         );
 
@@ -149,15 +147,20 @@ export default function EmbeddedPaymentForm({
           setIsProcessing(false);
           return;
         }
+
+        finalPaymentStatus = paymentIntent?.status || finalPaymentStatus;
+      }
+
+      if (finalPaymentStatus !== "succeeded") {
+        setPaymentStatus("error");
+        toast.error(`Payment is not completed yet (status: ${finalPaymentStatus}).`);
+        setIsProcessing(false);
+        return;
       }
 
       // Success!
       setPaymentStatus("success");
-      toast.success(
-        paymentType === "subscription"
-          ? "Subscription activated successfully!"
-          : "Payment successful! Post credit added."
-      );
+      toast.success("Subscription activated successfully!");
       
       setTimeout(() => {
         onSuccess();
@@ -187,9 +190,9 @@ export default function EmbeddedPaymentForm({
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-white/60">
-            {paymentType === "subscription"
-              ? "Your subscription will auto-renew monthly. Cancel anytime."
-              : "One-time payment for a single promotion post."}
+            {billingLabel
+              ? `${planName} auto-renews every ${billingLabel}. Cancel anytime.`
+              : `${planName} auto-renews. Cancel anytime.`}
           </p>
         </div>
         <div className="flex gap-3">
@@ -230,4 +233,3 @@ export default function EmbeddedPaymentForm({
     </form>
   );
 }
-

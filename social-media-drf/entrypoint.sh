@@ -47,7 +47,5 @@ if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_EMAIL" ] && [ 
     python manage.py createsuperuser --noinput || true
 fi
 
-echo "Starting server..."
-
-# Start daphne for ASGI (supports WebSockets)
-exec daphne -b 0.0.0.0 -p 8000 app.asgi:application
+# Start server (defaults to daphne via CMD in Dockerfile, or overridden by docker-compose)
+exec "$@"

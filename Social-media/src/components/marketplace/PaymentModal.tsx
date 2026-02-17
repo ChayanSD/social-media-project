@@ -16,7 +16,7 @@ interface PaymentModalProps {
   planId: number;
   planName: string;
   amount: number;
-  paymentType: "subscription" | "one_time";
+  billingLabel?: string;
   onSuccess?: () => void;
 }
 
@@ -26,7 +26,7 @@ export default function PaymentModal({
   planId,
   planName,
   amount,
-  paymentType,
+  billingLabel,
   onSuccess,
 }: PaymentModalProps) {
   // Ensure amount is a number
@@ -54,9 +54,7 @@ export default function PaymentModal({
             ${numericAmount.toFixed(2)}
           </p>
           <p className="text-white/60">
-            {paymentType === "subscription"
-              ? "Monthly subscription"
-              : "One-time payment"}
+            {billingLabel ? `Subscription billed every ${billingLabel}` : "Subscription"}
           </p>
         </div>
 
@@ -64,7 +62,7 @@ export default function PaymentModal({
           <Elements
             stripe={stripePromise}
             options={{
-              mode: paymentType === "subscription" ? "subscription" : "payment",
+              mode: "subscription",
               amount: Math.round(numericAmount * 100), // Convert to cents
               currency: "usd",
               paymentMethodCreation: "manual",
@@ -74,9 +72,9 @@ export default function PaymentModal({
               planId={planId}
               planName={planName}
               amount={numericAmount}
+              billingLabel={billingLabel}
               onSuccess={handleSuccess}
               onCancel={onClose}
-              paymentType={paymentType}
             />
           </Elements>
         )}
@@ -84,4 +82,3 @@ export default function PaymentModal({
     </CustomDialog>
   );
 }
-

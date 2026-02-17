@@ -189,8 +189,7 @@ class MarketplaceProductViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         try:
             # Check if user can post
-            from .models import UserSubscription, PostCredit
-            from django.utils import timezone
+            from .models import UserSubscription
             
             # Get the most recent active subscription
             subscription = UserSubscription.objects.filter(
@@ -211,20 +210,6 @@ class MarketplaceProductViewSet(viewsets.ModelViewSet):
             subscription.reset_monthly_usage()
             
             can_post = subscription.can_post()
-            used_credit = False
-            
-            # Check for available credits if subscription limit reached
-            if not can_post:
-                credits = PostCredit.objects.filter(
-                    user=request.user
-                ).exclude(expires_at__lt=timezone.now() if timezone.now() else None)
-                
-                for credit in credits:
-                    if credit.has_credits():
-                        credit.use_credit()
-                        used_credit = True
-                        can_post = True
-                        break
             
             if not can_post:
                 remaining = subscription.get_remaining_posts()
@@ -239,10 +224,8 @@ class MarketplaceProductViewSet(viewsets.ModelViewSet):
             if serializer.is_valid():
                 product = serializer.save(user=request.user)
                 
-                # Increment post count if not using credit
-                if not used_credit:
-                    subscription.posts_used_this_month += 1
-                    subscription.save()
+                subscription.posts_used_this_month += 1
+                subscription.save()
                 
                 return success_response("Service created successfully.", serializer.data, status.HTTP_201_CREATED)
 

@@ -242,7 +242,7 @@ export interface UserSubscription {
     price: string;
     posts_per_month: number;
   } | null;
-  status: 'active' | 'canceled' | 'past_due' | 'trialing' | 'incomplete';
+  status: 'active' | 'canceled' | 'past_due' | 'trialing' | 'incomplete' | 'incomplete_expired' | 'unpaid';
   stripe_subscription_id: string | null;
   stripe_customer_id: string | null;
   current_period_start: string | null;

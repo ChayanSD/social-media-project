@@ -52,13 +52,9 @@ RUN pip install --no-cache-dir /wheels/*
 COPY . .
 
 # Make entrypoint executable
-RUN chmod +x /app/entrypoint.sh
-
-# Create directories for static and media files
-RUN mkdir -p /app/staticfiles /app/media
-
-# Change ownership to app user
-RUN chown -R appuser:appgroup $APP_HOME
+RUN chmod +x /app/entrypoint.sh && \
+    mkdir -p /app/staticfiles /app/media && \
+    chown -R appuser:appgroup /app
 
 # Switch to non-root user
 USER appuser
@@ -70,5 +66,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/swagger/')" || exit 1
 
-# Set entrypoint
+# Set entrypoint and default command
 ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "app.asgi:application"]
