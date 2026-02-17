@@ -84,7 +84,7 @@ const SidebarNavLinkContent = ({ className = "" }: { className?: string }) => {
           <Link
             key={item.label}
             href={safeHref(item.href)}
-            className="text-xs text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out"
+            className="text-base text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out"
           >
             {item.icon} {item.label}
           </Link>
@@ -94,16 +94,16 @@ const SidebarNavLinkContent = ({ className = "" }: { className?: string }) => {
         <h3 className="text-base text-[#BCB3B3] px-8 my-4">Communities</h3>
         <Link
           href="/main/communities"
-          className="w-full text-xs text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out"
+          className="w-full text-base text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out"
         >
           <FriendsIcon /> Communities
         </Link>
-        <button onClick={() => router.push('/main/create-community')} className="w-full text-xs text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out cursor-pointer">
+        <button onClick={() => router.push('/main/create-community')} className="w-full text-base text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out cursor-pointer">
           <FiPlus size={24} /> Create Communities
         </button>
         <button
           onClick={() => router.push('/main/manage-communities')}
-          className="w-full text-xs text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out cursor-pointer"
+          className="w-full text-base text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out cursor-pointer"
         >
           <HexagonIcon /> Manage Communities
         </button>
@@ -112,13 +112,13 @@ const SidebarNavLinkContent = ({ className = "" }: { className?: string }) => {
         <h3 className="text-base text-[#BCB3B3] px-8 my-4">Categories</h3>
         <button
           onClick={() => router.push('/main/join-categories')}
-          className="w-full text-xs text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out cursor-pointer"
+          className="w-full text-base text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out cursor-pointer"
         >
           <FiPlus size={24} /> Join Categories
         </button>
         <button
           onClick={() => router.push('/main/categories')}
-          className="w-full text-xs text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out cursor-pointer"
+          className="w-full text-base text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out cursor-pointer"
         >
           <FiTag size={24} /> Manage Categories
         </button>
@@ -128,7 +128,7 @@ const SidebarNavLinkContent = ({ className = "" }: { className?: string }) => {
           <Link
             key={item.label}
             href={safeHref(item.href)}
-            className="text-xs text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out"
+            className="text-base text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out"
           >
             {item.icon} {item.label}
           </Link>
