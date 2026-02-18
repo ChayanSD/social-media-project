@@ -116,7 +116,7 @@ const MessageItem = ({ message, onUserSelect, onManageRoom, onDeleteRoom }: Mess
             unoptimized={true}
           />
         ) : (
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#6c3f79] via-[#995a98] to-[#6c3f79] flex items-center justify-center text-white text-xs font-semibold">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#6c3f79] via-[#995a98] to-[#6c3f79] flex items-center justify-center text-white text-sm font-semibold">
             {message.sender.name.substring(0, 2).toUpperCase()}
           </div>
         )}
@@ -129,20 +129,20 @@ const MessageItem = ({ message, onUserSelect, onManageRoom, onDeleteRoom }: Mess
       {/* Message content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
-          <h4 className="font-medium text-white text-sm truncate group-hover:text-gray-300 transition-colors">
+          <h4 className="font-medium text-white text-base truncate group-hover:text-gray-300 transition-colors">
             {message.sender.name}
           </h4>
-          <span className="text-xs text-gray-500 flex-shrink-0 ml-2">
+          <span className="text-sm text-gray-500 flex-shrink-0 ml-2">
             {message.timestamp}
           </span>
         </div>
 
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-600 truncate flex-1">
+          <p className="text-base text-gray-600 truncate flex-1">
             {message.lastMessage}
           </p>
           {message.unreadCount > 0 && (
-            <div className="bg-[#ff4500] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-2 flex-shrink-0 font-medium">
+            <div className="bg-[#ff4500] text-white text-sm rounded-full w-5 h-5 flex items-center justify-center ml-2 flex-shrink-0 font-medium">
               {message.unreadCount > 9 ? '9+' : message.unreadCount}
             </div>
           )}
@@ -164,13 +164,13 @@ const MessageItem = ({ message, onUserSelect, onManageRoom, onDeleteRoom }: Mess
             <div className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-[100] min-w-[150px]">
               <button
                 onClick={handleManageRoom}
-                className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 rounded-t-lg transition-colors"
+                className="w-full px-4 py-2 text-left text-base text-white hover:bg-gray-700 rounded-t-lg transition-colors"
               >
                 Manage Room
               </button>
               <button
                 onClick={handleDeleteRoom}
-                className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-gray-700 rounded-b-lg transition-colors"
+                className="w-full px-4 py-2 text-left text-base text-red-400 hover:bg-gray-700 rounded-b-lg transition-colors"
               >
                 Delete Room
               </button>

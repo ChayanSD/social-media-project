@@ -260,7 +260,7 @@ const MessageUserList = ({ searchQuery, onUserSelect }: MessageUserListProps) =>
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Loading users...</p>
+          <p className="text-base text-gray-500">Loading users...</p>
         </div>
       </div>
     );
@@ -270,7 +270,7 @@ const MessageUserList = ({ searchQuery, onUserSelect }: MessageUserListProps) =>
     return (
       <div className="flex-1 flex items-center justify-center text-gray-500">
         <div className="text-center px-4">
-          <p className="text-sm">
+          <p className="text-base">
             {searchQuery
               ? "No users found. Try a different search."
               : "No conversations yet. Start chatting with someone!"}
@@ -309,7 +309,7 @@ const MessageUserList = ({ searchQuery, onUserSelect }: MessageUserListProps) =>
                         unoptimized={true}
                       />
                     ) : (
-                      <span className="text-white text-xs font-semibold">
+                      <span className="text-white text-sm font-semibold">
                         {conversation.name.substring(0, 2).toUpperCase()}
                       </span>
                     )}
@@ -318,11 +318,11 @@ const MessageUserList = ({ searchQuery, onUserSelect }: MessageUserListProps) =>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="text-sm font-medium text-white truncate">
+                    <p className="text-base font-medium text-white truncate">
                       {conversation.name}
                     </p>
                     {conversation.timestamp && (
-                      <span className="text-xs text-gray-500 flex-shrink-0 ml-2">
+                      <span className="text-sm text-gray-500 flex-shrink-0 ml-2">
                         {conversation.timestamp}
                       </span>
                     )}
@@ -332,14 +332,14 @@ const MessageUserList = ({ searchQuery, onUserSelect }: MessageUserListProps) =>
                       <div className="flex-1">
                         {viewingRequestId === String(conversation.pendingRequest?.id) ? (
                           <div className="space-y-2">
-                            <p className="text-sm text-yellow-400 mb-2">
+                            <p className="text-base text-yellow-400 mb-2">
                               {conversation.pendingRequest?.content || "No message content"}
                             </p>
                             <div className="flex gap-2">
                               <button
                                 onClick={(e) => handleAcceptRequest(conversation.pendingRequest!.id!, e)}
                                 disabled={isAccepting || isRejecting}
-                                className="request-action-button flex-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+                                className="request-action-button flex-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
                               >
                                 {isAccepting ? (
                                   <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white" />
@@ -350,7 +350,7 @@ const MessageUserList = ({ searchQuery, onUserSelect }: MessageUserListProps) =>
                               <button
                                 onClick={(e) => handleRejectRequest(conversation.pendingRequest!.id!, e)}
                                 disabled={isAccepting || isRejecting}
-                                className="request-action-button flex-1 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+                                className="request-action-button flex-1 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
                               >
                                 {isRejecting ? (
                                   <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white" />
@@ -362,8 +362,8 @@ const MessageUserList = ({ searchQuery, onUserSelect }: MessageUserListProps) =>
                           </div>
                         ) : (
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-yellow-400">Message request:</span>
-                            <p className="text-sm text-gray-600 truncate flex-1">
+                            <span className="text-sm text-yellow-400">Message request:</span>
+                            <p className="text-base text-gray-600 truncate flex-1">
                               {conversation.pendingRequest?.content || conversation.lastMessage}
                             </p>
                           </div>
@@ -373,13 +373,13 @@ const MessageUserList = ({ searchQuery, onUserSelect }: MessageUserListProps) =>
                       <div className="flex-1">
                         {viewingRequestId === String(conversation.pendingRequest?.id) ? (
                           <div className="space-y-2">
-                            <p className="text-sm text-blue-400 mb-2">
+                            <p className="text-base text-blue-400 mb-2">
                               {conversation.pendingRequest?.content || "No message content"}
                             </p>
                             <button
                               onClick={(e) => handleCancelRequest(conversation.pendingRequest!.id!, e)}
                               disabled={isCancelling}
-                              className="request-action-button w-full px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+                              className="request-action-button w-full px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
                             >
                               {isCancelling ? (
                                 <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white" />
@@ -390,30 +390,30 @@ const MessageUserList = ({ searchQuery, onUserSelect }: MessageUserListProps) =>
                           </div>
                         ) : (
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-blue-400">Request sent</span>
-                            <p className="text-sm text-gray-600 truncate flex-1">
+                            <span className="text-sm text-blue-400">Request sent</span>
+                            <p className="text-base text-gray-600 truncate flex-1">
                               {conversation.pendingRequest?.content || conversation.lastMessage}
                             </p>
                           </div>
                         )}
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-600 truncate flex-1">
+                      <p className="text-base text-gray-600 truncate flex-1">
                         {conversation.lastMessage}
                       </p>
                     )}
                     {conversation.unreadCount > 0 && (
-                      <div className="bg-[#ff4500] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-2 flex-shrink-0 font-medium">
+                      <div className="bg-[#ff4500] text-white text-sm rounded-full w-5 h-5 flex items-center justify-center ml-2 flex-shrink-0 font-medium">
                         {conversation.unreadCount > 9 ? '9+' : conversation.unreadCount}
                       </div>
                     )}
                     {conversation.hasPendingRequest && conversation.isRequestReceiver && (
-                      <div className="bg-yellow-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-2 flex-shrink-0 font-medium">
+                      <div className="bg-yellow-500 text-white text-sm rounded-full w-5 h-5 flex items-center justify-center ml-2 flex-shrink-0 font-medium">
                         !
                       </div>
                     )}
                     {conversation.hasPendingRequest && !conversation.isRequestReceiver && (
-                      <div className="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-2 flex-shrink-0 font-medium">
+                      <div className="bg-blue-500 text-white text-sm rounded-full w-5 h-5 flex items-center justify-center ml-2 flex-shrink-0 font-medium">
                         ⏱
                       </div>
                     )}
@@ -440,14 +440,14 @@ const MessageUserList = ({ searchQuery, onUserSelect }: MessageUserListProps) =>
                     <button
                       onClick={() => handleBlockUser(conversation.id, conversation.name)}
                       disabled={isBlocking || isUnblocking}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-xs text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed first:rounded-t-lg"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed first:rounded-t-lg"
                     >
                       <MdBlock size={16} />
                       {isBlocked ? 'Unblock' : 'Block'}
                     </button>
                     <button
                       onClick={() => handleReportUser(conversation.id, conversation.name)}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-400 hover:bg-gray-800 transition-colors last:rounded-b-lg"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-gray-800 transition-colors last:rounded-b-lg"
                     >
                       <MdReport size={16} />
                       Report

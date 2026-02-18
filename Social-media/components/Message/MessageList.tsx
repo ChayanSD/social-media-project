@@ -65,24 +65,24 @@ const MessageList = ({ searchQuery, onUserSelect, onManageRoom, onDeleteRoom }: 
         isGroup: true,
       };
     }
-    
+
     // For one-on-one rooms, show the other participant
     const participants = room.participants || [];
     const otherParticipant = room.other_participant || (Array.isArray(participants) ? participants[0] : null);
-    
+
     if (otherParticipant) {
       const apiBase = getApiBaseUrl();
       return {
         name: (otherParticipant as ChatUser).display_name || (otherParticipant as ChatUser).username || 'Unknown',
-        avatar: (otherParticipant as ChatUser).avatar 
-          ? ((otherParticipant as ChatUser).avatar?.startsWith('http') 
-              ? (otherParticipant as ChatUser).avatar 
-              : `${apiBase}${(otherParticipant as ChatUser).avatar?.startsWith('/') ? (otherParticipant as ChatUser).avatar?.slice(1) : (otherParticipant as ChatUser).avatar}`)
+        avatar: (otherParticipant as ChatUser).avatar
+          ? ((otherParticipant as ChatUser).avatar?.startsWith('http')
+            ? (otherParticipant as ChatUser).avatar
+            : `${apiBase}${(otherParticipant as ChatUser).avatar?.startsWith('/') ? (otherParticipant as ChatUser).avatar?.slice(1) : (otherParticipant as ChatUser).avatar}`)
           : '/profile.jpg',
         isGroup: false,
       };
     }
-    
+
     return {
       name: 'Unknown User',
       avatar: '/profile.jpg',
@@ -96,7 +96,7 @@ const MessageList = ({ searchQuery, onUserSelect, onManageRoom, onDeleteRoom }: 
       .map((room: ChatRoom) => {
         const displayInfo = getRoomDisplayInfo(room);
         const lastMessage = (room.last_message as { content?: string; created_at?: string } | undefined) || {};
-        
+
         return {
           id: String(room.id),
           roomId: room.id,
@@ -129,7 +129,7 @@ const MessageList = ({ searchQuery, onUserSelect, onManageRoom, onDeleteRoom }: 
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-          <p className="text-sm text-gray-500">Loading rooms...</p>
+          <p className="text-base text-gray-500">Loading rooms...</p>
         </div>
       </div>
     );
@@ -139,8 +139,8 @@ const MessageList = ({ searchQuery, onUserSelect, onManageRoom, onDeleteRoom }: 
     return (
       <div className="flex-1 flex items-center justify-center text-gray-500">
         <div className="text-center mt-5">
-          <p className="text-sm">Failed to load rooms</p>
-          <p className="text-xs mt-1">Please try again later</p>
+          <p className="text-base">Failed to load rooms</p>
+          <p className="text-sm mt-1">Please try again later</p>
         </div>
       </div>
     );
@@ -150,7 +150,7 @@ const MessageList = ({ searchQuery, onUserSelect, onManageRoom, onDeleteRoom }: 
     return (
       <div className="flex-1 flex items-center justify-center text-gray-500">
         <div className="text-center">
-          <p className="text-sm w-60 mx-auto mt-5">
+          <p className="text-base w-60 mx-auto mt-5">
             {searchQuery ? 'No rooms found' : 'No group rooms yet. Create one to get started!'}
           </p>
         </div>
@@ -162,9 +162,9 @@ const MessageList = ({ searchQuery, onUserSelect, onManageRoom, onDeleteRoom }: 
     <div className="flex flex-col h-full">
       <div className="  relative">
         {filteredRooms.map((room) => (
-          <MessageItem 
-            key={room.id} 
-            message={room} 
+          <MessageItem
+            key={room.id}
+            message={room}
             onUserSelect={onUserSelect}
             onManageRoom={onManageRoom}
             onDeleteRoom={onDeleteRoom}

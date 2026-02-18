@@ -44,7 +44,7 @@ export function TableFilters({ title, filters, children }: TableFiltersProps) {
             return (
               <div key={filter.key} className="flex items-center gap-2">
                 {filter.label && (
-                  <label className="text-sm text-white/70 whitespace-nowrap">
+                  <label className="text-base text-white/70 whitespace-nowrap">
                     {filter.label}:
                   </label>
                 )}
@@ -53,11 +53,10 @@ export function TableFilters({ title, filters, children }: TableFiltersProps) {
                     <button
                       key={option.value}
                       onClick={() => filter.onChange(option.value)}
-                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap cursor-pointer ${
-                        filter.value === option.value
+                      className={`px-3 py-1.5 rounded-md text-base font-medium transition-colors whitespace-nowrap cursor-pointer ${filter.value === option.value
                           ? "bg-blue-600 text-white"
                           : "bg-transparent text-white/70 hover:bg-white/20"
-                      }`}
+                        }`}
                     >
                       {option.label}
                     </button>
@@ -71,7 +70,7 @@ export function TableFilters({ title, filters, children }: TableFiltersProps) {
           return (
             <div key={filter.key} className="flex flex-col gap-1">
               {filter.label && (
-                <label className="text-sm text-white/70 whitespace-nowrap">
+                <label className="text-base text-white/70 whitespace-nowrap">
                   {filter.label}:
                 </label>
               )}

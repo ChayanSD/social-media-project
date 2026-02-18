@@ -108,14 +108,14 @@ export default function MessageRequests({ isOpen, onClose }: MessageRequestsProp
                       <h4 className="text-white font-semibold truncate">
                         {request.sender?.display_name || request.sender_username || "Unknown User"}
                       </h4>
-                      <span className="text-xs text-white/50">
+                      <span className="text-sm text-white/50">
                         {request.created_at
                           ? new Date(request.created_at).toLocaleDateString()
                           : ""}
                       </span>
                     </div>
 
-                    <p className="text-white/70 text-sm mb-3 line-clamp-2">
+                    <p className="text-white/70 text-base mb-3 line-clamp-2">
                       {request.content || "No message content"}
                     </p>
 

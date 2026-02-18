@@ -120,7 +120,7 @@ export default function SubscriptionsPage() {
 
         return (
             <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${styles[status as keyof typeof styles] || styles.incomplete
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium border ${styles[status as keyof typeof styles] || styles.incomplete
                     }`}
             >
                 {icons[status as keyof typeof icons] || <Clock className="w-4 h-4" />}
@@ -167,8 +167,8 @@ export default function SubscriptionsPage() {
                         )}
                     </div>
                     <div>
-                        <p className="text-sm font-medium text-white">{subscription.user.username}</p>
-                        <p className="text-xs text-white/60">{subscription.user.email}</p>
+                        <p className="text-base font-medium text-white">{subscription.user.username}</p>
+                        <p className="text-sm text-white/60">{subscription.user.email}</p>
                     </div>
                 </div>
             ),
@@ -178,11 +178,11 @@ export default function SubscriptionsPage() {
             accessor: (subscription) => (
                 subscription.plan ? (
                     <div>
-                        <p className="text-sm font-medium text-white">{subscription.plan.display_name}</p>
-                        <p className="text-xs text-white/60">${subscription.plan.price}/month</p>
+                        <p className="text-base font-medium text-white">{subscription.plan.display_name}</p>
+                        <p className="text-sm text-white/60">${subscription.plan.price}/month</p>
                     </div>
                 ) : (
-                    <span className="text-sm text-white/40">Free Plan</span>
+                    <span className="text-base text-white/40">Free Plan</span>
                 )
             ),
         },
@@ -193,13 +193,13 @@ export default function SubscriptionsPage() {
         {
             header: "Posts Used",
             accessor: (subscription) => (
-                <span className="text-sm text-white/80">{getRemainingPosts(subscription)}</span>
+                <span className="text-base text-white/80">{getRemainingPosts(subscription)}</span>
             ),
         },
         {
             header: "Created",
             accessor: (subscription) => (
-                <span className="text-sm text-white/80">{formatDate(subscription.created_at)}</span>
+                <span className="text-base text-white/80">{formatDate(subscription.created_at)}</span>
             ),
         },
         {
@@ -310,7 +310,7 @@ export default function SubscriptionsPage() {
                     setStatusFilter(e.target.value);
                     setPage(1);
                 }}
-                className="px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
                 <option value="">All Statuses</option>
                 <option value="active">Active</option>
@@ -340,7 +340,7 @@ export default function SubscriptionsPage() {
                                 <Users className="w-6 h-6 text-blue-400" />
                             </div>
                             <div>
-                                <p className="text-sm text-white/60">Total Subscriptions</p>
+                                <p className="text-base text-white/60">Total Subscriptions</p>
                                 <p className="text-2xl font-bold text-white">{summary.total_subscriptions}</p>
                             </div>
                         </div>
@@ -351,7 +351,7 @@ export default function SubscriptionsPage() {
                                 <CheckCircle className="w-6 h-6 text-green-400" />
                             </div>
                             <div>
-                                <p className="text-sm text-white/60">Active Subscriptions</p>
+                                <p className="text-base text-white/60">Active Subscriptions</p>
                                 <p className="text-2xl font-bold text-white">{summary.active_subscriptions}</p>
                             </div>
                         </div>
@@ -362,7 +362,7 @@ export default function SubscriptionsPage() {
                                 <DollarSign className="w-6 h-6 text-purple-400" />
                             </div>
                             <div>
-                                <p className="text-sm text-white/60">Monthly Recurring Revenue</p>
+                                <p className="text-base text-white/60">Monthly Recurring Revenue</p>
                                 <p className="text-2xl font-bold text-white">${summary.monthly_recurring_revenue.toFixed(2)}</p>
                             </div>
                         </div>

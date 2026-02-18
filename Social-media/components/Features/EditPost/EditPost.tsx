@@ -323,7 +323,7 @@ const EditPost: React.FC<EditPostProps> = ({ post, isOpen, onClose, onSuccess })
                     }`}
                 >
                   <Icon size={18} />
-                  <span className="text-sm font-medium">{tab.label}</span>
+                  <span className="text-base font-medium">{tab.label}</span>
                 </button>
               );
             })}
@@ -344,12 +344,12 @@ const EditPost: React.FC<EditPostProps> = ({ post, isOpen, onClose, onSuccess })
                 className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300"
                 placeholder="Enter your post title..."
               />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-base">
                 {titleValue?.length || 0}/300
               </div>
             </div>
             {errors.title && (
-              <p className="text-red-400 text-sm">{errors.title.message}</p>
+              <p className="text-red-400 text-base">{errors.title.message}</p>
             )}
           </div>
 
@@ -360,7 +360,7 @@ const EditPost: React.FC<EditPostProps> = ({ post, isOpen, onClose, onSuccess })
               {tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="inline-flex items-center gap-1 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm border border-purple-400/30"
+                  className="inline-flex items-center gap-1 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-base border border-purple-400/30"
                 >
                   #{tag}
                   <button
@@ -383,7 +383,7 @@ const EditPost: React.FC<EditPostProps> = ({ post, isOpen, onClose, onSuccess })
               disabled={tags.length >= 5}
             />
             {tags.length >= 5 && (
-              <p className="text-yellow-400 text-sm">
+              <p className="text-yellow-400 text-base">
                 Maximum 5 tags allowed
               </p>
             )}
@@ -398,7 +398,7 @@ const EditPost: React.FC<EditPostProps> = ({ post, isOpen, onClose, onSuccess })
                         type="button"
                         onClick={() => handleInterestClick(interest.name)}
                         disabled={isDisabled}
-                        className={`px-3 py-1 rounded-full text-xs transition-all ${isDisabled
+                        className={`px-3 py-1 rounded-full text-sm transition-all ${isDisabled
                           ? "bg-white/5 text-white/30 border border-white/10 cursor-not-allowed"
                           : "bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 hover:text-white cursor-pointer"
                           }`}
@@ -440,7 +440,7 @@ const EditPost: React.FC<EditPostProps> = ({ post, isOpen, onClose, onSuccess })
                 <p className="text-white mb-2">
                   Click to upload Image
                 </p>
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-400 text-base">
                   Images up to 3MB each
                 </p>
               </div>
@@ -454,7 +454,7 @@ const EditPost: React.FC<EditPostProps> = ({ post, isOpen, onClose, onSuccess })
               />
 
               <div className="space-y-2 mt-4">
-                <label className="block text-white text-sm font-medium">Or paste a video link (YouTube, Vimeo, etc.)</label>
+                <label className="block text-white text-base font-medium">Or paste a video link (YouTube, Vimeo, etc.)</label>
                 <input
                   {...register("videoUrl")}
                   type="url"
@@ -551,7 +551,7 @@ const EditPost: React.FC<EditPostProps> = ({ post, isOpen, onClose, onSuccess })
                 placeholder="https://example.com"
               />
               {errors.linkUrl && (
-                <p className="text-red-400 text-sm">
+                <p className="text-red-400 text-base">
                   {errors.linkUrl.message}
                 </p>
               )}

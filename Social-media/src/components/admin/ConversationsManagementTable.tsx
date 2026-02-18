@@ -241,12 +241,12 @@ export default function ConversationsManagementTable() {
           {row.type === "direct" ? (
             <>
               <MessageSquare className="w-4 h-4 text-blue-400" />
-              <span className="text-sm">Direct</span>
+              <span className="text-base">Direct</span>
             </>
           ) : (
             <>
               <Users className="w-4 h-4 text-green-400" />
-              <span className="text-sm">Room</span>
+              <span className="text-base">Room</span>
             </>
           )}
         </div>
@@ -277,7 +277,7 @@ export default function ConversationsManagementTable() {
                     />
                   </div>
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-[#6B83FA] flex items-center justify-center text-white font-semibold text-xs border border-white/20">
+                  <div className="w-8 h-8 rounded-full bg-[#6B83FA] flex items-center justify-center text-white font-semibold text-sm border border-white/20">
                     {getUserInitials(user1Name)}
                   </div>
                 )}
@@ -292,14 +292,14 @@ export default function ConversationsManagementTable() {
                     />
                   </div>
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-[#10B981] flex items-center justify-center text-white font-semibold text-xs border border-white/20">
+                  <div className="w-8 h-8 rounded-full bg-[#10B981] flex items-center justify-center text-white font-semibold text-sm border border-white/20">
                     {getUserInitials(user2Name)}
                   </div>
                 )}
               </div>
               <div className="flex flex-col">
-                <span className="text-sm text-white">{user1Name}</span>
-                <span className="text-xs text-white/60">{user2Name}</span>
+                <span className="text-base text-white">{user1Name}</span>
+                <span className="text-sm text-white/60">{user2Name}</span>
               </div>
             </div>
           );
@@ -309,13 +309,13 @@ export default function ConversationsManagementTable() {
           return (
             <div className="relative group flex items-center gap-2">
               <Users className="w-4 h-4 text-white/60" />
-              <span className="text-sm text-white">
+              <span className="text-base text-white">
                 {row.name || "Unnamed Room"} ({participantCount} {participantCount === 1 ? "member" : "members"})
               </span>
               {participants.length > 0 && (
                 <div className="absolute left-0 top-full mt-2 z-50 hidden group-hover:block">
                   <div className="bg-black/95 border border-white/20 rounded-lg p-4 shadow-xl min-w-[250px] max-w-[400px]">
-                    <div className="text-xs font-semibold text-white/80 mb-2 pb-2 border-b border-white/10">
+                    <div className="text-sm font-semibold text-white/80 mb-2 pb-2 border-b border-white/10">
                       Room Members ({participantCount})
                     </div>
                     <div className="space-y-2 max-h-[300px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -335,14 +335,14 @@ export default function ConversationsManagementTable() {
                                 />
                               </div>
                             ) : (
-                              <div className="w-8 h-8 rounded-full bg-[#6B83FA] flex items-center justify-center text-white font-semibold text-xs border border-white/20 flex-shrink-0">
+                              <div className="w-8 h-8 rounded-full bg-[#6B83FA] flex items-center justify-center text-white font-semibold text-sm border border-white/20 flex-shrink-0">
                                 {getUserInitials(participantName)}
                               </div>
                             )}
                             <div className="flex flex-col min-w-0">
-                              <span className="text-sm text-white truncate">{participantName}</span>
+                              <span className="text-base text-white truncate">{participantName}</span>
                               {participant.username && participant.username !== participantName && (
-                                <span className="text-xs text-white/60 truncate">@{participant.username}</span>
+                                <span className="text-sm text-white/60 truncate">@{participant.username}</span>
                               )}
                             </div>
                           </div>
@@ -361,16 +361,16 @@ export default function ConversationsManagementTable() {
       header: "Last Message",
       accessor: (row) => {
         const lastMessage = row.last_message;
-        if (!lastMessage) return <span className="text-white/60 text-sm">No messages</span>;
+        if (!lastMessage) return <span className="text-white/60 text-base">No messages</span>;
 
         const content = lastMessage.content || "(No content)";
         const truncated = content.length > 50 ? content.substring(0, 50) + "..." : content;
         return (
           <div className="max-w-xs">
-            <p className="text-sm text-white truncate" title={content}>
+            <p className="text-base text-white truncate" title={content}>
               {truncated}
             </p>
-            <p className="text-xs text-white/50 mt-1">
+            <p className="text-sm text-white/50 mt-1">
               {lastMessage.sender?.display_name || lastMessage.sender?.username || "Unknown"}
             </p>
           </div>
@@ -386,7 +386,7 @@ export default function ConversationsManagementTable() {
     {
       header: "Last Activity",
       accessor: (row) => (
-        <span className="text-white/70 text-sm">{formatDate(row.created_at)}</span>
+        <span className="text-white/70 text-base">{formatDate(row.created_at)}</span>
       ),
     },
     {

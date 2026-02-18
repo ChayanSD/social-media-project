@@ -12,13 +12,13 @@ export default function AdminLayout({
     <div className="min-h-screen bg-slate-950 text-white">
       {/* <header className="border-b border-white/10 bg-slate-900/80 backdrop-blur px-6 py-4 flex items-center justify-between">
         <div>
-          <p className="text-xs uppercase tracking-widest text-blue-200/80">
+          <p className="text-sm uppercase tracking-widest text-blue-200/80">
             Admin Dashboard
           </p>
           <h1 className="text-lg font-semibold">Control Center</h1>
         </div>
 
-        <nav className="flex items-center gap-4 text-sm">
+        <nav className="flex items-center gap-4 text-base">
           <Link href="/dashboard" className="hover:text-blue-300 transition">
             Overview
           </Link>

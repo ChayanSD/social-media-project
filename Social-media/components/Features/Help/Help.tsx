@@ -82,8 +82,8 @@ const Help = () => {
         setExpandedFaq(expandedFaq === id ? null : id);
     };
 
-    const filteredFaqs = selectedCategory === 'all' 
-        ? faqs 
+    const filteredFaqs = selectedCategory === 'all'
+        ? faqs
         : faqs.filter(faq => faq.category === selectedCategory);
 
     return (
@@ -125,7 +125,7 @@ const Help = () => {
                                     {resource.icon}
                                 </div>
                                 <h3 className="text-lg font-semibold text-white mb-2">{resource.title}</h3>
-                                <p className="text-white/60 text-sm">{resource.description}</p>
+                                <p className="text-white/60 text-base">{resource.description}</p>
                             </div>
                         ))}
                     </div>
@@ -139,11 +139,10 @@ const Help = () => {
                             <button
                                 key={category.id}
                                 onClick={() => setSelectedCategory(category.id)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
-                                    selectedCategory === category.id
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${selectedCategory === category.id
                                         ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
                                         : 'bg-white/5 hover:bg-white/10 text-white/80 border border-white/10'
-                                }`}
+                                    }`}
                             >
                                 {category.icon}
                                 <span>{category.label}</span>
@@ -173,9 +172,8 @@ const Help = () => {
                                     )}
                                 </button>
                                 <div
-                                    className={`overflow-hidden transition-all duration-300 ${
-                                        expandedFaq === faq.id ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                                    }`}
+                                    className={`overflow-hidden transition-all duration-300 ${expandedFaq === faq.id ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                                        }`}
                                 >
                                     <div className="p-4 pt-0 text-white/80">
                                         {faq.answer}
@@ -193,13 +191,13 @@ const Help = () => {
                         Can&apos;t find what you&apos;re looking for? Our support team is here to help you 24/7. Reach out to us and we&apos;ll get back to you as soon as possible.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button 
+                        <button
                             onClick={() => router.push('/help-support')}
                             className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all hover:scale-105 shadow-lg"
                         >
                             Contact Support
                         </button>
-                        <button 
+                        <button
                             onClick={() => router.push('/main/communities')}
                             className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/20 transition-all"
                         >

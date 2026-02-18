@@ -28,7 +28,7 @@ const ErrorState: React.FC<ErrorStateProps> = ({
       <h3 className="text-red-400 text-lg font-semibold mb-2 text-center">
         Error Loading Data
       </h3>
-      <p className="text-white/60 text-sm text-center max-w-md mb-6">
+      <p className="text-white/60 text-base text-center max-w-md mb-6">
         {message}
       </p>
       {showRetryButton && onRetry && (

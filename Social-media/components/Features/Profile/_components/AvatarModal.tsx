@@ -56,8 +56,8 @@ const AvatarModal = ({ isOpen, onClose }: AvatarModalProps) => {
     // Set initial preview when modal opens
     useEffect(() => {
         if (isOpen && currentAvatar && !watchedFile) {
-            const avatarUrl = currentAvatar.startsWith('http') 
-                ? currentAvatar 
+            const avatarUrl = currentAvatar.startsWith('http')
+                ? currentAvatar
                 : `${getApiBaseUrl()}${currentAvatar.startsWith('/') ? currentAvatar.slice(1) : currentAvatar}`;
             setPreview(avatarUrl);
         }
@@ -111,7 +111,7 @@ const AvatarModal = ({ isOpen, onClose }: AvatarModalProps) => {
                                             alt="Preview"
                                             className="w-20 h-20 object-cover rounded-full mb-4"
                                         />
-                                        <p className="text-gray-300 text-sm">Image selected</p>
+                                        <p className="text-gray-300 text-base">Image selected</p>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center">
@@ -120,7 +120,7 @@ const AvatarModal = ({ isOpen, onClose }: AvatarModalProps) => {
                                         </div>
                                     </div>
                                 )}
-                               
+
                             </div>
                             <input
                                 type="file"
@@ -136,7 +136,7 @@ const AvatarModal = ({ isOpen, onClose }: AvatarModalProps) => {
                                 {preview ? 'Change image' : 'Select an image'}
                             </label>
                             {errors.image && (
-                                <p className="text-red-400 text-sm mt-2">{errors.image.message}</p>
+                                <p className="text-red-400 text-base mt-2">{errors.image.message}</p>
                             )}
                         </div>
                     </div>

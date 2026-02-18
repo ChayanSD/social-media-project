@@ -1,20 +1,20 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { 
-  FiTag, 
+import {
+  FiTag,
   FiTrash2,
   FiSearch,
-  FiChevronDown, 
+  FiChevronDown,
   FiChevronRight
 } from 'react-icons/fi';
 import PageHeader from '../../Shared/PageHeader/PageHeader';
 import {
   useGetCategoriesQuery,
 } from '@/store/categoryApi';
-import { 
+import {
   useGetCurrentUserProfileQuery,
-  useUpdateUserProfileMutation 
+  useUpdateUserProfileMutation
 } from '@/store/authApi';
 import { toast } from 'sonner';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -23,7 +23,7 @@ const ManageCategories = () => {
   const { data: categoriesResponse, isLoading: isCategoriesLoading } = useGetCategoriesQuery();
   const { data: profileResponse, isLoading: isProfileLoading } = useGetCurrentUserProfileQuery();
   const [updateUserProfile, { isLoading: isUpdating }] = useUpdateUserProfileMutation();
-  
+
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -31,29 +31,29 @@ const ManageCategories = () => {
 
   const categories = categoriesResponse?.data || [];
   const profile = profileResponse?.data;
-  
+
   // Get user's current interests (subcategory IDs)
   const userSubcategoryIds = useMemo(() => {
     if (!profile) return new Set<number>();
     // Check for subcategories in profile - could be in different formats
-    const subcategories = (profile as { 
+    const subcategories = (profile as {
       subcategories?: Array<{ id: number } | number>;
       interests?: Array<{ id: number } | number>;
       subcategory_ids?: number[];
-    })?.subcategories || 
-    (profile as { 
-      subcategories?: Array<{ id: number } | number>;
-      interests?: Array<{ id: number } | number>;
-      subcategory_ids?: number[];
-    })?.interests ||
-    (profile as { 
-      subcategories?: Array<{ id: number } | number>;
-      interests?: Array<{ id: number } | number>;
-      subcategory_ids?: number[];
-    })?.subcategory_ids || [];
-    
+    })?.subcategories ||
+      (profile as {
+        subcategories?: Array<{ id: number } | number>;
+        interests?: Array<{ id: number } | number>;
+        subcategory_ids?: number[];
+      })?.interests ||
+      (profile as {
+        subcategories?: Array<{ id: number } | number>;
+        interests?: Array<{ id: number } | number>;
+        subcategory_ids?: number[];
+      })?.subcategory_ids || [];
+
     return new Set(
-      subcategories.map((sub: { id: number } | number) => 
+      subcategories.map((sub: { id: number } | number) =>
         typeof sub === 'number' ? sub : sub.id
       )
     );
@@ -80,7 +80,7 @@ const ManageCategories = () => {
   };
 
   const filteredCategories = joinedCategories.filter((category) => {
-    const matchesSearch = 
+    const matchesSearch =
       category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       category.subcategories.some(sub => sub.name.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesSearch;
@@ -101,14 +101,14 @@ const ManageCategories = () => {
       await updateUserProfile({
         subcategory_ids: newIds,
       }).unwrap();
-      
+
       toast.success('Interest removed successfully!');
       setDeleteDialogOpen(false);
       setSubcategoryToRemove(null);
     } catch (error: unknown) {
-      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'Failed to remove interest';
+      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        'Failed to remove interest';
       toast.error('Failed to remove interest', { description: errorMessage });
     }
   };
@@ -163,12 +163,12 @@ const ManageCategories = () => {
           {filteredCategories.length === 0 ? (
             <div className="text-center py-12 col-span-full">
               <p className="text-white/60 text-lg mb-2">
-                {joinedCategories.length === 0 
-                  ? "You haven't joined any categories yet" 
+                {joinedCategories.length === 0
+                  ? "You haven't joined any categories yet"
                   : "No matching categories found"}
               </p>
               {joinedCategories.length === 0 && (
-                <p className="text-white/40 text-sm">
+                <p className="text-white/40 text-base">
                   Go to Join Categories to add interests to your profile
                 </p>
               )}
@@ -190,11 +190,11 @@ const ManageCategories = () => {
                       <FiChevronRight className="w-5 h-5" />
                     )}
                   </button>
-                <div >
-                <h3 className="text-xl font-semibold text-white">{category.name}</h3>
-                  <p className="text-white/40 text-sm">
-                    ({category.subcategories.length} {category.subcategories.length === 1 ? 'interest' : 'interests'})
-                  </p>
+                  <div >
+                    <h3 className="text-xl font-semibold text-white">{category.name}</h3>
+                    <p className="text-white/40 text-base">
+                      ({category.subcategories.length} {category.subcategories.length === 1 ? 'interest' : 'interests'})
+                    </p>
                   </div>
                 </div>
 

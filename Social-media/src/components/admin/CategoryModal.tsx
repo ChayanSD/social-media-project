@@ -98,51 +98,51 @@ export default function CategoryModal({
       maxWidth="md"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
-          {type === "subcategory" && (
-            <div>
-              <label className="block text-sm font-medium text-white mb-2">
-                Category
-              </label>
-              <Select
-                value={selectedCategory}
-                onValueChange={setSelectedCategory}
-                disabled={!!editingSubcategory}
-                required
-              >
-                <SelectTrigger className="w-full h-12 bg-white/10 border border-white/20 rounded-xl focus:ring-2 focus:ring-[#6B83FA] text-white disabled:bg-white/5 disabled:cursor-not-allowed hover:bg-white/15 transition-colors cursor-pointer">
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#06133FBF] text-white backdrop-blur-md border border-white/20 shadow-lg">
-                  {categories.length === 0 ? (
-                    <SelectItem value="" disabled>
-                      No categories available
-                    </SelectItem>
-                  ) : (
-                    categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.name} className="cursor-pointer">
-                        {cat.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
+        {type === "subcategory" && (
           <div>
-            <label className="block text-sm font-medium text-white mb-2">
-              {type === "category" ? "Category" : "Subcategory"} Name
+            <label className="block text-base font-medium text-white mb-2">
+              Category
             </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={`Enter ${type === "category" ? "category" : "subcategory"} name`}
-              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6B83FA] text-white placeholder-white/40 cursor-pointer"
+            <Select
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+              disabled={!!editingSubcategory}
               required
-              autoFocus
-            />
+            >
+              <SelectTrigger className="w-full h-12 bg-white/10 border border-white/20 rounded-xl focus:ring-2 focus:ring-[#6B83FA] text-white disabled:bg-white/5 disabled:cursor-not-allowed hover:bg-white/15 transition-colors cursor-pointer">
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent className="bg-[#06133FBF] text-white backdrop-blur-md border border-white/20 shadow-lg">
+                {categories.length === 0 ? (
+                  <SelectItem value="" disabled>
+                    No categories available
+                  </SelectItem>
+                ) : (
+                  categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.name} className="cursor-pointer">
+                      {cat.name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
           </div>
+        )}
+
+        <div>
+          <label className="block text-base font-medium text-white mb-2">
+            {type === "category" ? "Category" : "Subcategory"} Name
+          </label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={`Enter ${type === "category" ? "category" : "subcategory"} name`}
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6B83FA] text-white placeholder-white/40 cursor-pointer"
+            required
+            autoFocus
+          />
+        </div>
 
         {/* BUTTONS */}
         <div className="flex gap-4 pt-4">

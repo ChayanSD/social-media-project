@@ -662,15 +662,15 @@ const Post = ({ post, profile }: PostProps) => {
                 unoptimized={true}
               />
             ) : (
-              <div className="h-8 w-8 rounded-full bg-slate-600 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+              <div className="h-8 w-8 rounded-full bg-slate-600 flex items-center justify-center text-white text-base font-medium flex-shrink-0">
                 {authorName.charAt(0).toUpperCase()}
               </div>
             )}
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-sm font-medium text-white">{authorName}</span>
-                <span className="text-xs text-white/50">• {formatCommentTime(comment.created_at)}</span>
+                <span className="text-base font-medium text-white">{authorName}</span>
+                <span className="text-sm text-white/50">• {formatCommentTime(comment.created_at)}</span>
               </div>
 
               {isEditing ? (
@@ -679,14 +679,14 @@ const Post = ({ post, profile }: PostProps) => {
                     type="text"
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
-                    className="w-full bg-slate-700/50 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-slate-700/50 text-white rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-1 focus:ring-blue-500"
                     autoFocus
                   />
                   <div className="flex gap-2">
                     <button
                       type="submit"
                       disabled={isUpdatingComment || !editText.trim()}
-                      className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-xs px-3 py-1.5 rounded-md transition-colors"
+                      className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-sm px-3 py-1.5 rounded-md transition-colors"
                     >
                       Save
                     </button>
@@ -696,7 +696,7 @@ const Post = ({ post, profile }: PostProps) => {
                         setEditingComment(null);
                         setEditText("");
                       }}
-                      className="text-white/60 hover:text-white text-xs px-3 py-1.5"
+                      className="text-white/60 hover:text-white text-sm px-3 py-1.5"
                     >
                       Cancel
                     </button>
@@ -704,13 +704,13 @@ const Post = ({ post, profile }: PostProps) => {
                 </form>
               ) : (
                 <>
-                  <p className="text-sm text-white/90 mb-2 break-words">{comment.content}</p>
+                  <p className="text-base text-white/90 mb-2 break-words">{comment.content}</p>
 
                   <div className="flex items-center gap-4">
 
                     <button
                       onClick={() => setReplyingTo({ id: comment.id, username: authorName })}
-                      className="text-xs text-white/60 hover:text-white transition-colors"
+                      className="text-sm text-white/60 hover:text-white transition-colors"
                     >
                       Reply
                     </button>
@@ -718,13 +718,13 @@ const Post = ({ post, profile }: PostProps) => {
                       <>
                         <button
                           onClick={() => handleEditComment(comment.id, comment.content)}
-                          className="text-xs text-white/60 hover:text-white transition-colors"
+                          className="text-sm text-white/60 hover:text-white transition-colors"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDeleteComment(comment.id)}
-                          className="text-xs text-red-400/60 hover:text-red-400 transition-colors"
+                          className="text-sm text-red-400/60 hover:text-red-400 transition-colors"
                         >
                           Delete
                         </button>
@@ -750,7 +750,7 @@ const Post = ({ post, profile }: PostProps) => {
                     unoptimized={true}
                   />
                 ) : (
-                  <div className="h-7 w-7 rounded-full bg-slate-600 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+                  <div className="h-7 w-7 rounded-full bg-slate-600 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
                     {profile?.username?.charAt(0).toUpperCase() || "U"}
                   </div>
                 )}
@@ -761,14 +761,14 @@ const Post = ({ post, profile }: PostProps) => {
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
                       placeholder={`Reply to ${replyingTo.username}...`}
-                      className="w-full bg-slate-700/50 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full bg-slate-700/50 text-white rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-1 focus:ring-blue-500"
                       autoFocus
                     />
                     <div className="flex gap-2">
                       <button
                         type="submit"
                         disabled={isCreatingComment || !replyText.trim()}
-                        className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-xs px-3 py-1.5 rounded-md transition-colors"
+                        className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-sm px-3 py-1.5 rounded-md transition-colors"
                       >
                         Reply
                       </button>
@@ -778,7 +778,7 @@ const Post = ({ post, profile }: PostProps) => {
                           setReplyingTo(null);
                           setReplyText("");
                         }}
-                        className="text-white/60 hover:text-white text-xs px-3 py-1.5"
+                        className="text-white/60 hover:text-white text-sm px-3 py-1.5"
                       >
                         Cancel
                       </button>
@@ -794,7 +794,7 @@ const Post = ({ post, profile }: PostProps) => {
             <div className="mt-3">
               <button
                 onClick={() => toggleReplies(comment.id)}
-                className="ml-10 px-3 py-1 bg-slate-700/50 hover:bg-slate-700 text-xs text-white/80 rounded-full transition-colors"
+                className="ml-10 px-3 py-1 bg-slate-700/50 hover:bg-slate-700 text-sm text-white/80 rounded-full transition-colors"
               >
                 {isExpanded
                   ? `Hide ${comment.replies.length} ${comment.replies.length === 1 ? "reply" : "replies"}`
@@ -1122,7 +1122,7 @@ const Post = ({ post, profile }: PostProps) => {
             <div className="absolute inset-0 flex items-center justify-center bg-black/40">
               <div className="text-center text-white">
                 <div className="text-2xl font-bold">+{remainingCount}</div>
-                <div className="text-sm">more</div>
+                <div className="text-base">more</div>
               </div>
             </div>
           )}
@@ -1175,13 +1175,13 @@ const Post = ({ post, profile }: PostProps) => {
               unoptimized={true}
             />
           ) : (
-            <div className="h-[30px] w-[30px] md:h-[32px] md:w-[32px] rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-medium">
+            <div className="h-[30px] w-[30px] md:h-[32px] md:w-[32px] rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-base font-medium">
               {(post?.user_name || post?.username || post?.author?.username || "A").charAt(0).toUpperCase()}
             </div>
           )}
-          <div className="flex flex-col sm:flex-row items-center md:gap-3.5 text-sm text-white">
+          <div className="flex flex-col sm:flex-row items-center md:gap-3.5 text-base text-white">
             <p>{post?.user_name || post?.username || "Author Name"}</p>
-            <p className="text-white/70 text-xs sm:text-sm ml-1">{createdAt}</p>
+            <p className="text-white/70 text-xs ml-1">{createdAt}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -1223,7 +1223,7 @@ const Post = ({ post, profile }: PostProps) => {
             <button
               onClick={handleFollowClick}
               disabled={isFollowing || isUnfollowing}
-              className={`text-xs cursor-pointer text-white px-4 py-1.5 rounded-full border border-white/10 transition-colors ${(isFollowing || isUnfollowing)
+              className={`text-sm cursor-pointer text-white px-4 py-1.5 rounded-full border border-white/10 transition-colors ${(isFollowing || isUnfollowing)
                 && "bg-slate-600 opacity-50 cursor-not-allowed"
 
                 }`}
@@ -1263,7 +1263,7 @@ const Post = ({ post, profile }: PostProps) => {
             >
               <div className="flex items-center gap-2 mb-3">
                 <FaRegShareFromSquare className="text-green-400" size={16} />
-                <span className="text-sm text-white/80">
+                <span className="text-base text-white/80">
                   {isCurrentUserShare ? (
                     <>
                       <span className="font-semibold text-white">You</span>
@@ -1295,11 +1295,11 @@ const Post = ({ post, profile }: PostProps) => {
                       unoptimized={true}
                     />
                   ) : (
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-medium">
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-base font-medium">
                       {(post.original_post.user_name || "A").charAt(0).toUpperCase()}
                     </div>
                   )}
-                  <span className="text-sm text-white font-medium">
+                  <span className="text-base text-white font-medium">
                     {post.original_post.user_name || "Original Author"}
                   </span>
                 </div>
@@ -1496,7 +1496,7 @@ const Post = ({ post, profile }: PostProps) => {
                       <path d="M8 5v14l11-7z" />
                     </svg>
                   </div>
-                  <p className="absolute bottom-4 text-white/70 text-sm">Play external video</p>
+                  <p className="absolute bottom-4 text-white/70 text-base">Play external video</p>
                 </div>
               )}
             </div>
@@ -1514,7 +1514,7 @@ const Post = ({ post, profile }: PostProps) => {
             {post.tags.map((tag, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-colors cursor-pointer"
+                className="inline-flex items-center px-3 py-1 rounded-full text-base font-medium bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-colors cursor-pointer"
               >
                 #{tag}
               </span>
@@ -1527,7 +1527,7 @@ const Post = ({ post, profile }: PostProps) => {
         <button
           onClick={handleLikeClick}
           disabled={isLiking}
-          className={`text-sm text-white cursor-pointer flex items-center gap-2 px-2.5 py-[5px] rounded-full transition-colors ${isLiked
+          className={`text-base text-white cursor-pointer flex items-center gap-2 px-2.5 py-[5px] rounded-full transition-colors ${isLiked
             ? "bg-blue-600 hover:bg-blue-700"
             : "bg-slate-700 hover:bg-slate-600"
             } ${isLiking ? "opacity-50 cursor-not-allowed" : ""}`}
@@ -1541,7 +1541,7 @@ const Post = ({ post, profile }: PostProps) => {
         </button>
         <button
           onClick={() => setShowComments(!showComments)}
-          className="text-sm text-white cursor-pointer flex items-center gap-2 px-2.5 py-[5px] bg-slate-700 rounded-full"
+          className="text-base text-white cursor-pointer flex items-center gap-2 px-2.5 py-[5px] bg-slate-700 rounded-full"
         >
           <FaRegComment size={18} /> {post?.comments_count as number || 0}
         </button>
@@ -1551,7 +1551,7 @@ const Post = ({ post, profile }: PostProps) => {
             console.log("Share button onClick triggered");
             handleShareClick();
           }}
-          className="text-sm text-white cursor-pointer flex items-center gap-2 px-2.5 py-[5px] bg-slate-700 rounded-full hover:bg-slate-600 transition-colors"
+          className="text-base text-white cursor-pointer flex items-center gap-2 px-2.5 py-[5px] bg-slate-700 rounded-full hover:bg-slate-600 transition-colors"
         >
           <FaRegShareFromSquare size={18} /> Share
         </button>
@@ -1573,7 +1573,7 @@ const Post = ({ post, profile }: PostProps) => {
                   unoptimized={true}
                 />
               ) : (
-                <div className="h-8 w-8 rounded-full bg-slate-600 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                <div className="h-8 w-8 rounded-full bg-slate-600 flex items-center justify-center text-white text-base font-medium flex-shrink-0">
                   {profile?.username?.charAt(0).toUpperCase() || "U"}
                 </div>
               )}
@@ -1583,7 +1583,7 @@ const Post = ({ post, profile }: PostProps) => {
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                   placeholder="Write a comment..."
-                  className="flex-1 bg-slate-700/50 text-white rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="flex-1 bg-slate-700/50 text-white rounded-full px-4 py-2 text-base focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
                 <button
                   type="submit"
@@ -1611,7 +1611,7 @@ const Post = ({ post, profile }: PostProps) => {
                 <div className="mt-3">
                   <button
                     onClick={() => setVisibleCommentsCount((prev) => Math.min(prev + 10, comments.length))}
-                    className="ml-10 px-3 py-1 bg-slate-700/50 hover:bg-slate-700 text-xs text-white/80 rounded-full transition-colors"
+                    className="ml-10 px-3 py-1 bg-slate-700/50 hover:bg-slate-700 text-sm text-white/80 rounded-full transition-colors"
                   >
                     Show more comments
                   </button>
@@ -1679,7 +1679,7 @@ const Post = ({ post, profile }: PostProps) => {
 
           {/* Image Counter */}
           {allMediaUrls.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 px-4 py-2 rounded-full text-white text-sm">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 px-4 py-2 rounded-full text-white text-base">
               {currentImageIndex + 1} / {allMediaUrls.length}
             </div>
           )}
@@ -1777,7 +1777,7 @@ const Post = ({ post, profile }: PostProps) => {
               <div className="border border-slate-600 rounded-lg p-4 bg-slate-800/50">
                 <div className="flex items-center gap-2 mb-3">
                   <FaRegShareFromSquare className="text-green-400" size={16} />
-                  <span className="text-sm text-white/80">
+                  <span className="text-base text-white/80">
                     <span className="font-semibold text-white">You</span>
                     {" shared "}
                     <span className="font-semibold text-white">{post?.user_name || post?.username || "someone"}&apos;s post</span>
@@ -1800,11 +1800,11 @@ const Post = ({ post, profile }: PostProps) => {
                         unoptimized
                       />
                     ) : (
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-medium">
+                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-base font-medium">
                         {(post?.user_name || post?.username || "A").charAt(0).toUpperCase()}
                       </div>
                     )}
-                    <span className="text-sm text-white font-medium">
+                    <span className="text-base text-white font-medium">
                       {post?.user_name || post?.username || "Author"}
                     </span>
                   </div>
@@ -1910,11 +1910,11 @@ const Post = ({ post, profile }: PostProps) => {
 
                   {/* Original Post Engagement (Like/Comment counts) */}
                   <div className="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t border-slate-700">
-                    <div className="text-sm text-white flex items-center gap-2">
+                    <div className="text-base text-white flex items-center gap-2">
                       <VscThumbsup size={18} />
                       <span>{post?.likes_count || 0}</span>
                     </div>
-                    <div className="text-sm text-white flex items-center gap-2">
+                    <div className="text-base text-white flex items-center gap-2">
                       <FaRegComment size={18} />
                       <span>{post?.comments_count || 0}</span>
                     </div>

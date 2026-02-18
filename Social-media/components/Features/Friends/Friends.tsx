@@ -17,17 +17,17 @@ const USERS_PER_PAGE = 20;
 const Friends = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"following" | "followers" | "suggestions">("suggestions");
-  
+
   // Pagination state for each tab (using page numbers)
   const [suggestionsPage, setSuggestionsPage] = useState(1);
   const [followingPage, setFollowingPage] = useState(1);
   const [followersPage, setFollowersPage] = useState(1);
-  
+
   // Accumulated users for each tab
   const [accumulatedSuggestions, setAccumulatedSuggestions] = useState<UserSuggestion[]>([]);
   const [accumulatedFollowing, setAccumulatedFollowing] = useState<FollowItem[]>([]);
   const [accumulatedFollowers, setAccumulatedFollowers] = useState<FollowItem[]>([]);
-  
+
   // Always fetch both lists to check follow status
   const { data: followingResponse, isLoading: isLoadingFollowing, refetch: refetchFollowing } = useGetFollowingQuery({
     limit: USERS_PER_PAGE,
@@ -52,10 +52,10 @@ const Friends = () => {
   // Update accumulated data when new data arrives
   React.useEffect(() => {
     if (followingResponse) {
-      const newData: FollowItem[] = Array.isArray(followingResponse) 
-        ? followingResponse 
-        : ('data' in followingResponse && followingResponse.data) 
-          ? followingResponse.data 
+      const newData: FollowItem[] = Array.isArray(followingResponse)
+        ? followingResponse
+        : ('data' in followingResponse && followingResponse.data)
+          ? followingResponse.data
           : ('results' in followingResponse && followingResponse.results && 'data' in followingResponse.results && followingResponse.results.data)
             ? followingResponse.results.data
             : [];
@@ -70,10 +70,10 @@ const Friends = () => {
 
   React.useEffect(() => {
     if (followersResponse) {
-      const newData: FollowItem[] = Array.isArray(followersResponse) 
-        ? followersResponse 
-        : ('data' in followersResponse && followersResponse.data) 
-          ? followersResponse.data 
+      const newData: FollowItem[] = Array.isArray(followersResponse)
+        ? followersResponse
+        : ('data' in followersResponse && followersResponse.data)
+          ? followersResponse.data
           : ('results' in followersResponse && followersResponse.results && 'data' in followersResponse.results && followersResponse.results.data)
             ? followersResponse.results.data
             : [];
@@ -88,10 +88,10 @@ const Friends = () => {
 
   React.useEffect(() => {
     if (suggestionsResponse) {
-      const newData: UserSuggestion[] = Array.isArray(suggestionsResponse) 
-        ? suggestionsResponse 
-        : ('data' in suggestionsResponse && suggestionsResponse.data) 
-          ? suggestionsResponse.data 
+      const newData: UserSuggestion[] = Array.isArray(suggestionsResponse)
+        ? suggestionsResponse
+        : ('data' in suggestionsResponse && suggestionsResponse.data)
+          ? suggestionsResponse.data
           : ('results' in suggestionsResponse && suggestionsResponse.results && 'data' in suggestionsResponse.results && suggestionsResponse.results.data)
             ? suggestionsResponse.results.data
             : [];
@@ -106,13 +106,13 @@ const Friends = () => {
 
   const following = accumulatedFollowing;
   const followers = accumulatedFollowers;
-  
+
   // Filter suggestions to only show users who are NOT being followed
   // Get list of user IDs that are being followed
   const followingUserIds = new Set(
     following.map(item => String(item.following))
   );
-  
+
   // Filter out users who are already being followed and the current user
   const suggestions = React.useMemo(() => {
     return accumulatedSuggestions.filter(user => {
@@ -121,7 +121,7 @@ const Friends = () => {
       return !followingUserIds.has(userId) && String(user.id) !== String(currentUser?.id);
     });
   }, [accumulatedSuggestions, followingUserIds, currentUser?.id]);
-  
+
   // Check if there are more users to load using the 'next' field from paginated response
   const hasMoreSuggestions = suggestionsResponse?.next !== null && suggestionsResponse?.next !== undefined;
   const hasMoreFollowing = followingResponse?.next !== null && followingResponse?.next !== undefined;
@@ -132,12 +132,12 @@ const Friends = () => {
       // Find user info from followers list to add to following list optimistically
       const userFromFollowers = accumulatedFollowers.find(item => String(item.follower) === String(userId));
       const userFromSuggestions = accumulatedSuggestions.find(user => user.id === userId);
-      
+
       // Remove from suggestions immediately (since they're now being followed)
-      setAccumulatedSuggestions(prev => 
+      setAccumulatedSuggestions(prev =>
         prev.filter(user => String(user.id) !== String(userId))
       );
-      
+
       // Optimistically add to following list if not already there
       // This is important for the followers tab - when you follow someone back, they should appear as "following" immediately
       if (userId && !accumulatedFollowing.some(f => String(f.following) === String(userId))) {
@@ -150,10 +150,10 @@ const Friends = () => {
         };
         setAccumulatedFollowing(prev => [...prev, newFollowItem]);
       }
-      
+
       await followUser({ userId }).unwrap();
       toast.success("Followed successfully");
-      
+
       // Refetch to get updated data with correct follow_id
       // RTK Query will automatically refetch due to cache invalidation, but we also manually refetch to ensure immediate update
       refetchFollowing();
@@ -168,7 +168,7 @@ const Friends = () => {
         refetchSuggestions();
       }
       // Remove from following list if we added it optimistically (temporary IDs are large timestamps)
-      setAccumulatedFollowing(prev => 
+      setAccumulatedFollowing(prev =>
         prev.filter(item => {
           const isTempId = item.id && typeof item.id === 'number' && item.id > 1000000000000;
           const matchesUserId = String(item.following) === String(userId);
@@ -186,12 +186,12 @@ const Friends = () => {
       // Find the user to update optimistically from following list
       const followItem = accumulatedFollowing.find(item => item.id === followId);
       const userIdToUpdate = followItem?.following;
-      
+
       // Remove from following list immediately
-      setAccumulatedFollowing(prev => 
+      setAccumulatedFollowing(prev =>
         prev.filter(item => item.id !== followId)
       );
-      
+
       // Add back to suggestions if they were in suggestions before
       // Since we filter suggestions to exclude followed users, we need to add them back when unfollowed
       if (userIdToUpdate && followItem) {
@@ -213,10 +213,10 @@ const Friends = () => {
           setAccumulatedSuggestions(prev => [...prev, newSuggestion]);
         }
       }
-      
+
       await unfollowUser({ followingId: followId }).unwrap();
       toast.success("Unfollowed successfully");
-      
+
       // Refetch to get updated data
       // RTK Query will automatically refetch due to cache invalidation, but we also manually refetch to ensure immediate update
       refetchFollowing();
@@ -242,19 +242,19 @@ const Friends = () => {
     }
   };
 
-  const isLoadingMore = 
+  const isLoadingMore =
     (activeTab === "suggestions" && isLoadingSuggestions && suggestionsPage > 1) ||
     (activeTab === "following" && isLoadingFollowing && followingPage > 1) ||
     (activeTab === "followers" && isLoadingFollowers && followersPage > 1);
 
-  const hasMore = 
+  const hasMore =
     (activeTab === "suggestions" && hasMoreSuggestions) ||
     (activeTab === "following" && hasMoreFollowing) ||
     (activeTab === "followers" && hasMoreFollowers);
 
   const renderSuggestionList = (users: UserSuggestion[]) => {
     const isLoading = isLoadingSuggestions;
-    
+
     if (isLoading) {
       return (
         <div className="space-y-4">
@@ -275,7 +275,7 @@ const Friends = () => {
     if (users.length === 0) {
       return (
         <div className="text-center py-12">
-          <p className="text-white/60 text-sm">
+          <p className="text-white/60 text-base">
             No user suggestions available.
           </p>
         </div>
@@ -330,7 +330,7 @@ const Friends = () => {
                     {userName}
                   </h3>
                 </div>
-                
+
                 {/* Right side: Follow Button */}
                 {userId && String(userId) !== String(currentUser?.id) && (
                   <button
@@ -344,11 +344,10 @@ const Friends = () => {
                         handleFollow(userId);
                       }
                     }}
-                    className={`px-3 py-1.5 cursor-pointer rounded-full text-xs font-medium transition-all duration-300 whitespace-nowrap flex-shrink-0 ${
-                      isFollowing
-                        ? "bg-gray-600 hover:bg-gray-700 text-white"
-                        : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-                    }`}
+                    className={`px-3 py-1.5 cursor-pointer rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap flex-shrink-0 ${isFollowing
+                      ? "bg-gray-600 hover:bg-gray-700 text-white"
+                      : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                      }`}
                   >
                     {isFollowing ? "Unfollow" : "Follow"}
                   </button>
@@ -357,13 +356,13 @@ const Friends = () => {
 
               {/* About/Description - below, starting from left */}
               <div className="flex-1">
-                <p className="text-white/70 text-sm line-clamp-2">
+                <p className="text-white/70 text-base line-clamp-2">
                   {userAbout || "No description available."}
                 </p>
               </div>
 
               {/* Stats */}
-              <div className="flex gap-4 mt-3 text-xs text-white/60">
+              <div className="flex gap-4 mt-3 text-sm text-white/60">
                 <span>{user.followers_count || 0} followers</span>
                 <span>{user.posts_count || 0} posts</span>
               </div>
@@ -376,7 +375,7 @@ const Friends = () => {
 
   const renderUserList = (users: FollowItem[], isFollowingTab: boolean) => {
     const isLoading = isFollowingTab ? isLoadingFollowing : isLoadingFollowers;
-    
+
     if (isLoading) {
       return (
         <div className="space-y-4">
@@ -397,7 +396,7 @@ const Friends = () => {
     if (users.length === 0) {
       return (
         <div className="text-center py-12">
-          <p className="text-white/60 text-sm">
+          <p className="text-white/60 text-base">
             {isFollowingTab ? "You are not following anyone yet." : "No one is following you yet."}
           </p>
         </div>
@@ -415,13 +414,13 @@ const Friends = () => {
           // Check if current user is following this user (for followers tab)
           // In following tab, they're already following, so always true
           // In followers tab, check if this user exists in the following list
-          const isFollowing = isFollowingTab 
-            ? true 
+          const isFollowing = isFollowingTab
+            ? true
             : following.some((f) => String(f.following) === String(userId));
 
           // Find the follow relationship ID for unfollowing
-          const followRelation = isFollowingTab 
-            ? item 
+          const followRelation = isFollowingTab
+            ? item
             : following.find((f) => String(f.following) === String(userId));
 
           // Navigate to user profile using userId (route can handle both username and ID)
@@ -462,7 +461,7 @@ const Friends = () => {
                     {userName || "Unknown User"}
                   </h3>
                 </div>
-                
+
                 {/* Right side: Follow Button */}
                 {userId && String(userId) !== String(currentUser?.id) && (
                   <button
@@ -478,11 +477,10 @@ const Friends = () => {
                         handleFollow(userId);
                       }
                     }}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 whitespace-nowrap flex-shrink-0 cursor-pointer ${
-                      isFollowing
-                        ? "bg-gray-600 hover:bg-gray-700 text-white"
-                        : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-                    }`}
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap flex-shrink-0 cursor-pointer ${isFollowing
+                      ? "bg-gray-600 hover:bg-gray-700 text-white"
+                      : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                      }`}
                   >
                     {isFollowing ? "Unfollow" : "Follow"}
                   </button>
@@ -491,7 +489,7 @@ const Friends = () => {
 
               {/* About/Description - below, starting from left */}
               <div className="flex-1">
-                <p className="text-white/70 text-sm line-clamp-2">
+                <p className="text-white/70 text-base line-clamp-2">
                   {userAbout || "No description available."}
                 </p>
               </div>
@@ -518,31 +516,28 @@ const Friends = () => {
         <div className="flex items-center gap-4 mb-6 border-b border-white/10">
           <button
             onClick={() => setActiveTab("suggestions")}
-            className={`px-6 py-3 rounded-t-lg font-medium transition-all duration-300 ${
-              activeTab === "suggestions"
-                ? "bg-white text-black"
-                : "text-white/60 hover:text-white"
-            }`}
+            className={`px-6 py-3 rounded-t-lg font-medium transition-all duration-300 ${activeTab === "suggestions"
+              ? "bg-white text-black"
+              : "text-white/60 hover:text-white"
+              }`}
           >
             Suggestions ({suggestions.length})
           </button>
           <button
             onClick={() => setActiveTab("following")}
-            className={`px-6 py-3 rounded-t-lg font-medium transition-all duration-300 ${
-              activeTab === "following"
-                ? "bg-white text-black"
-                : "text-white/60 hover:text-white"
-            }`}
+            className={`px-6 py-3 rounded-t-lg font-medium transition-all duration-300 ${activeTab === "following"
+              ? "bg-white text-black"
+              : "text-white/60 hover:text-white"
+              }`}
           >
             Following ({following.length})
           </button>
           <button
             onClick={() => setActiveTab("followers")}
-            className={`px-6 py-3 rounded-t-lg font-medium transition-all duration-300 ${
-              activeTab === "followers"
-                ? "bg-white text-black"
-                : "text-white/60 hover:text-white"
-            }`}
+            className={`px-6 py-3 rounded-t-lg font-medium transition-all duration-300 ${activeTab === "followers"
+              ? "bg-white text-black"
+              : "text-white/60 hover:text-white"
+              }`}
           >
             Followers ({followers.length})
           </button>
@@ -553,7 +548,7 @@ const Friends = () => {
           {activeTab === "suggestions" && renderSuggestionList(suggestions)}
           {activeTab === "following" && renderUserList(following, true)}
           {activeTab === "followers" && renderUserList(followers, false)}
-          
+
           {/* Show More Button */}
           {hasMore && (
             <div className="flex justify-center mt-6">

@@ -79,7 +79,7 @@ const EditProfile = () => {
                 return;
             }
 
-            const maxSize = type === 'avatar' ? 2 * 1024 * 1024 : 5 * 1024 * 1024; 
+            const maxSize = type === 'avatar' ? 2 * 1024 * 1024 : 5 * 1024 * 1024;
             if (file.size > maxSize) {
                 toast.error(`File size must be less than ${type === 'avatar' ? '2MB' : '5MB'}`);
                 return;
@@ -148,7 +148,7 @@ const EditProfile = () => {
                             <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
                                 Edit Profile
                             </h1>
-                            <p className="text-sm sm:text-base text-gray-300">
+                            <p className="text-base sm:text-base text-gray-300">
                                 Customize your profile information
                             </p>
                         </div>
@@ -164,11 +164,11 @@ const EditProfile = () => {
                                             message: "Display name must be less than 50 characters",
                                         },
                                     })}
-                                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-black/30 border border-white/20 rounded-lg sm:rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300 text-sm sm:text-base"
+                                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-black/30 border border-white/20 rounded-lg sm:rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300 text-base sm:text-base"
                                     placeholder="Enter your display name..."
                                 />
 
-                                <div className="text-right text-gray-400 text-xs sm:text-sm">
+                                <div className="text-right text-gray-400 text-sm sm:text-base">
                                     {displayNameValue?.length || 0}/50
                                 </div>
                             </div>
@@ -184,13 +184,13 @@ const EditProfile = () => {
                                         },
                                     })}
                                     rows={3}
-                                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-black/30 border border-white/20 rounded-lg sm:rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300 resize-none text-sm sm:text-base"
+                                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-black/30 border border-white/20 rounded-lg sm:rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300 resize-none text-base sm:text-base"
                                     placeholder="Tell others about yourself..."
                                 />
                                 {errors.about && (
-                                    <p className="text-red-400 text-sm">{errors.about.message}</p>
+                                    <p className="text-red-400 text-base">{errors.about.message}</p>
                                 )}
-                                <div className="text-right text-gray-400 text-xs sm:text-sm">
+                                <div className="text-right text-gray-400 text-sm sm:text-base">
                                     {aboutValue?.length || 0}/500
                                 </div>
                             </div>
@@ -202,7 +202,7 @@ const EditProfile = () => {
                                     <button
                                         type="button"
                                         onClick={() => setValue("socialLinks", [...socialLinks, ""], { shouldDirty: true })}
-                                        className="flex items-center gap-1 px-2 py-1 text-xs sm:text-sm bg-white/10 hover:bg-white/20 text-white rounded-md border border-white/20 transition-all"
+                                        className="flex items-center gap-1 px-2 py-1 text-sm sm:text-base bg-white/10 hover:bg-white/20 text-white rounded-md border border-white/20 transition-all"
                                     >
                                         + Add
                                     </button>
@@ -218,7 +218,7 @@ const EditProfile = () => {
                                                     },
                                                 })}
                                                 type="url"
-                                                className="flex-1 px-3 sm:px-4 py-2 sm:py-3 bg-black/30 border border-white/20 rounded-lg sm:rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300 text-sm sm:text-base"
+                                                className="flex-1 px-3 sm:px-4 py-2 sm:py-3 bg-black/30 border border-white/20 rounded-lg sm:rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300 text-base sm:text-base"
                                                 placeholder="https://example.com"
                                             />
                                             {socialLinks.length > 1 && (
@@ -239,7 +239,7 @@ const EditProfile = () => {
                                 {Array.isArray(errors.socialLinks) && errors.socialLinks.some(Boolean) && (
                                     <div className="space-y-1">
                                         {errors.socialLinks.map((err, idx) => (
-                                            <div key={idx} className="text-red-400 text-sm">
+                                            <div key={idx} className="text-red-400 text-base">
                                                 {err?.message as unknown as string}
                                             </div>
                                         ))}
@@ -249,7 +249,7 @@ const EditProfile = () => {
 
                             {/* Avatar Upload */}
                             <div className="space-y-3 sm:space-y-4">
-                                <label className="block text-white font-medium text-sm sm:text-base">Avatar</label>
+                                <label className="block text-white font-medium text-base sm:text-base">Avatar</label>
                                 <div
                                     className="relative border-2 border-dashed border-white/30 hover:border-purple-400 hover:bg-white/5 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center transition-all duration-300 cursor-pointer"
                                     onClick={() => avatarInputRef.current?.click()}
@@ -278,7 +278,7 @@ const EditProfile = () => {
                                                         <FiCamera size={12} className="sm:hidden text-white" />
                                                         <FiCamera size={16} className="hidden sm:block text-white" />
                                                     </div>
-                                                    <p className="text-xs text-white">Change</p>
+                                                    <p className="text-sm text-white">Change</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -289,10 +289,10 @@ const EditProfile = () => {
                                                 <FiCamera size={24} className="hidden sm:block text-purple-400" />
                                             </div>
                                             <div>
-                                                <p className="text-xs sm:text-sm font-medium text-white">Upload Avatar</p>
-                                                <p className="text-xs text-gray-300">Click to browse</p>
-                                                <p className="text-xs text-gray-400 mt-1">Square image recommended</p>
-                                                <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 2MB</p>
+                                                <p className="text-sm sm:text-base font-medium text-white">Upload Avatar</p>
+                                                <p className="text-sm text-gray-300">Click to browse</p>
+                                                <p className="text-sm text-gray-400 mt-1">Square image recommended</p>
+                                                <p className="text-sm text-gray-400 mt-1">PNG, JPG up to 2MB</p>
                                             </div>
                                         </div>
                                     )}
@@ -301,7 +301,7 @@ const EditProfile = () => {
 
                             {/* Banner Upload */}
                             <div className="space-y-3 sm:space-y-4">
-                                <label className="block text-white font-medium text-sm sm:text-base">Banner</label>
+                                <label className="block text-white font-medium text-base sm:text-base">Banner</label>
                                 <div
                                     className="relative border-2 border-dashed border-white/30 hover:border-purple-400 hover:bg-white/5 rounded-lg sm:rounded-xl p-6 sm:p-8 text-center transition-all duration-300 cursor-pointer"
                                     onClick={() => bannerInputRef.current?.click()}
@@ -330,7 +330,7 @@ const EditProfile = () => {
                                                         <FiImage size={16} className="sm:hidden text-white" />
                                                         <FiImage size={20} className="hidden sm:block text-white" />
                                                     </div>
-                                                    <p className="text-xs sm:text-sm text-white">Click to change</p>
+                                                    <p className="text-sm sm:text-base text-white">Click to change</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -341,9 +341,9 @@ const EditProfile = () => {
                                                 <FiImage size={24} className="hidden sm:block text-purple-400" />
                                             </div>
                                             <div>
-                                                <p className="text-sm sm:text-lg font-medium text-white">Upload Banner</p>
-                                                <p className="text-xs sm:text-sm text-gray-300">Click to browse</p>
-                                                <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
+                                                <p className="text-base sm:text-lg font-medium text-white">Upload Banner</p>
+                                                <p className="text-sm sm:text-base text-gray-300">Click to browse</p>
+                                                <p className="text-sm text-gray-400 mt-1">PNG, JPG up to 5MB</p>
                                             </div>
                                         </div>
                                     )}
@@ -356,7 +356,7 @@ const EditProfile = () => {
                             <button
                                 onClick={() => router.back()}
                                 type="button"
-                                className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg sm:rounded-xl border border-white/20 transition-all duration-300 text-sm sm:text-base"
+                                className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg sm:rounded-xl border border-white/20 transition-all duration-300 text-base sm:text-base"
                             >
                                 <FiX size={16} className="sm:hidden" />
                                 <FiX size={18} className="hidden sm:block" />
@@ -365,7 +365,7 @@ const EditProfile = () => {
                             <button
                                 type="submit"
                                 disabled={isSaving}
-                                className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg sm:rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm sm:text-base"
+                                className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg sm:rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-base sm:text-base"
                             >
                                 <FiSave size={16} className="sm:hidden" />
                                 <FiSave size={18} className="hidden sm:block" />

@@ -20,7 +20,7 @@ const useSearchSafe = () => {
   try {
     return useSearch();
   } catch {
-    return { searchQuery: "", setSearchQuery: () => {} };
+    return { searchQuery: "", setSearchQuery: () => { } };
   }
 };
 
@@ -33,7 +33,7 @@ const ExploreHome = () => {
   const router = useRouter();
   const token = getStoredAccessToken();
   const { searchQuery } = useSearchSafe();
-  
+
   const {
     data,
     fetchNextPage,
@@ -56,7 +56,7 @@ const ExploreHome = () => {
 
   // Track if initial load is complete
   const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
-  
+
   // Mark initial load as complete once we have data and are not loading
   useEffect(() => {
     if (!isLoading && data && data.pages && data.pages.length > 0 && !isInitialLoadComplete) {
@@ -72,7 +72,7 @@ const ExploreHome = () => {
   // Also ensure initial load is complete before enabling observer
   const hasInitialData = data && data.pages && data.pages.length > 0;
   const shouldObserve = hasNextPage && !isLoading && allPosts.length > 0 && hasInitialData && isInitialLoadComplete;
-  
+
   const { ref, inView } = useInView({
     threshold: 0,
     rootMargin: "100px", // Small margin to start loading before reaching exact bottom
@@ -151,21 +151,21 @@ const ExploreHome = () => {
         </div>
         {/* Infinite scroll trigger - Only render when initial load is complete */}
         {hasNextPage && allPosts.length > 0 && isInitialLoadComplete && (
-          <div 
-            ref={ref} 
+          <div
+            ref={ref}
             className="h-20 flex flex-col items-center justify-center py-4 w-full gap-2"
             style={{ minHeight: '80px' }}
           >
             {isFetchingNextPage && (
               <>
                 <Loader2 className="animate-spin text-white/60" size={24} />
-                <div className="text-white/60 text-sm">Loading more posts...</div>
+                <div className="text-white/60 text-base">Loading more posts...</div>
               </>
             )}
           </div>
         )}
         {!hasNextPage && posts.length > 0 && (
-          <div className="text-center text-white/40 text-sm py-4">
+          <div className="text-center text-white/40 text-base py-4">
             No more posts to load
           </div>
         )}
@@ -180,11 +180,11 @@ const ExploreHome = () => {
   return (
     <div className="px-2 md:px-4 xl:px-10">
       {/* <Story /> */}
-      
+
       {/* Create Post Section - Only show if authenticated */}
       {token && (
         <div className="my-2 top-14 z-10">
-          <div 
+          <div
             onClick={handleCreatePostClick}
             className="bg-[#06133FBF] backdrop-blur-[17.5px] border border-white/10 rounded-2xl p-4 cursor-pointer hover:border-white/20 transition-all duration-300"
           >
@@ -205,15 +205,15 @@ const ExploreHome = () => {
                   </div>
                 )}
               </div>
-              
+
               {/* Input Box */}
               <div className="flex-1">
                 <div className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-xl text-white/60 placeholder-white/40 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-400/20 transition-all duration-300">
-                  <span className="text-sm">What&apos;s on your mind?</span>
+                  <span className="text-base">What&apos;s on your mind?</span>
                 </div>
               </div>
             </div>
-            
+
             {/* Action Icons */}
             <div className="flex items-center  justify-between mt-4 pt-4 border-t border-white/10">
               <div className="flex flex-wrap items-center gap-3">
@@ -226,7 +226,7 @@ const ExploreHome = () => {
                   className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
                 >
                   <FiImage size={20} />
-                  <span className="text-sm">Photo/Video</span>
+                  <span className="text-base">Photo/Video</span>
                 </button>
                 <button
                   type="button"
@@ -237,7 +237,7 @@ const ExploreHome = () => {
                   className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
                 >
                   <FiLink size={20} />
-                  <span className="text-sm">Link</span>
+                  <span className="text-base">Link</span>
                 </button>
               </div>
               <button
@@ -249,7 +249,7 @@ const ExploreHome = () => {
                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all duration-300 font-medium"
               >
                 <FiEdit3 size={18} />
-                <span className="text-nowrap text-xs md:text-md">Create Post</span>
+                <span className="text-nowrap text-sm md:text-md">Create Post</span>
               </button>
             </div>
           </div>

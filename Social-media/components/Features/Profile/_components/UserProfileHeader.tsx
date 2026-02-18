@@ -16,35 +16,35 @@ interface UserProfileHeaderProps {
     isTogglingFollow: boolean;
 }
 
-const UserProfileHeader = ({ 
-    userId, 
-    username, 
-    isFollowing, 
+const UserProfileHeader = ({
+    userId,
+    username,
+    isFollowing,
     isOwnProfile,
-    onFollowToggle, 
+    onFollowToggle,
     onSendMessage,
-    isTogglingFollow 
+    isTogglingFollow
 }: UserProfileHeaderProps) => {
     const [showReportModal, setShowReportModal] = useState(false);
     const { data: usersResponse } = useGetPublicUsersQuery();
-    
+
     // Check if userId is a valid number, otherwise skip the API call
     const isValidUserId = useMemo(() => {
         return userId && !isNaN(Number(userId)) && Number(userId) > 0;
     }, [userId]);
-    
+
     const { data: fullProfileResponse } = useGetUserProfileByIdQuery(userId, {
         skip: !userId || !isValidUserId,
     });
-    
+
     // Get user from users list as fallback
     const userFromList = useMemo(() => {
         if (!usersResponse?.data) return null;
-        return usersResponse.data.find((u: { id?: string | number; username?: string }) => 
+        return usersResponse.data.find((u: { id?: string | number; username?: string }) =>
             String(u.id) === String(userId) || u.username === username
         );
     }, [usersResponse, userId, username]);
-    
+
     const fullProfile = fullProfileResponse?.data;
     const displayName = fullProfile?.display_name || fullProfile?.username || userFromList?.display_name || userFromList?.username || username;
     const email = fullProfile?.email || userFromList?.email;
@@ -67,56 +67,55 @@ const UserProfileHeader = ({
                     </div>
                     <div className='flex-1'>
                         <h1 className='text-2xl font-bold text-white'>{displayName}</h1>
-                        <p className='text-sm text-gray-400 font-semibold'>{email || `@${username}`}</p>
+                        <p className='text-base text-gray-400 font-semibold'>{email || `@${username}`}</p>
                     </div>
                 </div>
-                
+
                 {/* Action Buttons - Desktop: same row, Mobile: below */}
                 {!isOwnProfile && (
                     <div className='flex flex-wrap items-center gap-2 lg:flex-nowrap'>
                         <button
                             onClick={onFollowToggle}
                             disabled={isTogglingFollow}
-                            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 ${
-                                isFollowing
+                            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 ${isFollowing
                                     ? "bg-white/10 border border-white/20 text-white hover:bg-white/20"
                                     : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-                            }`}
+                                }`}
                         >
                             {isTogglingFollow ? (
                                 "Loading..."
                             ) : isFollowing ? (
                                 <>
                                     <IoPersonRemoveOutline size={18} />
-                                    
+
                                 </>
                             ) : (
                                 <>
                                     <IoPersonAddOutline size={18} />
-                                   
+
                                 </>
                             )}
                         </button>
-                        
+
                         <button
                             onClick={onSendMessage}
                             className="px-4 py-2 rounded-lg font-semibold transition-all duration-300 cursor-pointer bg-white/10 border border-white/20 text-white hover:bg-white/20 flex items-center justify-center gap-2"
                         >
                             <IoChatbubbleOutline size={18} />
-                          
+
                         </button>
-                        
+
                         <button
                             onClick={() => setShowReportModal(true)}
                             className="px-4 py-2 rounded-lg font-semibold transition-all duration-300 cursor-pointer bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 flex items-center justify-center gap-2"
                         >
                             <FiFlag size={18} />
-                 
+
                         </button>
                     </div>
                 )}
             </div>
-            
+
             <ReportUserModal
                 isOpen={showReportModal}
                 onClose={() => setShowReportModal(false)}

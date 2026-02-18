@@ -32,7 +32,7 @@ const ProfileHeader = ({ onAvatarClick }: ProfileHeaderProps) => {
                 </div>
                 <div>
                     <h1 className='text-2xl font-bold text-white'>{profile?.display_name || profile?.username || "Name Of the profile"}</h1>
-                    <p className='text-sm text-gray-400 font-semibold'>{profile?.email || "Email"}</p>
+                    <p className='text-base text-gray-400 font-semibold'>{profile?.email || "Email"}</p>
                 </div>
             </div>
         </div>

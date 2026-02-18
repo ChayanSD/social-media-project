@@ -19,7 +19,7 @@ export default function AllPostsTable() {
   const [datePreset, setDatePreset] = useState<DateRangePreset>("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  
+
   const { data, isLoading, isError, refetch } = useGetAllPostsQuery({
     page: currentPage,
     limit: pageSize,
@@ -45,7 +45,7 @@ export default function AllPostsTable() {
 
   const posts = useMemo((): PostItem[] => {
     if (!data) return [];
-    
+
     // Handle DRF paginated response structure:
     // { count, next, previous, results: { success, message, data: [...] } }
     if (data.results) {
@@ -60,7 +60,7 @@ export default function AllPostsTable() {
         return data.results;
       }
     }
-    
+
     // Fallback to other possible structures
     if (Array.isArray(data.data)) {
       return data.data;
@@ -68,7 +68,7 @@ export default function AllPostsTable() {
     if (Array.isArray(data.posts)) {
       return data.posts;
     }
-    
+
     return [];
   }, [data]);
 
@@ -86,7 +86,7 @@ export default function AllPostsTable() {
       const day = date.getDate();
       const month = date.toLocaleDateString("en-GB", { month: "short" });
       const year = date.getFullYear();
-      
+
       return `${day} ${month} ${year}`;
     } catch {
       return "N/A";
@@ -141,7 +141,7 @@ export default function AllPostsTable() {
 
   const handleApproveConfirm = async () => {
     if (!postToApprove) return;
-    
+
     try {
       await approvePost({ postId: postToApprove.id }).unwrap();
       toast.success("Post approved and reposted successfully!");
@@ -270,7 +270,7 @@ export default function AllPostsTable() {
         return (
           <div className="flex items-center justify-center">
             <span
-              className={`px-3 py-1 rounded-full text-xs font-medium ${colors.bg} ${colors.text}`}
+              className={`px-3 py-1 rounded-full text-sm font-medium ${colors.bg} ${colors.text}`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </span>
@@ -299,7 +299,7 @@ export default function AllPostsTable() {
         const postStatus = (row as { status?: string }).status?.toLowerCase() || "approved";
         const isPending = postStatus === "pending";
         const isRejected = postStatus === "rejected";
-        
+
         return (
           <div className="flex items-center justify-center space-x-3">
             {/* Show approve button for pending or rejected posts */}

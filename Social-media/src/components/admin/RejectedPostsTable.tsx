@@ -29,12 +29,12 @@ export default function RejectedPostsTable() {
   // Backend now filters rejected posts via status=rejected parameter, so no need to filter on frontend
   const rejectedPosts = useMemo((): PostItem[] => {
     if (!data) return [];
-    
+
     // Handle different response structures
     if (Array.isArray(data)) {
       return data;
     }
-    
+
     // Handle object with data property
     if (typeof data === 'object' && data !== null) {
       const dataObj = data as { data?: PostItem[]; results?: { data?: PostItem[] } | PostItem[]; posts?: PostItem[] };
@@ -53,7 +53,7 @@ export default function RejectedPostsTable() {
         return dataObj.posts;
       }
     }
-    
+
     return [];
   }, [data]);
 
@@ -64,7 +64,7 @@ export default function RejectedPostsTable() {
       const day = date.getDate();
       const month = date.toLocaleDateString("en-GB", { month: "short" });
       const year = date.getFullYear();
-      
+
       return `${day} ${month} ${year}`;
     } catch {
       return "N/A";
@@ -95,7 +95,7 @@ export default function RejectedPostsTable() {
 
   const handleApproveConfirm = async () => {
     if (!postToApprove) return;
-    
+
     try {
       await approvePost({ postId: postToApprove.id }).unwrap();
       toast.success("Post approved and reposted successfully!");
@@ -121,7 +121,7 @@ export default function RejectedPostsTable() {
 
   const handleDeleteConfirm = async () => {
     if (!postToDelete) return;
-    
+
     try {
       await deletePost({ postId: postToDelete.id }).unwrap();
       toast.success("Post deleted successfully!");
@@ -182,7 +182,7 @@ export default function RejectedPostsTable() {
       accessor: () => {
         return (
           <div className="flex items-center justify-center">
-            <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-300">
+            <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-500/20 text-red-300">
               Rejected
             </span>
           </div>

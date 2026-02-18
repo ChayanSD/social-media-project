@@ -133,26 +133,24 @@ const ManageRoomModal = ({ isOpen, onClose, roomId }: ManageRoomModalProps) => {
 
         {/* Tabs */}
         <div className="px-4 pt-3 border-b border-gray-700">
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-2 text-sm">
             <button
               type="button"
               onClick={() => setActiveTab("members")}
-              className={`flex-1 py-2 rounded-full cursor-pointer transition-colors ${
-                activeTab === "members"
-                  ? "bg-white text-black font-semibold"
-                  : "bg-transparent text-white/60 hover:text-white"
-              }`}
+              className={`flex-1 py-2 rounded-full cursor-pointer transition-colors ${activeTab === "members"
+                ? "bg-white text-black font-semibold"
+                : "bg-transparent text-white/60 hover:text-white"
+                }`}
             >
               Members
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("add")}
-              className={`flex-1 py-2 rounded-full cursor-pointer transition-colors ${
-                activeTab === "add"
-                  ? "bg-white text-black font-semibold"
-                  : "bg-transparent text-white/60 hover:text-white"
-              }`}
+              className={`flex-1 py-2 rounded-full cursor-pointer transition-colors ${activeTab === "add"
+                ? "bg-white text-black font-semibold"
+                : "bg-transparent text-white/60 hover:text-white"
+                }`}
             >
               Add Members
             </button>
@@ -165,7 +163,7 @@ const ManageRoomModal = ({ isOpen, onClose, roomId }: ManageRoomModalProps) => {
             <div className="space-y-2">
               {members.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">
-                  <p className="text-sm">No members in this room</p>
+                  <p className="text-base">No members in this room</p>
                 </div>
               ) : (
                 members.map((member: ChatUser) => {
@@ -185,21 +183,21 @@ const ManageRoomModal = ({ isOpen, onClose, roomId }: ManageRoomModalProps) => {
                             className="object-cover"
                           />
                         ) : (
-                          <span className="text-white text-xs font-semibold">
+                          <span className="text-white text-sm font-semibold">
                             {(member.display_name || member.username || 'U').substring(0, 2).toUpperCase()}
                           </span>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-white truncate">
+                          <p className="text-base font-medium text-white truncate">
                             {member.display_name || member.username || 'Unknown User'}
                           </p>
                           {isAdmin && (
                             <AiOutlineCrown className="text-yellow-400" size={16} title="Admin" />
                           )}
                         </div>
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-sm text-gray-500 truncate">
                           @{member.username || 'unknown'}
                         </p>
                       </div>
@@ -239,7 +237,7 @@ const ManageRoomModal = ({ isOpen, onClose, roomId }: ManageRoomModalProps) => {
                     placeholder="Search users to add..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full text-white pl-9 pr-4 py-2 border border-gray-800 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-transparent text-sm bg-gray-800"
+                    className="w-full text-white pl-9 pr-4 py-2 border border-gray-800 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-transparent text-base bg-gray-800"
                   />
                 </div>
               </div>
@@ -247,7 +245,7 @@ const ManageRoomModal = ({ isOpen, onClose, roomId }: ManageRoomModalProps) => {
               {/* User List */}
               {availableUsers.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">
-                  <p className="text-sm">
+                  <p className="text-base">
                     {searchQuery ? 'No users found' : 'No users available to add'}
                   </p>
                 </div>
@@ -271,16 +269,16 @@ const ManageRoomModal = ({ isOpen, onClose, roomId }: ManageRoomModalProps) => {
                             className="object-cover"
                           />
                         ) : (
-                          <span className="text-white text-xs font-semibold">
+                          <span className="text-white text-sm font-semibold">
                             {(user.display_name || user.username || 'U').substring(0, 2).toUpperCase()}
                           </span>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">
+                        <p className="text-base font-medium text-white truncate">
                           {user.display_name || user.username || 'Unknown User'}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-sm text-gray-500 truncate">
                           @{user.username || 'unknown'}
                         </p>
                       </div>
@@ -297,7 +295,7 @@ const ManageRoomModal = ({ isOpen, onClose, roomId }: ManageRoomModalProps) => {
         <div className="p-4 border-t border-gray-700">
           <button
             onClick={onClose}
-            className="w-full px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors text-sm font-medium"
+            className="w-full px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors text-base font-medium"
           >
             Close
           </button>

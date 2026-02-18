@@ -78,7 +78,7 @@ export default function CleanupConversationDialog({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 rounded-full text-sm text-gray-200 bg-transparent hover:bg-white/10 transition-colors cursor-pointer"
+                        className="px-4 py-2 rounded-full text-base text-gray-200 bg-transparent hover:bg-white/10 transition-colors cursor-pointer"
                         disabled={isCleaning}
                     >
                         Cancel
@@ -87,7 +87,7 @@ export default function CleanupConversationDialog({
                         type="button"
                         onClick={handleConfirm}
                         disabled={isCleaning}
-                        className="px-4 py-2 rounded-full text-sm text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                        className="px-4 py-2 rounded-full text-base text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors cursor-pointer"
                     >
                         {isCleaning ? "Cleaning..." : "Cleanup Messages"}
                     </button>
@@ -97,11 +97,11 @@ export default function CleanupConversationDialog({
             <div className="py-4 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-200">Year</label>
+                        <label className="text-base font-medium text-gray-200">Year</label>
                         <select
                             value={selectedYear}
                             onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                            className="w-full px-3 py-2 bg-slate-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 bg-slate-800 border border-white/10 rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
                             disabled={isCleaning}
                         >
                             {years.map((year) => (
@@ -112,11 +112,11 @@ export default function CleanupConversationDialog({
                         </select>
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-200">Period</label>
+                        <label className="text-base font-medium text-gray-200">Period</label>
                         <select
                             value={selectedQuarter}
                             onChange={(e) => setSelectedQuarter(e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 bg-slate-800 border border-white/10 rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
                             disabled={isCleaning}
                         >
                             {periods.map((period) => (
@@ -129,7 +129,7 @@ export default function CleanupConversationDialog({
                 </div>
 
                 <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3">
-                    <p className="text-xs text-orange-200">
+                    <p className="text-sm text-orange-200">
                         Warning: This will permanently delete all messages from the selected period. This action cannot be undone.
                     </p>
                 </div>

@@ -205,7 +205,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           }}
         >
           <button
-            className={`flex items-center w-full px-4 py-3 rounded-xl cursor-pointer text-left text-sm font-medium transition
+            className={`flex items-center w-full px-4 py-3 rounded-xl cursor-pointer text-left text-base font-medium transition
             ${isActive
                 ? "bg-[#6B83FA] text-white"
                 : "bg-transparent text-white"
@@ -256,7 +256,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {/* LOGOUT */}
             <button
               onClick={handleLogout}
-              className="flex cursor-pointer items-center text-sm text-red-600 hover:text-red-500 transition mt-4 w-full"
+              className="flex cursor-pointer items-center text-base text-red-600 hover:text-red-500 transition mt-4 w-full"
             >
               <LogOut className="w-4 h-4 mr-2" /> Logout
             </button>
@@ -279,7 +279,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* LOGOUT → STAYS AT BOTTOM */}
         <button
           onClick={handleLogout}
-          className="flex cursor-pointer items-center text-sm text-red-600 hover:text-red-500 transition mt-4 w-full"
+          className="flex cursor-pointer items-center text-base text-red-600 hover:text-red-500 transition mt-4 w-full"
         >
           <LogOut className="w-4 h-4 mr-2" /> Logout
         </button>

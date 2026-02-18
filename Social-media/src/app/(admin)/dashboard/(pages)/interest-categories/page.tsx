@@ -93,7 +93,7 @@ export default function InterestCategories() {
     {
       header: "SL",
       accessor: (row) => (
-        <span className={row.type === "subcategory" ? "text-white/40 text-xs pl-8" : ""}>
+        <span className={row.type === "subcategory" ? "text-white/40 text-sm pl-8" : ""}>
           {row.type === "subcategory" ? `${row.index}.${row.subIndex}` : `${row.index}.`}
         </span>
       ),
@@ -101,7 +101,7 @@ export default function InterestCategories() {
     {
       header: "Category Name",
       accessor: (row) => (
-        <span className={row.type === "subcategory" ? "text-white/60 text-sm pl-4" : "font-medium"}>
+        <span className={row.type === "subcategory" ? "text-white/60 text-base pl-4" : "font-medium"}>
           {row.type === "subcategory" ? `└ ${row.name}` : row.name}
         </span>
       ),
@@ -118,7 +118,7 @@ export default function InterestCategories() {
             <span className="text-white/40">No subcategories</span>
           );
         }
-        return <span className="text-white/40 text-xs">Subcategory</span>;
+        return <span className="text-white/40 text-sm">Subcategory</span>;
       },
     },
     {
@@ -292,34 +292,34 @@ export default function InterestCategories() {
     <div className="space-y-10">
       {/* TABLE */}
       <CustomTable
-          title="All Categories"
-          description="Manage interest categories and subcategories for user preferences"
-          columns={columns}
-          data={tableData}
-          isLoading={isLoading}
-          isError={isError}
-          errorMessage="Failed to load categories. Please try again later"
-          emptyMessage="No categories found"
-          filters={
-            <div className="flex gap-3">
-              <button
-                onClick={handleCreateCategory}
-                className="bg-[#6B83FA] px-4 py-2 cursor-pointer rounded-lg hover:bg-[#5a70e8] transition text-sm font-medium whitespace-nowrap"
-              >
-                + Create Category
-              </button>
-              <button
-                onClick={handleCreateSubcategory}
-                className="bg-white/10 border border-white/20 px-4 py-2 cursor-pointer rounded-lg hover:bg-white/20 transition text-sm font-medium whitespace-nowrap"
-              >
-                + Create Subcategory
-              </button>
-            </div>
-          }
-          rowClassName={(row) =>
-            row.type === "subcategory" ? "bg-white/5 border-white/5" : ""
-          }
-        />
+        title="All Categories"
+        description="Manage interest categories and subcategories for user preferences"
+        columns={columns}
+        data={tableData}
+        isLoading={isLoading}
+        isError={isError}
+        errorMessage="Failed to load categories. Please try again later"
+        emptyMessage="No categories found"
+        filters={
+          <div className="flex gap-3">
+            <button
+              onClick={handleCreateCategory}
+              className="bg-[#6B83FA] px-4 py-2 cursor-pointer rounded-lg hover:bg-[#5a70e8] transition text-base font-medium whitespace-nowrap"
+            >
+              + Create Category
+            </button>
+            <button
+              onClick={handleCreateSubcategory}
+              className="bg-white/10 border border-white/20 px-4 py-2 cursor-pointer rounded-lg hover:bg-white/20 transition text-base font-medium whitespace-nowrap"
+            >
+              + Create Subcategory
+            </button>
+          </div>
+        }
+        rowClassName={(row) =>
+          row.type === "subcategory" ? "bg-white/5 border-white/5" : ""
+        }
+      />
 
       {/* MODAL */}
       <CategoryModal
@@ -338,11 +338,10 @@ export default function InterestCategories() {
       <ConfirmDialog
         open={deleteDialogOpen}
         title={`Delete ${itemToDelete?.type === "category" ? "Category" : "Subcategory"}?`}
-        description={`Are you sure you want to delete "${itemToDelete?.name}"? This action cannot be undone.${
-          itemToDelete?.type === "category"
-            ? " All subcategories under this category will also be deleted."
-            : ""
-        }`}
+        description={`Are you sure you want to delete "${itemToDelete?.name}"? This action cannot be undone.${itemToDelete?.type === "category"
+          ? " All subcategories under this category will also be deleted."
+          : ""
+          }`}
         confirmLabel="Delete"
         cancelLabel="Cancel"
         variant="destructive"

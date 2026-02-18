@@ -1,11 +1,11 @@
 "use client";
 import React, { useState } from 'react';
-import { 
-  FiTag, 
-  FiPlus, 
-  FiEdit2, 
-  FiTrash2, 
-  FiChevronDown, 
+import {
+  FiTag,
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiChevronDown,
   FiChevronRight,
   FiSearch
 } from 'react-icons/fi';
@@ -59,7 +59,7 @@ const Categories = () => {
   };
 
   const filteredCategories = categories.filter((category) => {
-    const matchesSearch = 
+    const matchesSearch =
       category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       category.subcategories.some(sub => sub.name.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesSearch;
@@ -78,9 +78,9 @@ const Categories = () => {
       setCategoryName('');
       setShowCategoryForm(false);
     } catch (error: unknown) {
-      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'Failed to create category';
+      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        'Failed to create category';
       toast.error('Failed to create category', { description: errorMessage });
     }
   };
@@ -98,9 +98,9 @@ const Categories = () => {
       setEditingCategory(null);
       setCategoryName('');
     } catch (error: unknown) {
-      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'Failed to update category';
+      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        'Failed to update category';
       toast.error('Failed to update category', { description: errorMessage });
     }
   };
@@ -124,9 +124,9 @@ const Categories = () => {
       setDeleteDialogOpen(false);
       setItemToDelete(null);
     } catch (error: unknown) {
-      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'Failed to delete';
+      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        'Failed to delete';
       toast.error('Failed to delete', { description: errorMessage });
     }
   };
@@ -144,18 +144,18 @@ const Categories = () => {
     }
 
     try {
-      await createSubcategory({ 
-        category_name: selectedCategoryForSubcategory, 
-        name: subcategoryName.trim() 
+      await createSubcategory({
+        category_name: selectedCategoryForSubcategory,
+        name: subcategoryName.trim()
       }).unwrap();
       toast.success('Subcategory created successfully!');
       setSubcategoryName('');
       setSelectedCategoryForSubcategory('');
       setShowSubcategoryForm(false);
     } catch (error: unknown) {
-      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'Failed to create subcategory';
+      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        'Failed to create subcategory';
       toast.error('Failed to create subcategory', { description: errorMessage });
     }
   };
@@ -168,8 +168,8 @@ const Categories = () => {
     }
 
     try {
-      await updateSubcategory({ 
-        id: editingSubcategory.subcategory.id, 
+      await updateSubcategory({
+        id: editingSubcategory.subcategory.id,
         name: subcategoryName.trim(),
         category_name: editingSubcategory.categoryName
       }).unwrap();
@@ -177,9 +177,9 @@ const Categories = () => {
       setEditingSubcategory(null);
       setSubcategoryName('');
     } catch (error: unknown) {
-      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'Failed to update subcategory';
+      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        'Failed to update subcategory';
       toast.error('Failed to update subcategory', { description: errorMessage });
     }
   };
@@ -225,10 +225,10 @@ const Categories = () => {
     return (
       <div className="max-w-[1220px] mx-auto px-4 py-8 text-white">
         <div className="bg-[#06133FBF] backdrop-blur-md rounded-2xl border border-white/20 shadow-lg p-6 md:p-10">
-            <ErrorState
-              message="Failed to load categories. Please try again later."
-              onRetry={() => refetch()}
-            />
+          <ErrorState
+            message="Failed to load categories. Please try again later."
+            onRetry={() => refetch()}
+          />
         </div>
       </div>
     );
@@ -290,7 +290,7 @@ const Categories = () => {
             </h3>
             <form onSubmit={editingCategory ? handleUpdateCategory : handleCreateCategory} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">Category Name</label>
+                <label className="block text-base font-medium text-white/80 mb-2">Category Name</label>
                 <input
                   type="text"
                   value={categoryName}
@@ -328,7 +328,7 @@ const Categories = () => {
             </h3>
             <form onSubmit={editingSubcategory ? handleUpdateSubcategory : handleCreateSubcategory} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">Category</label>
+                <label className="block text-base font-medium text-white/80 mb-2">Category</label>
                 <select
                   value={selectedCategoryForSubcategory}
                   onChange={(e) => setSelectedCategoryForSubcategory(e.target.value)}
@@ -345,7 +345,7 @@ const Categories = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">Subcategory Name</label>
+                <label className="block text-base font-medium text-white/80 mb-2">Subcategory Name</label>
                 <input
                   type="text"
                   value={subcategoryName}
@@ -400,7 +400,7 @@ const Categories = () => {
                       )}
                     </button>
                     <h3 className="text-xl font-semibold text-white">{category.name}</h3>
-                    <span className="text-white/40 text-sm">
+                    <span className="text-white/40 text-base">
                       ({category.subcategories.length} subcategories)
                     </span>
                   </div>
@@ -426,7 +426,7 @@ const Categories = () => {
                 {expandedCategories.has(category.id) && (
                   <div className="ml-8 mt-4 space-y-2">
                     {category.subcategories.length === 0 ? (
-                      <p className="text-white/40 text-sm">No subcategories</p>
+                      <p className="text-white/40 text-base">No subcategories</p>
                     ) : (
                       category.subcategories.map((subcategory) => (
                         <div
@@ -464,11 +464,10 @@ const Categories = () => {
       <ConfirmDialog
         open={deleteDialogOpen}
         title={`Delete ${itemToDelete?.type === 'category' ? 'Category' : 'Subcategory'}`}
-        description={`Are you sure you want to delete "${itemToDelete?.name}"? This action cannot be undone.${
-          itemToDelete?.type === 'category' 
-            ? ' All subcategories under this category will also be deleted.' 
+        description={`Are you sure you want to delete "${itemToDelete?.name}"? This action cannot be undone.${itemToDelete?.type === 'category'
+            ? ' All subcategories under this category will also be deleted.'
             : ''
-        }`}
+          }`}
         confirmLabel="Delete"
         cancelLabel="Cancel"
         variant="destructive"

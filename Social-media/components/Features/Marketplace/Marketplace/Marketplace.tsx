@@ -145,7 +145,7 @@ const Marketplace = () => {
                 />
             ) : !items.length ? (
                 <div className="px-2 md:px-4 py-8 text-center">
-                    <p className="text-white/60 text-sm">
+                    <p className="text-white/60 text-base">
                         No published services available at the moment.
                     </p>
                 </div>
@@ -181,17 +181,17 @@ const Marketplace = () => {
                             <button
                                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                                 disabled={!itemsResponse?.previous || isLoading}
-                                className="px-6 py-2 rounded-full border border-white/20 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium"
+                                className="px-6 py-2 rounded-full border border-white/20 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-base font-medium"
                             >
                                 Previous
                             </button>
-                            <span className="text-white/60 text-sm">
+                            <span className="text-white/60 text-base">
                                 Page {currentPage}
                             </span>
                             <button
                                 onClick={() => setCurrentPage(prev => prev + 1)}
                                 disabled={!itemsResponse?.next || isLoading}
-                                className="px-6 py-2 rounded-full border border-white/20 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium"
+                                className="px-6 py-2 rounded-full border border-white/20 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-base font-medium"
                             >
                                 Next
                             </button>

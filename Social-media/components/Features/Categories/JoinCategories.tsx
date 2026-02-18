@@ -1,20 +1,20 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { 
-  FiPlus, 
+import {
+  FiPlus,
   FiCheck,
   FiSearch,
-  FiChevronDown, 
+  FiChevronDown,
   FiChevronRight
 } from 'react-icons/fi';
 import PageHeader from '../../Shared/PageHeader/PageHeader';
 import {
   useGetCategoriesQuery,
 } from '@/store/categoryApi';
-import { 
+import {
   useGetCurrentUserProfileQuery,
-  useUpdateUserProfileMutation 
+  useUpdateUserProfileMutation
 } from '@/store/authApi';
 import { toast } from 'sonner';
 import ErrorState from '../../Shared/ErrorState';
@@ -23,35 +23,35 @@ const JoinCategories = () => {
   const { data: categoriesResponse, isLoading, isError, refetch: refetchCategories } = useGetCategoriesQuery();
   const { data: profileResponse } = useGetCurrentUserProfileQuery();
   const [updateUserProfile, { isLoading: isUpdating }] = useUpdateUserProfileMutation();
-  
+
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
 
   const categories = categoriesResponse?.data || [];
   const profile = profileResponse?.data;
-  
+
   // Get user's current interests (subcategory IDs)
   const userSubcategoryIds = useMemo(() => {
     if (!profile) return new Set<number>();
     // Check for subcategories in profile - could be in different formats
-    const subcategories = (profile as { 
+    const subcategories = (profile as {
       subcategories?: Array<{ id: number } | number>;
       interests?: Array<{ id: number } | number>;
       subcategory_ids?: number[];
-    })?.subcategories || 
-    (profile as { 
-      subcategories?: Array<{ id: number } | number>;
-      interests?: Array<{ id: number } | number>;
-      subcategory_ids?: number[];
-    })?.interests ||
-    (profile as { 
-      subcategories?: Array<{ id: number } | number>;
-      interests?: Array<{ id: number } | number>;
-      subcategory_ids?: number[];
-    })?.subcategory_ids || [];
-    
+    })?.subcategories ||
+      (profile as {
+        subcategories?: Array<{ id: number } | number>;
+        interests?: Array<{ id: number } | number>;
+        subcategory_ids?: number[];
+      })?.interests ||
+      (profile as {
+        subcategories?: Array<{ id: number } | number>;
+        interests?: Array<{ id: number } | number>;
+        subcategory_ids?: number[];
+      })?.subcategory_ids || [];
+
     return new Set(
-      subcategories.map((sub: { id: number } | number) => 
+      subcategories.map((sub: { id: number } | number) =>
         typeof sub === 'number' ? sub : sub.id
       )
     );
@@ -68,7 +68,7 @@ const JoinCategories = () => {
   };
 
   const filteredCategories = categories.filter((category) => {
-    const matchesSearch = 
+    const matchesSearch =
       category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       category.subcategories.some(sub => sub.name.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesSearch;
@@ -94,16 +94,16 @@ const JoinCategories = () => {
       await updateUserProfile({
         subcategory_ids: newIds,
       }).unwrap();
-      
+
       toast.success(
-        isSubcategoryJoined(subcategoryId) 
-          ? 'Interest removed successfully!' 
+        isSubcategoryJoined(subcategoryId)
+          ? 'Interest removed successfully!'
           : 'Interest added successfully!'
       );
     } catch (error: unknown) {
-      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'Failed to update interests';
+      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        'Failed to update interests';
       toast.error('Failed to update interests', { description: errorMessage });
     }
   };
@@ -126,10 +126,10 @@ const JoinCategories = () => {
     return (
       <div className="max-w-[1220px] mx-auto px-4 py-8 pb-[calc(100vh-500px)] text-white">
         <ErrorState
-            message="Failed to load categories. Please try again later."
-            onRetry={() => refetchCategories()}
-          />
-       
+          message="Failed to load categories. Please try again later."
+          onRetry={() => refetchCategories()}
+        />
+
       </div>
     );
   }
@@ -182,19 +182,19 @@ const JoinCategories = () => {
                     )}
                   </button>
                   <div>
-                  <h3 className="text-xl font-semibold text-white">{category.name}</h3>
-                  
-                  <p className="text-white/40 text-sm ">
-                    ({category.subcategories.length} subcategories)
-                  </p>
-                    </div>
+                    <h3 className="text-xl font-semibold text-white">{category.name}</h3>
+
+                    <p className="text-white/40 text-base ">
+                      ({category.subcategories.length} subcategories)
+                    </p>
+                  </div>
                 </div>
 
                 {/* Subcategories */}
                 {expandedCategories.has(category.id) && (
                   <div className="ml-8 mt-4">
                     {category.subcategories.length === 0 ? (
-                      <p className="text-white/40 text-sm">No subcategories</p>
+                      <p className="text-white/40 text-base">No subcategories</p>
                     ) : (
                       <div className="flex flex-wrap gap-3">
                         {category.subcategories.map((subcategory) => {
@@ -204,11 +204,10 @@ const JoinCategories = () => {
                               key={subcategory.id}
                               onClick={() => handleToggleSubcategory(subcategory.id)}
                               disabled={isUpdating}
-                              className={`px-4 py-2 rounded-full text-sm border transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-                                isJoined
+                              className={`px-4 py-2 rounded-full text-base border transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${isJoined
                                   ? "border-teal-400 bg-teal-400/20 text-teal-400"
                                   : "border-white/30 text-white hover:border-white/50 hover:bg-white/10"
-                              }`}
+                                }`}
                             >
                               {isJoined ? (
                                 <>

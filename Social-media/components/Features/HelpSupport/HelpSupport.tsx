@@ -41,7 +41,7 @@ const HelpSupport = () => {
             href: '/main/communities',
             color: 'from-green-500 to-emerald-600',
         },
-       
+
         {
             icon: <FiFileText className="w-6 h-6" />,
             title: 'Documentation',
@@ -61,23 +61,23 @@ const HelpSupport = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         try {
             // Split name into first_name and last_name
             const nameParts = formData.name.trim().split(/\s+/);
             const firstName = nameParts[0] || '';
             const lastName = nameParts.slice(1).join(' ') || '';
-            
+
             // Include category in subject if provided
-            const subjectWithCategory = formData.category 
+            const subjectWithCategory = formData.category
                 ? `[${supportCategories.find(cat => cat.id === formData.category)?.label || formData.category}] ${formData.subject}`
                 : formData.subject;
-            
+
             // Include category in message if provided
             const messageWithCategory = formData.category
                 ? `Category: ${supportCategories.find(cat => cat.id === formData.category)?.label || formData.category}\n\n${formData.message}`
                 : formData.message;
-            
+
             await submitContact({
                 first_name: firstName,
                 last_name: lastName,
@@ -85,10 +85,10 @@ const HelpSupport = () => {
                 subject: subjectWithCategory,
                 message: messageWithCategory,
             }).unwrap();
-            
+
             toast.success("Thank you for contacting us! We'll get back to you soon.");
             setIsSubmitted(true);
-            
+
             // Reset form after 5 seconds
             setTimeout(() => {
                 setIsSubmitted(false);
@@ -132,7 +132,7 @@ const HelpSupport = () => {
                                     {link.icon}
                                 </div>
                                 <h3 className="text-lg font-semibold text-white mb-2">{link.title}</h3>
-                                <p className="text-white/60 text-sm">{link.description}</p>
+                                <p className="text-white/60 text-base">{link.description}</p>
                             </Link>
                         ))}
                     </div>
@@ -153,14 +153,14 @@ const HelpSupport = () => {
                                 </p>
                                 <div className="flex items-center justify-center gap-2 text-white/60">
                                     <FiClock className="w-5 h-5" />
-                                    <span className="text-sm">Response time: Usually within 24 hours</span>
+                                    <span className="text-base">Response time: Usually within 24 hours</span>
                                 </div>
                             </div>
                         ) : (
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label htmlFor="name" className="block text-sm font-medium text-white/90 mb-2">
+                                        <label htmlFor="name" className="block text-base font-medium text-white/90 mb-2">
                                             Your Name *
                                         </label>
                                         <input
@@ -175,7 +175,7 @@ const HelpSupport = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="email" className="block text-sm font-medium text-white/90 mb-2">
+                                        <label htmlFor="email" className="block text-base font-medium text-white/90 mb-2">
                                             Email Address *
                                         </label>
                                         <input
@@ -193,7 +193,7 @@ const HelpSupport = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label htmlFor="category" className="block text-sm font-medium text-white/90 mb-2">
+                                        <label htmlFor="category" className="block text-base font-medium text-white/90 mb-2">
                                             Category *
                                         </label>
                                         <select
@@ -213,7 +213,7 @@ const HelpSupport = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label htmlFor="subject" className="block text-sm font-medium text-white/90 mb-2">
+                                        <label htmlFor="subject" className="block text-base font-medium text-white/90 mb-2">
                                             Subject *
                                         </label>
                                         <input
@@ -230,7 +230,7 @@ const HelpSupport = () => {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="message" className="block text-sm font-medium text-white/90 mb-2">
+                                    <label htmlFor="message" className="block text-base font-medium text-white/90 mb-2">
                                         Message *
                                     </label>
                                     <textarea
@@ -278,21 +278,21 @@ const HelpSupport = () => {
                                 <FiClock className="w-6 h-6 text-white" />
                             </div>
                             <h4 className="text-lg font-semibold text-white mb-2">Response Time</h4>
-                            <p className="text-white/80 text-sm">Usually within 24 hours</p>
+                            <p className="text-white/80 text-base">Usually within 24 hours</p>
                         </div>
                         <div className="text-center">
                             <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-4">
                                 <FiMail className="w-6 h-6 text-white" />
                             </div>
                             <h4 className="text-lg font-semibold text-white mb-2">Email Support</h4>
-                            <p className="text-white/80 text-sm">support@raddit.com</p>
+                            <p className="text-white/80 text-base">support@raddit.com</p>
                         </div>
                         <div className="text-center">
                             <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-4">
                                 <FiMessageCircle className="w-6 h-6 text-white" />
                             </div>
                             <h4 className="text-lg font-semibold text-white mb-2">Live Chat</h4>
-                            <p className="text-white/80 text-sm">Available 24/7</p>
+                            <p className="text-white/80 text-base">Available 24/7</p>
                         </div>
                     </div>
                 </div>

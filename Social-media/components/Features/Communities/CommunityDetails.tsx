@@ -248,12 +248,12 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
           <div className="text-center bg-white/5 rounded-lg border border-white/10 p-8 max-w-md">
             <FiFileText className="w-16 h-16 text-white/40 mx-auto mb-4" />
             <p className="text-white text-lg font-semibold mb-2">Join to View Posts</p>
-            <p className="text-white/60 text-sm mb-6">
+            <p className="text-white/60 text-base mb-6">
               You must be a member of this community to view posts.
             </p>
             {hasPendingRequest ? (
               <div className="space-y-3">
-                <p className="text-orange-400 text-sm">Your join request is pending approval.</p>
+                <p className="text-orange-400 text-base">Your join request is pending approval.</p>
                 <button
                   onClick={() => handleCancelRequest(communityName)}
                   disabled={isCanceling}
@@ -331,13 +331,13 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
             {isFetchingNextPage && (
               <>
                 <Loader2 className="animate-spin text-white/60" size={24} />
-                <div className="text-white/60 text-sm">Loading more posts...</div>
+                <div className="text-white/60 text-base">Loading more posts...</div>
               </>
             )}
           </div>
         )}
         {!hasNextPage && posts.length > 0 && (
-          <div className="text-center text-white/40 text-sm py-4">
+          <div className="text-center text-white/40 text-base py-4">
             No more posts to load
           </div>
         )}
@@ -416,7 +416,7 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
                 <>
                   {!canPost ? (
                     <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 text-center">
-                      <p className="text-yellow-300 text-sm">
+                      <p className="text-yellow-300 text-base">
                         {community.visibility === 'restricted'
                           ? 'You can view posts but need to be an approved member to post in this restricted community.'
                           : 'You must be an approved member to post in this private community.'}
@@ -468,29 +468,29 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
                   )}
                   <div className="flex-1">
                     <h3 className='font-semibold text-white'>{community.title || community.name}</h3>
-                    <p className='text-sm text-gray-400'>{community.members_count || 0} Members</p>
+                    <p className='text-base text-gray-400'>{community.members_count || 0} Members</p>
                   </div>
                 </div>
                 {community.description && (
-                  <p className='text-sm text-white/70 mb-4'>{community.description}</p>
+                  <p className='text-base text-white/70 mb-4'>{community.description}</p>
                 )}
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
-                    <p className='text-xs text-gray-400'>Total Posts</p>
-                    <p className='text-xs font-bold text-white'>{community.posts_count || 0}</p>
+                    <p className='text-sm text-gray-400'>Total Posts</p>
+                    <p className='text-sm font-bold text-white'>{community.posts_count || 0}</p>
                   </div>
                   <div>
-                    <p className='text-xs text-gray-400'>Members</p>
-                    <p className='text-xs font-bold text-white'>{community.members_count || 0}</p>
+                    <p className='text-sm text-gray-400'>Members</p>
+                    <p className='text-sm font-bold text-white'>{community.members_count || 0}</p>
                   </div>
                   <div>
-                    <p className='text-xs text-gray-400'>Visibility</p>
-                    <p className='text-xs font-bold text-white'>{getVisibilityLabel(community.visibility)}</p>
+                    <p className='text-sm text-gray-400'>Visibility</p>
+                    <p className='text-sm font-bold text-white'>{getVisibilityLabel(community.visibility)}</p>
                   </div>
                   {community.created_by_username && (
                     <div>
-                      <p className='text-xs text-gray-400'>Created by</p>
-                      <p className='text-xs font-bold text-white truncate'>{community.created_by_username}</p>
+                      <p className='text-sm text-gray-400'>Created by</p>
+                      <p className='text-sm font-bold text-white truncate'>{community.created_by_username}</p>
                     </div>
                   )}
                 </div>
@@ -526,7 +526,7 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
 
             {/* Popular Communities */}
             <div className='bg-[#06133F]/75 backdrop-blur-[17.5px] py-6 px-4 rounded-2xl space-y-4'>
-              <h1 className='text-white text-lg font-semibold'>Popular Communities</h1>
+              <h1 className='text-white text-xl font-semibold'>Popular Communities</h1>
               {communities.slice(0, 5).map((comm: CommunityItem) => {
                 if (comm.name === communityName) return null;
                 const iconUrl = comm.icon || comm.profile_image
@@ -556,8 +556,8 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <h3 className='text-white text-sm font-semibold truncate max-w-[150px]'>{comm.title || comm.name}</h3>
-                        <p className='text-gray-400 text-xs'>{formatMembers(comm.members_count || 0)} Members</p>
+                        <h3 className='text-white text-base font-semibold truncate max-w-[150px]'>{comm.title || comm.name}</h3>
+                        <p className='text-gray-400 text-sm'>{formatMembers(comm.members_count || 0)} Members</p>
                       </div>
                     </div>
                     <button
@@ -570,7 +570,7 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
                         }
                       }}
                       disabled={isJoining || isLeaving || (comm as { user_has_pending_request?: boolean }).user_has_pending_request}
-                      className={`text-white px-4 py-2 hover:text-slate-400 duration-300 ease-in-out cursor-pointer text-sm ${(isJoining || isLeaving) ? 'opacity-50 cursor-not-allowed' : ''
+                      className={`text-white px-4 py-2 hover:text-slate-400 duration-300 ease-in-out cursor-pointer text-base ${(isJoining || isLeaving) ? 'opacity-50 cursor-not-allowed' : ''
                         } ${(comm as { user_has_pending_request?: boolean }).user_has_pending_request
                           ? 'text-yellow-400 hover:text-yellow-300'
                           : ''
@@ -645,29 +645,29 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
                       )}
                       <div className="flex-1">
                         <h3 className='font-semibold text-white'>{community.title || community.name}</h3>
-                        <p className='text-sm text-gray-400'>{community.members_count || 0} Members</p>
+                        <p className='text-base text-gray-400'>{community.members_count || 0} Members</p>
                       </div>
                     </div>
                     {community.description && (
-                      <p className='text-sm text-white/70 mb-4'>{community.description}</p>
+                      <p className='text-base text-white/70 mb-4'>{community.description}</p>
                     )}
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
-                        <p className='text-xs text-gray-400'>Total Posts</p>
-                        <p className='text-xs font-bold text-white'>{community.posts_count || 0}</p>
+                        <p className='text-sm text-gray-400'>Total Posts</p>
+                        <p className='text-sm font-bold text-white'>{community.posts_count || 0}</p>
                       </div>
                       <div>
-                        <p className='text-xs text-gray-400'>Members</p>
-                        <p className='text-xs font-bold text-white'>{community.members_count || 0}</p>
+                        <p className='text-sm text-gray-400'>Members</p>
+                        <p className='text-sm font-bold text-white'>{community.members_count || 0}</p>
                       </div>
                       <div>
-                        <p className='text-xs text-gray-400'>Visibility</p>
-                        <p className='text-xs font-bold text-white'>{getVisibilityLabel(community.visibility)}</p>
+                        <p className='text-sm text-gray-400'>Visibility</p>
+                        <p className='text-sm font-bold text-white'>{getVisibilityLabel(community.visibility)}</p>
                       </div>
                       {community.created_by_username && (
                         <div>
-                          <p className='text-xs text-gray-400'>Created by</p>
-                          <p className='text-xs font-bold text-white truncate'>{community.created_by_username}</p>
+                          <p className='text-sm text-gray-400'>Created by</p>
+                          <p className='text-sm font-bold text-white truncate'>{community.created_by_username}</p>
                         </div>
                       )}
                     </div>
@@ -703,7 +703,7 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
 
                 {/* Popular Communities */}
                 <div className='bg-[#06133F]/75 backdrop-blur-[17.5px] py-6 px-4 rounded-2xl space-y-4'>
-                  <h1 className='text-white text-lg font-semibold'>Popular Communities</h1>
+                  <h1 className='text-white text-xl font-semibold'>Popular Communities</h1>
                   {communities.slice(0, 5).map((comm: CommunityItem) => {
                     if (comm.name === communityName) return null;
                     const iconUrl = comm.icon || comm.profile_image
@@ -733,8 +733,8 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <h3 className='text-white text-sm font-semibold truncate max-w-[150px]'>{comm.title || comm.name}</h3>
-                            <p className='text-gray-400 text-xs'>{formatMembers(comm.members_count || 0)} Members</p>
+                            <h3 className='text-white text-base font-semibold truncate max-w-[150px]'>{comm.title || comm.name}</h3>
+                            <p className='text-gray-400 text-sm'>{formatMembers(comm.members_count || 0)} Members</p>
                           </div>
                         </div>
                         <button
@@ -747,7 +747,7 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
                             }
                           }}
                           disabled={isJoining || isLeaving || (comm as { user_has_pending_request?: boolean }).user_has_pending_request}
-                          className={`text-white px-4 py-2 hover:text-slate-400 duration-300 ease-in-out cursor-pointer text-sm ${(isJoining || isLeaving) ? 'opacity-50 cursor-not-allowed' : ''
+                          className={`text-white px-4 py-2 hover:text-slate-400 duration-300 ease-in-out cursor-pointer text-base ${(isJoining || isLeaving) ? 'opacity-50 cursor-not-allowed' : ''
                             } ${(comm as { user_has_pending_request?: boolean }).user_has_pending_request
                               ? 'text-yellow-400 hover:text-yellow-300'
                               : ''

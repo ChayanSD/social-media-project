@@ -63,7 +63,7 @@ const CommentSection: React.FC = () => {
       />
       <button
         onClick={addComment}
-        className="mt-2 px-3 py-1 bg-blue-600 text-white rounded text-sm"
+        className="mt-2 px-3 py-1 bg-blue-600 text-white rounded text-base"
       >
         Comment
       </button>

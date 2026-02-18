@@ -18,7 +18,7 @@ type Inputs = {
 export default function ContactUs() {
   const [submitContact, { isLoading: isSubmitting }] = useSubmitContactMutation();
   const [isSubmitted, setIsSubmitted] = useState(false);
-  
+
   const {
     register,
     handleSubmit,
@@ -35,11 +35,11 @@ export default function ContactUs() {
         subject: data.subject,
         message: data.message,
       }).unwrap();
-      
+
       toast.success("Thank you for contacting us! We'll get back to you soon.");
       setIsSubmitted(true);
       reset();
-      
+
       // Reset success message after 5 seconds
       setTimeout(() => {
         setIsSubmitted(false);
@@ -68,30 +68,30 @@ export default function ContactUs() {
             {/* First Row - First Name and Last Name */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-300">First Name</label>
+                <label className="block mb-2 text-base font-medium text-gray-300">First Name</label>
                 <input
                   {...register("firstName", { required: true })}
                   className="w-full p-3 rounded-full bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all placeholder-gray-500"
                   placeholder="Enter your first name"
                 />
-                {errors.firstName && <span className="text-red-400 text-sm mt-1">This field is required</span>}
+                {errors.firstName && <span className="text-red-400 text-base mt-1">This field is required</span>}
               </div>
 
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-300">Last Name</label>
+                <label className="block mb-2 text-base font-medium text-gray-300">Last Name</label>
                 <input
                   {...register("lastName", { required: true })}
                   className="w-full p-3 rounded-full bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all placeholder-gray-500"
                   placeholder="Enter your last name"
                 />
-                {errors.lastName && <span className="text-red-400 text-sm mt-1">This field is required</span>}
+                {errors.lastName && <span className="text-red-400 text-base mt-1">This field is required</span>}
               </div>
             </div>
 
             {/* Second Row - Email and Subject */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-300">Email</label>
+                <label className="block mb-2 text-base font-medium text-gray-300">Email</label>
                 <input
                   type="email"
                   {...register("email", {
@@ -101,29 +101,29 @@ export default function ContactUs() {
                   className="w-full p-3 rounded-full bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all placeholder-gray-500"
                   placeholder="Enter your email"
                 />
-                {errors.email && <span className="text-red-400 text-sm mt-1">Please enter a valid email</span>}
+                {errors.email && <span className="text-red-400 text-base mt-1">Please enter a valid email</span>}
               </div>
 
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-300">Subject</label>
+                <label className="block mb-2 text-base font-medium text-gray-300">Subject</label>
                 <input
                   {...register("subject", { required: true })}
                   className="w-full p-3 rounded-full bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all placeholder-gray-500"
                   placeholder="Enter subject"
                 />
-                {errors.subject && <span className="text-red-400 text-sm mt-1">This field is required</span>}
+                {errors.subject && <span className="text-red-400 text-base mt-1">This field is required</span>}
               </div>
             </div>
 
             {/* Third Row - Message */}
             <div className="w-full">
-              <label className="block mb-2 text-sm font-medium text-gray-300">How can we help you today?</label>
+              <label className="block mb-2 text-base font-medium text-gray-300">How can we help you today?</label>
               <textarea
                 {...register("message", { required: true })}
                 className="w-full p-4 rounded-3xl bg-white/5 border border-white/10 min-h-[220px] focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all placeholder-gray-500"
                 placeholder="Enter your message"
               />
-              {errors.message && <span className="text-red-400 text-sm mt-1">This field is required</span>}
+              {errors.message && <span className="text-red-400 text-base mt-1">This field is required</span>}
             </div>
 
             {/* Submit Button - Centered */}
@@ -131,11 +131,10 @@ export default function ContactUs() {
               <button
                 type="submit"
                 disabled={isSubmitting || isSubmitted}
-                className={`px-8 py-3 rounded-full text-white font-medium transition-all hover:shadow-lg hover:shadow-purple-500/25 ${
-                  isSubmitting || isSubmitted
+                className={`px-8 py-3 rounded-full text-white font-medium transition-all hover:shadow-lg hover:shadow-purple-500/25 ${isSubmitting || isSubmitted
                     ? "bg-purple-400 cursor-not-allowed"
                     : "bg-purple-600 hover:bg-purple-500"
-                }`}
+                  }`}
               >
                 {isSubmitting ? "Sending..." : isSubmitted ? "Message Sent!" : "Send Message"}
               </button>
@@ -155,7 +154,7 @@ export default function ContactUs() {
                 </div>
                 <div>
                   <h3 className="font-medium mb-1">Phone</h3>
-                  <p className="text-sm text-gray-300">+1 234 567 890</p>
+                  <p className="text-base text-gray-300">+1 234 567 890</p>
                 </div>
               </div>
 
@@ -166,7 +165,7 @@ export default function ContactUs() {
                 </div>
                 <div>
                   <h3 className="font-medium mb-1">Email</h3>
-                  <p className="text-sm text-gray-300">contact@example.com</p>
+                  <p className="text-base text-gray-300">contact@example.com</p>
                 </div>
               </div>
 

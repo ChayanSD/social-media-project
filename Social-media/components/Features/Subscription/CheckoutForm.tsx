@@ -90,7 +90,7 @@ const PaymentForm = ({ plan, amount }: { plan: string, amount: string }) => {
             {/* Stripe Card Elements */}
             <div className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-white mb-2">
+                    <label className="block text-base font-medium text-white mb-2">
                         Card Number:
                     </label>
                     <div className="w-full px-3 py-2.5 border border-white/10 rounded-lg bg-white/5 text-white placeholder-gray-400 focus:outline-none">
@@ -100,7 +100,7 @@ const PaymentForm = ({ plan, amount }: { plan: string, amount: string }) => {
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-white mb-2">
+                        <label className="block text-base font-medium text-white mb-2">
                             Expiry Date:
                         </label>
                         <div className="w-full px-3 py-2.5 border border-white/10 rounded-lg bg-white/5 text-white placeholder-gray-400 focus:outline-none">
@@ -109,7 +109,7 @@ const PaymentForm = ({ plan, amount }: { plan: string, amount: string }) => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-white mb-2">
+                        <label className="block text-base font-medium text-white mb-2">
                             CVC:
                         </label>
                         <div className="w-full px-3 py-2.5 border border-white/10 rounded-lg bg-white/5 text-white placeholder-gray-400 focus:outline-none">
@@ -122,7 +122,7 @@ const PaymentForm = ({ plan, amount }: { plan: string, amount: string }) => {
 
             {/* Submit Button */}
             <div className="w-full flex flex-col md:flex-row items-start justify-between gap-4 ">
-                <p className="text-xs text-white/60 mb-4">By continuing, you agree to automatic payments for Reddit Premium and to Company's Privacy Policy and Econ Terms. Your Premium subscription will auto-renew yearly for $49.99 (plus tax where applicable). Cancellation must be done at least 24 hours before your subscription ends to avoid renewal. No partial refunds. </p>
+                <p className="text-sm text-white/60 mb-4">By continuing, you agree to automatic payments for Reddit Premium and to Company's Privacy Policy and Econ Terms. Your Premium subscription will auto-renew yearly for $49.99 (plus tax where applicable). Cancellation must be done at least 24 hours before your subscription ends to avoid renewal. No partial refunds. </p>
                 <button
                     type={paymentStatus === "error" ? "button" : "submit"}
                     onClick={paymentStatus === "error" ? () => setPaymentStatus("idle") : undefined}
@@ -154,7 +154,7 @@ const CheckoutForm = () => {
                 <div className="flex justify-center">
                     <div className="p-6 rounded-xl w-full max-w-2xl">
                         <h2 className="text-2xl font-bold text-white mb-6">
-                        {plan === 'monthly' ? 'Get Monthly Premium' : 'Get Yearly Premium'}
+                            {plan === 'monthly' ? 'Get Monthly Premium' : 'Get Yearly Premium'}
                         </h2>
                         <Elements stripe={stripePromise}>
                             <PaymentForm plan={plan || ''} amount={amount || ''} />

@@ -246,14 +246,14 @@ const Profile = () => {
         {/* Infinite scroll trigger */}
         <div ref={observerTargetOverview} className="h-10 flex items-center justify-center">
           {(isLoading || isFetching) && hasMore && (
-            <div className="text-white/60 text-sm flex items-center gap-2">
+            <div className="text-white/60 text-base flex items-center gap-2">
               <div className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
               Loading more posts...
             </div>
           )}
         </div>
         {!hasMore && allLoadedPosts.length > 0 && (
-          <div className="text-center text-white/40 text-sm py-4">
+          <div className="text-center text-white/40 text-base py-4">
             No more posts to load
           </div>
         )}
@@ -323,7 +323,7 @@ const Profile = () => {
                             <Post post={post} profile={profile} />
                             <button
                               onClick={() => handlePublishDraft(post.id)}
-                              className="absolute top-4 right-4 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg text-sm font-medium transition-all duration-300 z-10"
+                              className="absolute top-4 right-4 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg text-base font-medium transition-all duration-300 z-10"
                             >
                               Publish
                             </button>
@@ -345,11 +345,11 @@ const Profile = () => {
                       {/* Infinite scroll trigger */}
                       <div ref={observerTargetPosts} className="h-10 flex items-center justify-center">
                         {isLoading && hasMore && (
-                          <div className="text-white/60 text-sm">Loading more posts...</div>
+                          <div className="text-white/60 text-base">Loading more posts...</div>
                         )}
                       </div>
                       {!hasMore && allLoadedPosts.length > 0 && (
-                        <div className="text-center text-white/40 text-sm py-4">
+                        <div className="text-center text-white/40 text-base py-4">
                           No more posts to load
                         </div>
                       )}

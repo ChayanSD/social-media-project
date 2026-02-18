@@ -1,9 +1,9 @@
 "use client";
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  useGetPopularCommunitiesQuery, 
-  useJoinCommunityMutation, 
+import {
+  useGetPopularCommunitiesQuery,
+  useJoinCommunityMutation,
   useLeaveCommunityMutation,
   useCancelJoinRequestMutation,
   useGetInvitationsQuery,
@@ -63,8 +63,8 @@ const Communities = () => {
       }
       // Show private communities if user is a member OR has pending invitation
       if (c.visibility === 'private') {
-        const hasInvitation = (c as { user_has_pending_invitation?: boolean }).user_has_pending_invitation || 
-                              invitationMap[c.name || ''] !== undefined;
+        const hasInvitation = (c as { user_has_pending_invitation?: boolean }).user_has_pending_invitation ||
+          invitationMap[c.name || ''] !== undefined;
         return c.is_member === true || hasInvitation;
       }
       return false;
@@ -74,7 +74,7 @@ const Communities = () => {
   const filteredCommunities = useMemo(() => {
     if (!searchQuery.trim()) return communities;
     const query = searchQuery.toLowerCase();
-    return communities.filter((community: CommunityItem) => 
+    return communities.filter((community: CommunityItem) =>
       community.name?.toLowerCase().includes(query) ||
       community.title?.toLowerCase().includes(query) ||
       community.description?.toLowerCase().includes(query)
@@ -100,7 +100,7 @@ const Communities = () => {
     try {
       await joinCommunity(communityName).unwrap();
       refetch();
-      
+
       // Check if it's a join request or direct join
       const community = allCommunities.find((c: CommunityItem) => c.name === communityName);
       if (community?.visibility === 'public') {
@@ -110,9 +110,9 @@ const Communities = () => {
       }
     } catch (error: unknown) {
       console.error('Failed to join community:', error);
-      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'An error occurred';
+      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        'An error occurred';
       toast.error('Failed to join community', {
         description: errorMessage,
       });
@@ -125,9 +125,9 @@ const Communities = () => {
       refetch();
       toast.success('Successfully left community!');
     } catch (error: unknown) {
-      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'An error occurred';
+      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        'An error occurred';
       toast.error('Failed to leave community', {
         description: errorMessage,
       });
@@ -140,9 +140,9 @@ const Communities = () => {
       refetch();
       toast.success('Join request cancelled successfully!');
     } catch (error: unknown) {
-      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'An error occurred';
+      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        'An error occurred';
       toast.error('Failed to cancel join request', {
         description: errorMessage,
       });
@@ -155,9 +155,9 @@ const Communities = () => {
       refetch();
       toast.success('Invitation accepted! You are now a member.');
     } catch (error: unknown) {
-      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'An error occurred';
+      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        'An error occurred';
       toast.error('Failed to accept invitation', {
         description: errorMessage,
       });
@@ -170,9 +170,9 @@ const Communities = () => {
       refetch();
       toast.success('Invitation declined');
     } catch (error: unknown) {
-      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'An error occurred';
+      const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        'An error occurred';
       toast.error('Failed to reject invitation', {
         description: errorMessage,
       });
@@ -201,12 +201,12 @@ const Communities = () => {
 
   const renderErrorState = () => {
     return (
-      
-          <ErrorState
-            message="Failed to load communities. Please try again later."
-            onRetry={() => refetch()} 
-          />
-     
+
+      <ErrorState
+        message="Failed to load communities. Please try again later."
+        onRetry={() => refetch()}
+      />
+
     );
   };
 
@@ -218,7 +218,7 @@ const Communities = () => {
             <FriendsIcon />
           </div>
           <p className="text-white/60 text-lg">No communities found</p>
-          <p className="text-white/40 text-sm mt-2">
+          <p className="text-white/40 text-base mt-2">
             {searchQuery ? 'Try adjusting your search query' : 'Be the first to create a community!'}
           </p>
         </div>
@@ -231,10 +231,10 @@ const Communities = () => {
       {filteredCommunities.map((community: CommunityItem) => {
         const isMember = community.is_member === true;
         const hasPendingRequest = (community as { user_has_pending_request?: boolean }).user_has_pending_request;
-        const hasPendingInvitation = (community as { user_has_pending_invitation?: boolean }).user_has_pending_invitation || 
-                                     invitationMap[community.name || ''] !== undefined;
+        const hasPendingInvitation = (community as { user_has_pending_invitation?: boolean }).user_has_pending_invitation ||
+          invitationMap[community.name || ''] !== undefined;
         const invitationId = invitationMap[community.name || '']?.id;
-        
+
         return (
           <CommunityCard
             key={community.id}
@@ -305,11 +305,10 @@ const Communities = () => {
                         }
                       }}
                       disabled={isJoining || isCanceling}
-                      className={`flex-1 py-2.5 rounded-lg font-bold transition-all ${
-                        hasPendingRequest
+                      className={`flex-1 py-2.5 rounded-lg font-bold transition-all ${hasPendingRequest
                           ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-500 border border-orange-500/30'
                           : 'bg-green-500/20 hover:bg-green-500/30 text-green-500 border border-green-500/30'
-                      } ${(isJoining || isCanceling) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} flex items-center justify-center gap-2`}
+                        } ${(isJoining || isCanceling) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} flex items-center justify-center gap-2`}
                     >
                       {hasPendingRequest ? (
                         <span>{isCanceling ? 'Canceling...' : 'Pending'}</span>
@@ -332,60 +331,60 @@ const Communities = () => {
 
   return (
     <>
-        <div className="max-w-[1220px] mx-auto px-4 py-8 text-white">
-          <div className="page-container">
-            {/* Header Section */}
-            <PageHeader
-              icon={
-                <div className="w-8 h-8">
-                  <FriendsIcon />
-                </div>
-              }
-              title="Explore Communities"
-              description="Discover and join communities that match your interests. Connect with like-minded people and share your passions."
-            />
-
-            {/* Search and Filter Bar */}
-            <div className="mb-8 flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search communities by name or description..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 text-white placeholder-white/40"
-                />
+      <div className="max-w-[1220px] mx-auto px-4 py-8 text-white">
+        <div className="page-container">
+          {/* Header Section */}
+          <PageHeader
+            icon={
+              <div className="w-8 h-8">
+                <FriendsIcon />
               </div>
-              <button className="flex items-center gap-2 px-6 py-4 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 transition-all">
-                <FiFilter className="w-5 h-5" />
-                <span>Filter</span>
+            }
+            title="Explore Communities"
+            description="Discover and join communities that match your interests. Connect with like-minded people and share your passions."
+          />
+
+          {/* Search and Filter Bar */}
+          <div className="mb-8 flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1">
+              <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search communities by name or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 text-white placeholder-white/40"
+              />
+            </div>
+            <button className="flex items-center gap-2 px-6 py-4 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 transition-all">
+              <FiFilter className="w-5 h-5" />
+              <span>Filter</span>
+            </button>
+          </div>
+
+          {/* Communities Grid */}
+          {isLoading && renderLoadingState()}
+          {isError && renderErrorState()}
+          {!isLoading && !isError && filteredCommunities.length === 0 && renderEmptyState()}
+          {!isLoading && !isError && filteredCommunities.length > 0 && renderCommunitiesGrid()}
+
+          {/* Create Community CTA */}
+          {!isLoading && !isError && (
+            <div className="mt-12 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-2xl border border-blue-500/30 p-6 md:p-8 text-center">
+              <h3 className="text-2xl font-bold text-white mb-3">Want to Create Your Own Community?</h3>
+              <p className="text-white/80 mb-6 max-w-2xl mx-auto">
+                Start your own community and bring people together around shared interests, hobbies, or causes.
+              </p>
+              <button
+                onClick={() => router.push('/main/create-community')}
+                className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all hover:scale-105 shadow-lg"
+              >
+                Create Community
               </button>
             </div>
-
-            {/* Communities Grid */}
-            {isLoading && renderLoadingState()}
-            {isError && renderErrorState()}
-            {!isLoading && !isError && filteredCommunities.length === 0 && renderEmptyState()}
-            {!isLoading && !isError && filteredCommunities.length > 0 && renderCommunitiesGrid()}
-
-            {/* Create Community CTA */}
-            {!isLoading && !isError && (
-              <div className="mt-12 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-2xl border border-blue-500/30 p-6 md:p-8 text-center">
-                <h3 className="text-2xl font-bold text-white mb-3">Want to Create Your Own Community?</h3>
-                <p className="text-white/80 mb-6 max-w-2xl mx-auto">
-                  Start your own community and bring people together around shared interests, hobbies, or causes.
-                </p>
-                <button 
-                  onClick={() => router.push('/main/create-community')}
-                  className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all hover:scale-105 shadow-lg"
-                >
-                  Create Community
-                </button>
-              </div>
-            )}
-          </div>
+          )}
         </div>
+      </div>
     </>
   );
 };

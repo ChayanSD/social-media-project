@@ -185,7 +185,7 @@ export default function UserManagementTable() {
         return (
           <div className="flex items-center justify-center">
             <span
-              className={`px-3 py-1 rounded-full text-xs font-medium ${isActive
+              className={`px-3 py-1 rounded-full text-sm font-medium ${isActive
                 ? "bg-green-500/20 text-green-300"
                 : "bg-red-500/20 text-red-300"
                 }`}
@@ -261,7 +261,7 @@ export default function UserManagementTable() {
                 return (
                   <span
                     key={interest.id || idx}
-                    className={`px-2 py-0.5 ${color.bg} ${color.text} rounded text-xs truncate`}
+                    className={`px-2 py-0.5 ${color.bg} ${color.text} rounded text-sm truncate`}
                     title={`${interest.category}: ${interest.name}`}
                   >
                     {interest.name}

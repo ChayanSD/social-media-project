@@ -81,13 +81,12 @@ const StoryModal: React.FC<StoryModalProps> = ({
             className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden"
           >
             <div
-              className={`h-full bg-white transition-all duration-100 ${
-                index < currentStoryIndex ? 'w-full' : 
-                index === currentStoryIndex ? 'w-full' : 'w-0'
-              }`}
+              className={`h-full bg-white transition-all duration-100 ${index < currentStoryIndex ? 'w-full' :
+                  index === currentStoryIndex ? 'w-full' : 'w-0'
+                }`}
               style={{
-                width: index === currentStoryIndex ? `${progress}%` : 
-                       index < currentStoryIndex ? '100%' : '0%'
+                width: index === currentStoryIndex ? `${progress}%` :
+                  index < currentStoryIndex ? '100%' : '0%'
               }}
             />
           </div>
@@ -141,7 +140,7 @@ const StoryModal: React.FC<StoryModalProps> = ({
             />
             <div>
               <p className="text-white font-semibold">{currentStory.author}</p>
-              <p className="text-white/70 text-sm">{currentStory.timestamp}</p>
+              <p className="text-white/70 text-base">{currentStory.timestamp}</p>
             </div>
           </div>
 

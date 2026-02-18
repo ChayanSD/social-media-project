@@ -120,7 +120,7 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
                   </h3>
                   <div className="flex items-center gap-2 mb-2">
                     {getVisibilityIcon(community.visibility)}
-                    <span className="text-sm text-white/60">
+                    <span className="text-base text-white/60">
                       {getVisibilityLabel(community.visibility)}
                     </span>
                   </div>
@@ -129,13 +129,13 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
 
               {/* Description */}
               {community.description && (
-                <p className="text-sm text-white/80 mb-4 line-clamp-2">
+                <p className="text-base text-white/80 mb-4 line-clamp-2">
                   {community.description}
                 </p>
               )}
 
               {/* Stats */}
-              <div className="flex items-center gap-6 text-sm text-white/60 mb-4">
+              <div className="flex items-center gap-6 text-base text-white/60 mb-4">
                 <div className="flex items-center gap-2">
                   <FiUsers size={14} />
                   <span>
@@ -151,7 +151,7 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
                   </span>
                 </div>
                 {community.created_at && (
-                  <div className="text-xs text-white/50">
+                  <div className="text-sm text-white/50">
                     Created {formatDate(community.created_at)}
                   </div>
                 )}
@@ -210,7 +210,7 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
             <h3 className="text-lg font-semibold text-white mb-1 truncate">
               {community.title || community.name}
             </h3>
-            <div className="flex items-center gap-2 text-sm text-white/60">
+            <div className="flex items-center gap-2 text-base text-white/60">
               {getVisibilityIcon(community.visibility)}
               <span>{getVisibilityLabel(community.visibility)}</span>
             </div>
@@ -219,13 +219,13 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
 
         {/* Description */}
         {community.description && (
-          <p className="text-white/70 text-sm mb-4 line-clamp-2">
+          <p className="text-white/70 text-base mb-4 line-clamp-2">
             {community.description}
           </p>
         )}
 
         {/* Stats */}
-        <div className="flex items-center gap-4 mb-4 text-sm">
+        <div className="flex items-center gap-4 mb-4 text-base">
           <div className="flex items-center gap-1 text-white/60">
             <FiUsers className="w-4 h-4" />
             <span>{Math.max(community.members_count || 0)} members</span>
@@ -238,7 +238,7 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
 
         {/* Created Info */}
         {showCreatedBy && community.created_by_username && (
-          <p className="text-white/40 text-xs mb-4">
+          <p className="text-white/40 text-sm mb-4">
             Created by {community.created_by_username} • {formatDate(community.created_at)}
           </p>
         )}

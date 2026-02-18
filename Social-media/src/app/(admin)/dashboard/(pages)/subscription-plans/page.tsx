@@ -341,7 +341,7 @@ export default function SubscriptionPlansPage() {
             >
               {plan.is_recommended && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-semibold rounded-full">
+                  <span className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold rounded-full">
                     RECOMMENDED
                   </span>
                 </div>
@@ -359,20 +359,20 @@ export default function SubscriptionPlansPage() {
                 <h3 className="text-xl font-semibold text-white mb-1">{plan.display_name}</h3>
                 <p className="text-2xl font-bold text-white">
                   ${plan.price}
-                  <span className="text-sm font-normal text-white/60">/{plan.billing_interval_count > 1 ? `${plan.billing_interval_count} ${plan.billing_cycle}s` : plan.billing_cycle}</span>
+                  <span className="text-base font-normal text-white/60">/{plan.billing_interval_count > 1 ? `${plan.billing_interval_count} ${plan.billing_cycle}s` : plan.billing_cycle}</span>
                 </p>
               </div>
 
               <div className="mb-4 flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-sm text-white/80">
+                  <span className="text-base text-white/80">
                     {plan.posts_per_month === 0 ? "Unlimited" : `${plan.posts_per_month} posts/month`}
                   </span>
                 </div>
                 {plan.features && plan.features.length > 0 && (
                   <ul className="space-y-1">
                     {plan.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm text-white/70">
+                      <li key={idx} className="flex items-start gap-2 text-base text-white/70">
                         <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
                         <span>{feature}</span>
                       </li>
@@ -393,8 +393,8 @@ export default function SubscriptionPlansPage() {
                   onClick={() => handleToggleActive(plan)}
                   disabled={isToggling}
                   className={`flex-1 cursor-pointer flex items-center justify-center p-2 rounded-lg transition-all border ${plan.is_active
-                      ? "bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border-amber-500/20"
-                      : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border-emerald-500/20"
+                    ? "bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border-amber-500/20"
+                    : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border-emerald-500/20"
                     }`}
                   title={plan.is_active ? "Deactivate Plan" : "Activate Plan"}
                 >
@@ -436,7 +436,7 @@ export default function SubscriptionPlansPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {!selectedPlan && (
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-base font-medium text-white/80 mb-2">
                     Quick Preset (6 plans)
                   </label>
                   <select
@@ -459,14 +459,14 @@ export default function SubscriptionPlansPage() {
                     <option value="platinum-monthly">Platinum Monthly ($24.99)</option>
                     <option value="platinum-yearly">Platinum Yearly ($239.88)</option>
                   </select>
-                  <p className="mt-1 text-xs text-white/60">
+                  <p className="mt-1 text-sm text-white/60">
                     Select one preset, then only paste Stripe Product ID and Price ID.
                   </p>
                 </div>
               )}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-base font-medium text-white/80 mb-2">
                     Plan Name (slug)
                   </label>
                   <input
@@ -480,7 +480,7 @@ export default function SubscriptionPlansPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-base font-medium text-white/80 mb-2">
                     Display Name
                   </label>
                   <input
@@ -496,7 +496,7 @@ export default function SubscriptionPlansPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-base font-medium text-white/80 mb-2">
                     Price ($)
                   </label>
                   <input
@@ -511,7 +511,7 @@ export default function SubscriptionPlansPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-base font-medium text-white/80 mb-2">
                     Billing Cycle
                   </label>
                   <select
@@ -527,7 +527,7 @@ export default function SubscriptionPlansPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-base font-medium text-white/80 mb-2">
                     Billing Interval Count
                   </label>
                   <input
@@ -541,7 +541,7 @@ export default function SubscriptionPlansPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-base font-medium text-white/80 mb-2">
                     Posts per Month (0 = unlimited)
                   </label>
                   <input
@@ -558,7 +558,7 @@ export default function SubscriptionPlansPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-base font-medium text-white/80 mb-2">
                     Stripe Product ID (optional)
                   </label>
                   <input
@@ -570,7 +570,7 @@ export default function SubscriptionPlansPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-base font-medium text-white/80 mb-2">
                     Stripe Price ID (required to subscribe)
                   </label>
                   <input
@@ -584,7 +584,7 @@ export default function SubscriptionPlansPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
+                <label className="block text-base font-medium text-white/80 mb-2">
                   Features
                 </label>
                 <div className="flex gap-2 mb-2">
@@ -613,7 +613,7 @@ export default function SubscriptionPlansPage() {
                   {formData.features.map((feature, index) => (
                     <span
                       key={index}
-                      className="flex items-center gap-2 px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-lg text-white text-sm"
+                      className="flex items-center gap-2 px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-lg text-white text-base"
                     >
                       {feature}
                       <button
@@ -637,7 +637,7 @@ export default function SubscriptionPlansPage() {
                     onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                     className="w-4 h-4 rounded border-white/20 bg-black/30 text-purple-500 focus:ring-purple-500"
                   />
-                  <label htmlFor="is_active" className="text-sm text-white/80">
+                  <label htmlFor="is_active" className="text-base text-white/80">
                     Active (visible to users)
                   </label>
                 </div>
@@ -649,7 +649,7 @@ export default function SubscriptionPlansPage() {
                     onChange={(e) => setFormData({ ...formData, is_recommended: e.target.checked })}
                     className="w-4 h-4 rounded border-white/20 bg-black/30 text-purple-500 focus:ring-purple-500"
                   />
-                  <label htmlFor="is_recommended" className="text-sm text-white/80">
+                  <label htmlFor="is_recommended" className="text-base text-white/80">
                     Recommended (shows &quot;RECOMMENDED&quot; badge)
                   </label>
                 </div>
@@ -700,7 +700,7 @@ export default function SubscriptionPlansPage() {
           <div className="space-y-3">
             <p>Are you sure you want to delete <span className="font-bold text-white underline decoration-red-500/50">&quot;{selectedPlan?.display_name}&quot;</span> entirely from the system?</p>
             <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-              <p className="text-xs text-red-400 font-medium uppercase tracking-wider mb-1">Danger Zone</p>
+              <p className="text-sm text-red-400 font-medium uppercase tracking-wider mb-1">Danger Zone</p>
               <ul className="text-[11px] text-red-300/80 list-disc pl-4 space-y-1">
                 <li>This action is irreversible</li>
                 <li>The plan will be removed from the database</li>

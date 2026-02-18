@@ -98,8 +98,8 @@ const Story = () => {
   };
 
   const handleStoryViewed = (storyId: number) => {
-    setStories(prev => 
-      prev.map(story => 
+    setStories(prev =>
+      prev.map(story =>
         story.id === storyId ? { ...story, isViewed: true } : story
       )
     );
@@ -124,7 +124,7 @@ const Story = () => {
               </div>
             </div>
           </div>
-          <p className="text-xs text-white text-center mt-1">Your Story</p>
+          <p className="text-sm text-white text-center mt-1">Your Story</p>
         </div>
 
         {/* Story Items */}

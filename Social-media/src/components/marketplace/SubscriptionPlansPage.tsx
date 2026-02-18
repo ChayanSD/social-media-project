@@ -129,14 +129,14 @@ export default function SubscriptionPlansPage() {
             <div className="mb-8 p-5 rounded-xl border border-green-500/40 bg-green-500/10">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-green-300">Active Subscription</p>
+                  <p className="text-sm uppercase tracking-wide text-green-300">Active Subscription</p>
                   <h3 className="text-xl font-bold text-white mt-1">{userSubscription.plan.display_name}</h3>
-                  <p className="text-sm text-white/70 mt-1">
+                  <p className="text-base text-white/70 mt-1">
                     Status: <span className="text-green-300 font-medium capitalize">{userSubscription.status}</span>
                   </p>
                 </div>
                 <div className="text-left md:text-right">
-                  <p className="text-sm text-white/70">Current billing period end</p>
+                  <p className="text-base text-white/70">Current billing period end</p>
                   <p className="text-white font-semibold">
                     {userSubscription.current_period_end
                       ? new Date(userSubscription.current_period_end).toLocaleDateString()
@@ -161,29 +161,28 @@ export default function SubscriptionPlansPage() {
                   return (
                     <div
                       key={group.key}
-                      className={`relative p-6  rounded-xl border-2 transition-all duration-300 flex flex-col ${
-                        currentMonthly || currentYearly
-                          ? "border-green-500 bg-green-500/10"
-                          : group.isRecommended
+                      className={`relative p-6  rounded-xl border-2 transition-all duration-300 flex flex-col ${currentMonthly || currentYearly
+                        ? "border-green-500 bg-green-500/10"
+                        : group.isRecommended
                           ? "border-purple-500 bg-purple-500/10"
                           : "border-white/20 bg-white/5 hover:border-white/40"
-                      }`}
+                        }`}
                     >
                       {(currentMonthly || currentYearly) && (
                         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                          <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-semibold rounded-full">
+                          <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm font-semibold rounded-full">
                             YOUR PLAN
                           </span>
                         </div>
                       )}
                       {group.isRecommended && !(currentMonthly || currentYearly) && (
                         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                          <span className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-semibold rounded-full">
+                          <span className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold rounded-full">
                             RECOMMENDED
                           </span>
                         </div>
                       )}
-                      
+
                       <div className="flex items-center gap-3 mb-4">
                         <div className="p-2 rounded-lg bg-purple-500/20 text-purple-400">
                           {getPlanIcon(group.key)}
@@ -199,18 +198,18 @@ export default function SubscriptionPlansPage() {
                         <div className="space-y-3 mb-4">
                           {group.monthly && (
                             <div className="p-3 rounded-lg border border-white/10 bg-white/5">
-                              <p className="text-xs uppercase tracking-wide text-white/60">Monthly</p>
+                              <p className="text-sm uppercase tracking-wide text-white/60">Monthly</p>
                               <p className="text-lg font-bold text-white">${group.monthly.price}/mo</p>
-                              <p className="text-xs text-white/60">Billed monthly</p>
+                              <p className="text-sm text-white/60">Billed monthly</p>
                             </div>
                           )}
                           {group.yearly && (
                             <div className="p-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10">
-                              <p className="text-xs uppercase tracking-wide text-emerald-200">Yearly</p>
+                              <p className="text-sm uppercase tracking-wide text-emerald-200">Yearly</p>
                               <p className="text-lg font-bold text-white">
                                 ${(Number(group.yearly.price) / 12).toFixed(2)}/mo
                               </p>
-                              <p className="text-xs text-emerald-200">
+                              <p className="text-sm text-emerald-200">
                                 Billed ${Number(group.yearly.price).toFixed(2)} every 12 months
                               </p>
                             </div>
@@ -218,7 +217,7 @@ export default function SubscriptionPlansPage() {
                         </div>
                         <div className="flex items-center gap-2 mb-2">
                           <Zap className="w-4 h-4 text-yellow-400" />
-                          <span className="text-sm text-white/80">
+                          <span className="text-base text-white/80">
                             {group.postsPerMonth === 0
                               ? "Unlimited"
                               : `${group.postsPerMonth} posts/month`}
@@ -229,7 +228,7 @@ export default function SubscriptionPlansPage() {
                             {group.features.map((feature, idx) => (
                               <li
                                 key={idx}
-                                className="flex items-start gap-2 text-sm text-white/70"
+                                className="flex items-start gap-2 text-base text-white/70"
                               >
                                 <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
                                 <span>{feature}</span>
@@ -243,22 +242,20 @@ export default function SubscriptionPlansPage() {
                         <button
                           onClick={() => group.monthly && handleSubscribe(group.monthly)}
                           disabled={!group.monthly}
-                          className={`w-full px-4 py-2 text-white rounded-lg font-medium transition-all duration-300 ${
-                            currentMonthly
-                              ? "bg-green-600 cursor-default"
-                              : "bg-white/10 hover:bg-white/20 border border-white/20 cursor-pointer disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
-                          }`}
+                          className={`w-full px-4 py-2 text-white rounded-lg font-medium transition-all duration-300 ${currentMonthly
+                            ? "bg-green-600 cursor-default"
+                            : "bg-white/10 hover:bg-white/20 border border-white/20 cursor-pointer disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+                            }`}
                         >
                           {"Monthly"}
                         </button>
                         <button
                           onClick={() => group.yearly && handleSubscribe(group.yearly)}
                           disabled={!group.yearly}
-                          className={`w-full px-4 py-2 text-white rounded-lg font-medium transition-all duration-300 ${
-                            currentYearly
-                              ? "bg-green-600 cursor-default"
-                              : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 cursor-pointer disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
-                          }`}
+                          className={`w-full px-4 py-2 text-white rounded-lg font-medium transition-all duration-300 ${currentYearly
+                            ? "bg-green-600 cursor-default"
+                            : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 cursor-pointer disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+                            }`}
                         >
                           {"Yearly"}
                         </button>
@@ -276,8 +273,8 @@ export default function SubscriptionPlansPage() {
 
 
               {/* Footer Info */}
-              <div className="text-center space-y-2 text-white/60 text-sm pt-6">
-              <p>All features are subject to availability and may vary by region.</p>
+              <div className="text-center space-y-2 text-white/60 text-base pt-6">
+                <p>All features are subject to availability and may vary by region.</p>
               </div>
             </div>
           )}

@@ -142,12 +142,12 @@ const NotificationDropdown = ({
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
         <div className="flex items-center gap-2">
           <GoBell className="text-white" size={16} />
-          <h3 className="font-semibold text-white text-sm">Notifications</h3>
+          <h3 className="font-semibold text-white text-base">Notifications</h3>
           {hasUnreadNotifications && (
             <button
               onClick={handleMarkAllAsRead}
               disabled={isMarkingAllAsRead}
-              className="flex items-center cursor-pointer gap-1 px-2 py-1 text-xs text-white/70 hover:text-white hover:bg-gray-700 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center cursor-pointer gap-1 px-2 py-1 text-sm text-white/70 hover:text-white hover:bg-gray-700 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               title="Mark all as read"
             >
               <IoCheckmarkDone size={14} />
@@ -185,7 +185,7 @@ const NotificationDropdown = ({
 
         {isError && !isLoading && (
           <div className="flex-1 flex items-center justify-center px-4">
-            <p className="text-xs text-red-400 text-center">
+            <p className="text-sm text-red-400 text-center">
               Failed to load notifications. Please try again later.
             </p>
           </div>
@@ -193,7 +193,7 @@ const NotificationDropdown = ({
 
         {!isLoading && !isError && notifications.length === 0 && (
           <div className="flex-1 flex items-center justify-center px-4">
-            <p className="text-xs text-gray-300 text-center">
+            <p className="text-sm text-gray-300 text-center">
               You don&apos;t have any notifications yet.
             </p>
           </div>
@@ -223,16 +223,16 @@ const NotificationDropdown = ({
                     </div>
                     <div className="flex-1 min-w-0">
                       <p
-                        className={`text-xs line-clamp-1 ${isUnread
-                            ? "font-semibold text-white"
-                            : "font-normal text-gray-400"
+                        className={`text-sm line-clamp-1 ${isUnread
+                          ? "font-semibold text-white"
+                          : "font-normal text-gray-400"
                           }`}
                       >
                         {getNotificationTitle(notification)}
                       </p>
                       {getNotificationSubtitle(notification) && (
                         <p
-                          className={`text-xs mt-0.5 line-clamp-2 ${isUnread ? "text-gray-300" : "text-gray-500"
+                          className={`text-sm mt-0.5 line-clamp-2 ${isUnread ? "text-gray-300" : "text-gray-500"
                             }`}
                         >
                           {getNotificationSubtitle(notification)}
@@ -253,7 +253,7 @@ const NotificationDropdown = ({
                 <button
                   onClick={handleViewMore}
                   disabled={isFetching}
-                  className="w-full px-4 py-2 text-xs text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isFetching ? "Loading..." : "View More"}
                 </button>

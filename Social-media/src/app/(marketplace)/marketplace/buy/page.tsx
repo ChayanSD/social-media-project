@@ -112,7 +112,7 @@ const BuyPage = () => {
         return (
             <div>
                 {(selectedCategoryName || selectedSubcategoryName) && (
-                    <div className='mb-4 px-2 md:px-4 text-sm text-gray-300'>
+                    <div className='mb-4 px-2 md:px-4 text-base text-gray-300'>
                         {selectedCategoryName && <span>Category: <span className='font-semibold text-white'>{selectedCategoryName}</span></span>}
                         {selectedSubcategoryName && <span className='ml-4'>Subcategory: <span className='font-semibold text-white'>{selectedSubcategoryName}</span></span>}
                     </div>
@@ -135,7 +135,7 @@ const BuyPage = () => {
         return (
             <div>
                 {(selectedCategoryName || selectedSubcategoryName) && (
-                    <div className='mb-4 px-2 md:px-4 text-sm text-gray-300'>
+                    <div className='mb-4 px-2 md:px-4 text-base text-gray-300'>
                         {selectedCategoryName && <span>Category: <span className='font-semibold text-white'>{selectedCategoryName}</span></span>}
                         {selectedSubcategoryName && <span className='ml-4'>Subcategory: <span className='font-semibold text-white'>{selectedSubcategoryName}</span></span>}
                     </div>
@@ -155,13 +155,13 @@ const BuyPage = () => {
         return (
             <div>
                 {(selectedCategoryName || selectedSubcategoryName) && (
-                    <div className='mb-4 px-2 md:px-4 text-sm text-gray-300'>
+                    <div className='mb-4 px-2 md:px-4 text-base text-gray-300'>
                         {selectedCategoryName && <span>Category: <span className='font-semibold text-white'>{selectedCategoryName}</span></span>}
                         {selectedSubcategoryName && <span className='ml-4'>Subcategory: <span className='font-semibold text-white'>{selectedSubcategoryName}</span></span>}
                     </div>
                 )}
                 <div className="px-2 md:px-4 py-8 text-center">
-                    <p className="text-white/60 text-sm">
+                    <p className="text-white/60 text-base">
                         {selectedCategoryName || selectedSubcategoryName
                             ? "No services found for the selected filters."
                             : "No services available at the moment."}
@@ -174,7 +174,7 @@ const BuyPage = () => {
     return (
         <div className="flex flex-col gap-8 pb-12">
             {(selectedCategoryName || selectedSubcategoryName) && (
-                <div className='mb-4 px-2 md:px-4 text-sm text-gray-300'>
+                <div className='mb-4 px-2 md:px-4 text-base text-gray-300'>
                     {selectedCategoryName && <span>Category: <span className='font-semibold text-white'>{selectedCategoryName}</span></span>}
                     {selectedSubcategoryName && <span className='ml-4'>Subcategory: <span className='font-semibold text-white'>{selectedSubcategoryName}</span></span>}
                 </div>
@@ -203,17 +203,17 @@ const BuyPage = () => {
                     <button
                         onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                         disabled={!itemsResponse?.previous || isLoading}
-                        className="px-6 py-2 rounded-full border border-white/20 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium"
+                        className="px-6 py-2 rounded-full border border-white/20 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-base font-medium"
                     >
                         Previous
                     </button>
-                    <span className="text-white/60 text-sm">
+                    <span className="text-white/60 text-base">
                         Page {currentPage}
                     </span>
                     <button
                         onClick={() => setCurrentPage(prev => prev + 1)}
                         disabled={!itemsResponse?.next || isLoading}
-                        className="px-6 py-2 rounded-full border border-white/20 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium"
+                        className="px-6 py-2 rounded-full border border-white/20 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-base font-medium"
                     >
                         Next
                     </button>

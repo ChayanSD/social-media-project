@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Calendar } from "lucide-react";
 
-export type DateRangePreset = 
+export type DateRangePreset =
   | "all"
   | "this-week"
   | "last-week"
@@ -64,11 +64,11 @@ export function DateFilter({
   const getDateRangeForPreset = (preset: DateRangePreset): DateRange | undefined => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
+
     switch (preset) {
       case "all":
         return undefined; // No date filtering
-      
+
       case "this-week": {
         const dayOfWeek = today.getDay();
         const startOfWeek = new Date(today);
@@ -80,7 +80,7 @@ export function DateFilter({
           end_date: formatDate(endOfWeek),
         };
       }
-      
+
       case "last-week": {
         const dayOfWeek = today.getDay();
         const startOfLastWeek = new Date(today);
@@ -92,7 +92,7 @@ export function DateFilter({
           end_date: formatDate(endOfLastWeek),
         };
       }
-      
+
       case "this-month": {
         const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -101,7 +101,7 @@ export function DateFilter({
           end_date: formatDate(endOfMonth),
         };
       }
-      
+
       case "last-month": {
         const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
         const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
@@ -110,7 +110,7 @@ export function DateFilter({
           end_date: formatDate(endOfLastMonth),
         };
       }
-      
+
       case "this-year": {
         const startOfYear = new Date(today.getFullYear(), 0, 1);
         const endOfYear = new Date(today.getFullYear(), 11, 31);
@@ -119,7 +119,7 @@ export function DateFilter({
           end_date: formatDate(endOfYear),
         };
       }
-      
+
       case "last-year": {
         const startOfLastYear = new Date(today.getFullYear() - 1, 0, 1);
         const endOfLastYear = new Date(today.getFullYear() - 1, 11, 31);
@@ -128,10 +128,10 @@ export function DateFilter({
           end_date: formatDate(endOfLastYear),
         };
       }
-      
+
       case "custom":
         return dateRange; // Return existing custom range or undefined
-      
+
       default:
         return undefined;
     }
@@ -146,7 +146,7 @@ export function DateFilter({
 
   const handlePresetChange = (newPreset: DateRangePreset) => {
     setSelectedPreset(newPreset);
-    
+
     if (newPreset === "custom") {
       setCustomRangeOpen(true);
     } else {
@@ -179,7 +179,7 @@ export function DateFilter({
       const end = new Date(dateRange.end_date);
       return `${formatDisplayDate(start)} - ${formatDisplayDate(end)}`;
     }
-    
+
     const presetLabels: Record<DateRangePreset, string> = {
       all: "All",
       "this-week": "This Week",
@@ -190,7 +190,7 @@ export function DateFilter({
       "last-year": "Last Year",
       custom: "Custom Range",
     };
-    
+
     return presetLabels[selectedPreset];
   };
 
@@ -206,7 +206,7 @@ export function DateFilter({
     <>
       <div className={`flex flex-col gap-1 ${className}`}>
         {label && (
-          <label className="text-sm text-white/70 whitespace-nowrap">
+          <label className="text-base text-white/70 whitespace-nowrap">
             {label}:
           </label>
         )}
@@ -254,7 +254,7 @@ export function DateFilter({
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/90">
+              <label className="text-base font-medium text-white/90">
                 Start Date
               </label>
               <input
@@ -265,7 +265,7 @@ export function DateFilter({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/90">
+              <label className="text-base font-medium text-white/90">
                 End Date
               </label>
               <input

@@ -56,16 +56,16 @@ const UserProfileSidebar = ({
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <p className='text-xs text-gray-400'>Total Posts</p>
-                            <p className='text-xs font-bold text-white'>{userProfile.posts_count || 0}</p>
+                            <p className='text-sm text-gray-400'>Total Posts</p>
+                            <p className='text-sm font-bold text-white'>{userProfile.posts_count || 0}</p>
                         </div>
                         <div>
-                            <p className='text-xs text-gray-400'>Followers</p>
-                            <p className='text-xs font-bold text-white'>{userProfile.followers_count || 0}</p>
+                            <p className='text-sm text-gray-400'>Followers</p>
+                            <p className='text-sm font-bold text-white'>{userProfile.followers_count || 0}</p>
                         </div>
                         <div>
-                            <p className='text-xs text-gray-400'>Following</p>
-                            <p className='text-xs font-bold text-white'>{userProfile.following_count || 0}</p>
+                            <p className='text-sm text-gray-400'>Following</p>
+                            <p className='text-sm font-bold text-white'>{userProfile.following_count || 0}</p>
                         </div>
                     </div>
                 </div>
