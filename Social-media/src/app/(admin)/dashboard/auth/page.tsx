@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { IoArrowBack } from "react-icons/io5";
-import { 
+import {
   useLoginMutation,
   useSendPasswordResetOtpMutation,
   useVerifyPasswordResetOtpMutation,
@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
   const [resetOtp, setResetOtp] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const [login, { isLoading: isLoggingIn, error: loginError }] = useLoginMutation();
   const [sendPasswordResetOtp, { isLoading: isSendingOtp }] = useSendPasswordResetOtpMutation();
   const [verifyPasswordResetOtp, { isLoading: isVerifyingOtp }] = useVerifyPasswordResetOtpMutation();
@@ -66,9 +66,9 @@ export default function AdminLoginPage() {
 
       // Check if response has success flag
       if ((response as { success?: boolean }).success === false) {
-        const errorMsg = (response as { error?: string; message?: string }).error || 
-                         (response as { error?: string; message?: string }).message || 
-                         "Login failed";
+        const errorMsg = (response as { error?: string; message?: string }).error ||
+          (response as { error?: string; message?: string }).message ||
+          "Login failed";
         setError(errorMsg);
         setIsLoading(false);
         toast.error("Login failed", { description: errorMsg });
@@ -130,15 +130,15 @@ export default function AdminLoginPage() {
       console.error("Admin login failed:", err);
       console.error("Error type:", typeof err);
       console.error("Error stringified:", JSON.stringify(err, null, 2));
-      
+
       // Handle different error formats from RTK Query
       let errorMessage = "Invalid admin credentials";
-      
+
       if (err && typeof err === 'object') {
         // RTK Query error format: { data: {...}, status: number }
-        const rtkError = err as { 
-          data?: { 
-            error?: string; 
+        const rtkError = err as {
+          data?: {
+            error?: string;
             message?: string;
             details?: unknown;
             success?: boolean;
@@ -147,7 +147,7 @@ export default function AdminLoginPage() {
           error?: string;
           originalStatus?: number;
         };
-        
+
         // Check data.error (most common - backend returns this)
         if (rtkError.data?.error) {
           errorMessage = rtkError.data.error;
@@ -188,7 +188,7 @@ export default function AdminLoginPage() {
       } else if (typeof err === 'string') {
         errorMessage = err;
       }
-      
+
       setError(errorMessage);
       toast.error("Login failed", { description: errorMessage });
     } finally {
@@ -238,11 +238,11 @@ export default function AdminLoginPage() {
         new_password: data.newPassword,
         confirm_password: data.confirmPassword,
       }).unwrap();
-      
+
       toast.success('Password reset successfully', {
         description: 'You can now login with your new password.',
       });
-      
+
       // Reset forms and go back to login
       setCurrentMode('login');
       resetStep1Form.reset();
@@ -299,7 +299,7 @@ export default function AdminLoginPage() {
             <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6 flex flex-col">
               {/* Username/Email */}
               <div>
-                <label className="block mb-2 text-sm">
+                <label className="block mb-2 text-base">
                   Username or Email
                 </label>
                 <input
@@ -311,7 +311,7 @@ export default function AdminLoginPage() {
                   placeholder="Enter your username or email"
                 />
                 {loginForm.formState.errors.email && (
-                  <p className="text-red-400 text-xs mt-1">
+                  <p className="text-red-400 text-sm mt-1">
                     {loginForm.formState.errors.email.message}
                   </p>
                 )}
@@ -319,7 +319,7 @@ export default function AdminLoginPage() {
 
               {/* Password */}
               <div>
-                <label className="block mb-2 text-sm">
+                <label className="block mb-2 text-base">
                   Password
                 </label>
                 <input
@@ -329,29 +329,29 @@ export default function AdminLoginPage() {
                   placeholder="Enter your password"
                 />
                 {loginForm.formState.errors.password && (
-                  <p className="text-red-400 text-xs mt-1">
+                  <p className="text-red-400 text-sm mt-1">
                     {loginForm.formState.errors.password.message}
                   </p>
                 )}
 
                 {/* Remember Me Checkbox */}
                 <div className="flex items-center gap-2 mt-2">
-                  
+
                 </div>
 
                 <div className=" m-3 flex justify-between">
-                <label className="flex items-center gap-2 cursor-pointer">
+                  <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       {...loginForm.register("rememberMe")}
                       className="accent-green-500"
                     />
-                    <span className="text-sm text-[#299616]">Remember me</span>
+                    <span className="text-base text-[#299616]">Remember me</span>
                   </label>
                   <button
                     type="button"
                     onClick={() => setCurrentMode('reset-step1')}
-                    className="text-red-400 text-xs hover:underline"
+                    className="text-red-400 text-sm hover:underline"
                   >
                     Forgot Password?
                   </button>
@@ -360,7 +360,7 @@ export default function AdminLoginPage() {
 
               {/* ERROR MESSAGE */}
               {(error || loginError) && (
-                <p className="text-red-400 text-center text-sm">
+                <p className="text-red-400 text-center text-base">
                   {error || "Invalid credentials. Please try again."}
                 </p>
               )}
@@ -387,7 +387,7 @@ export default function AdminLoginPage() {
 
             <form onSubmit={resetStep1Form.handleSubmit(onResetStep1Submit)} className="space-y-6 flex flex-col">
               <div>
-                <label className="block mb-2 text-sm">
+                <label className="block mb-2 text-base">
                   Email Address
                 </label>
                 <input
@@ -403,7 +403,7 @@ export default function AdminLoginPage() {
                   placeholder="Enter your email address"
                 />
                 {resetStep1Form.formState.errors.email && (
-                  <p className="text-red-400 text-xs mt-1">
+                  <p className="text-red-400 text-sm mt-1">
                     {resetStep1Form.formState.errors.email.message}
                   </p>
                 )}
@@ -430,7 +430,7 @@ export default function AdminLoginPage() {
 
             <form onSubmit={resetStep2Form.handleSubmit(onResetStep2Submit)} className="space-y-6 flex flex-col">
               <div>
-                <label className="block mb-2 text-sm">
+                <label className="block mb-2 text-base">
                   Verification Code
                 </label>
                 <input
@@ -447,7 +447,7 @@ export default function AdminLoginPage() {
                   placeholder="Enter 6-digit OTP"
                 />
                 {resetStep2Form.formState.errors.otp && (
-                  <p className="text-red-400 text-xs mt-1">
+                  <p className="text-red-400 text-sm mt-1">
                     {resetStep2Form.formState.errors.otp.message}
                   </p>
                 )}
@@ -465,7 +465,7 @@ export default function AdminLoginPage() {
                     toast.error('Failed to resend OTP');
                   }
                 }}
-                className="text-sm text-green-400 hover:underline text-center"
+                className="text-base text-green-400 hover:underline text-center"
               >
                 Resend OTP
               </button>
@@ -491,7 +491,7 @@ export default function AdminLoginPage() {
 
             <form onSubmit={resetStep3Form.handleSubmit(onResetStep3Submit)} className="space-y-6 flex flex-col">
               <div>
-                <label className="block mb-2 text-sm">
+                <label className="block mb-2 text-base">
                   New Password
                 </label>
                 <input
@@ -507,14 +507,14 @@ export default function AdminLoginPage() {
                   placeholder="Enter new password"
                 />
                 {resetStep3Form.formState.errors.newPassword && (
-                  <p className="text-red-400 text-xs mt-1">
+                  <p className="text-red-400 text-sm mt-1">
                     {resetStep3Form.formState.errors.newPassword.message}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block mb-2 text-sm">
+                <label className="block mb-2 text-base">
                   Confirm Password
                 </label>
                 <input
@@ -526,13 +526,13 @@ export default function AdminLoginPage() {
                   placeholder="Confirm new password"
                 />
                 {resetStep3Form.formState.errors.confirmPassword && (
-                  <p className="text-red-400 text-xs mt-1">
+                  <p className="text-red-400 text-sm mt-1">
                     {resetStep3Form.formState.errors.confirmPassword.message}
                   </p>
                 )}
               </div>
 
-              <p className="text-sm text-gray-300 text-center">
+              <p className="text-base text-gray-300 text-center">
                 Resetting your password will log you out on all devices
               </p>
 

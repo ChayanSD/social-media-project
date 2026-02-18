@@ -16,7 +16,7 @@ export function DataTable<T>({ title, columns, data }: DataTableProps<T>) {
     <div className="bg-black/30 backdrop-blur-sm text-white p-6 rounded-xl border border-white/20">
       {title && <h3 className="text-center text-lg font-bold mb-4 text-white">{title}</h3>}
 
-      <table className="w-full text-sm">
+      <table className="w-full text-base">
         <thead>
           <tr className="opacity-80 text-left border-b border-white/20">
             {columns.map((column, index) => (

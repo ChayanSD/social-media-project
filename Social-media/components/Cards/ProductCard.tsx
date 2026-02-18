@@ -126,13 +126,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
                     {/* Description */}
                     {description && (
-                        <p className="text-sm text-white/70 line-clamp-5 mt-1">
+                        <p className="text-base text-white/70 line-clamp-5 mt-1">
                             {description}
                         </p>
                     )}
 
                     {(location || seller) && (
-                        <div className="flex items-center gap-2 text-xs text-white/50 pt-1">
+                        <div className="flex items-center gap-2 text-sm text-white/50 pt-1">
                             {location && <span>{location}</span>}
                             {seller?.display_name && (
                                 <span className="ml-auto">by {seller.display_name}</span>

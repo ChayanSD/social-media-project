@@ -39,7 +39,7 @@ const Categories = () => {
     if (!categories.length) {
         return (
             <div className="px-4 py-8 text-center">
-                <p className="text-white/60 text-sm">
+                <p className="text-white/60 text-base">
                     No categories available at the moment.
                 </p>
             </div>
@@ -53,7 +53,7 @@ const Categories = () => {
                     <h1 className='xl:text-2xl md:text-xl text-lg font-bold mb-4 text-white'>{category.name}</h1>
                     <ul className='flex flex-col gap-2'>
                         {category.subcategories.map((subcategory) => (
-                            <li key={subcategory.id} className='font-medium text-sm md:text-base text-white/80 hover:text-white transition-colors cursor-pointer'>
+                            <li key={subcategory.id} className='font-medium text-base md:text-base text-white/80 hover:text-white transition-colors cursor-pointer'>
                                 {subcategory.name}
                             </li>
                         ))}

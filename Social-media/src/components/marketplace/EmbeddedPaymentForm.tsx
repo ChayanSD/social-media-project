@@ -35,7 +35,7 @@ export default function EmbeddedPaymentForm({
   const [paymentStatus, setPaymentStatus] = useState<
     "idle" | "processing" | "success" | "error"
   >("idle");
-  
+
   const [createSubscription] = useCreateSubscriptionWithPaymentMethodMutation();
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -52,7 +52,7 @@ export default function EmbeddedPaymentForm({
     try {
       // Submit elements first to validate the form
       const { error: submitError } = await elements.submit();
-      
+
       if (submitError) {
         setPaymentStatus("error");
         toast.error(submitError.message || "Please check your payment details");
@@ -99,21 +99,21 @@ export default function EmbeddedPaymentForm({
       } catch (error: unknown) {
         setPaymentStatus("error");
         // Extract error message from RTK Query error format
-        const errorMessage = 
-          (error && typeof error === 'object' && 'data' in error && 
-           error.data && typeof error.data === 'object' && 'message' in error.data
-           ? String(error.data.message)
-           : null) ||
-          (error && typeof error === 'object' && 'data' in error && 
-           error.data && typeof error.data === 'object' && 'error' in error.data
-           ? String(error.data.error)
-           : null) ||
+        const errorMessage =
+          (error && typeof error === 'object' && 'data' in error &&
+            error.data && typeof error.data === 'object' && 'message' in error.data
+            ? String(error.data.message)
+            : null) ||
+          (error && typeof error === 'object' && 'data' in error &&
+            error.data && typeof error.data === 'object' && 'error' in error.data
+            ? String(error.data.error)
+            : null) ||
           (error && typeof error === 'object' && 'message' in error
-           ? String(error.message)
-           : null) ||
+            ? String(error.message)
+            : null) ||
           (error && typeof error === 'object' && 'error' in error
-           ? String(error.error)
-           : null) ||
+            ? String(error.error)
+            : null) ||
           "Payment failed. Please check your payment details and try again.";
         toast.error(errorMessage);
         console.error("Payment error details:", {
@@ -161,16 +161,16 @@ export default function EmbeddedPaymentForm({
       // Success!
       setPaymentStatus("success");
       toast.success("Subscription activated successfully!");
-      
+
       setTimeout(() => {
         onSuccess();
       }, 1500);
     } catch (error: unknown) {
       setPaymentStatus("error");
-      const errorMessage = 
+      const errorMessage =
         (error && typeof error === 'object' && 'message' in error
-         ? String(error.message)
-         : null) ||
+          ? String(error.message)
+          : null) ||
         "An error occurred during payment";
       toast.error(errorMessage);
       setIsProcessing(false);
@@ -189,7 +189,7 @@ export default function EmbeddedPaymentForm({
 
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-white/60">
+          <p className="text-base text-white/60">
             {billingLabel
               ? `${planName} auto-renews every ${billingLabel}. Cancel anytime.`
               : `${planName} auto-renews. Cancel anytime.`}

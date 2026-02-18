@@ -17,7 +17,7 @@ export default function AllProductsTable() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  
+
   const { data, isLoading, isError, refetch } = useGetProductsQuery({
     start_date: dateRange?.start_date,
     end_date: dateRange?.end_date,
@@ -68,7 +68,7 @@ export default function AllProductsTable() {
       const day = date.getDate();
       const month = date.toLocaleDateString("en-GB", { month: "short" });
       const year = date.getFullYear();
-      
+
       return `${day} ${month} ${year}`;
     } catch {
       return "N/A";
@@ -179,7 +179,7 @@ export default function AllProductsTable() {
         return (
           <div className="flex items-center justify-center">
             <span
-              className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${badgeClass}`}
+              className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${badgeClass}`}
             >
               {status}
             </span>
@@ -287,7 +287,7 @@ export default function AllProductsTable() {
                       { label: "All", value: "all" },
                       { label: "Published", value: "published" },
                       { label: "Draft", value: "draft" },
-                      
+
                     ],
                     value: statusFilter,
                     onChange: (value) => {

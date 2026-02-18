@@ -83,7 +83,7 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }: CreateRoomModalProp
         <form onSubmit={handleCreateRoom} className="flex flex-col flex-1 overflow-hidden">
           {/* Room Name */}
           <div className="p-4 border-b border-gray-700">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-base font-medium text-gray-300 mb-2">
               Room Name *
             </label>
             <input
@@ -91,7 +91,7 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }: CreateRoomModalProp
               value={roomName}
               onChange={(e) => setRoomName(e.target.value)}
               placeholder="Enter room name..."
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-600 focus:border-transparent text-sm"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-600 focus:border-transparent text-base"
               required
               disabled={isCreatingRoom}
             />
@@ -100,7 +100,7 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }: CreateRoomModalProp
           {/* Selected Members */}
           {selectedMembers.size > 0 && (
             <div className="p-4 border-b border-gray-700">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-base font-medium text-gray-300 mb-2">
                 Selected Members ({selectedMembers.size})
               </label>
               <div className="flex flex-wrap gap-2">
@@ -112,13 +112,13 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }: CreateRoomModalProp
                   ];
                   const member = allUsers.find((u: ChatUser) => u.id === memberId);
                   if (!member) return null;
-                  
+
                   return (
                     <div
                       key={memberId}
                       className="flex items-center gap-2 bg-gray-800 px-3 py-1.5 rounded-full"
                     >
-                      <span className="text-white text-xs">
+                      <span className="text-white text-sm">
                         {member.display_name || member.username || 'Unknown'}
                       </span>
                       <button
@@ -144,7 +144,7 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }: CreateRoomModalProp
                 placeholder="Search users to add..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full text-white pl-9 pr-4 py-2 border border-gray-800 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-transparent text-sm bg-gray-800"
+                className="w-full text-white pl-9 pr-4 py-2 border border-gray-800 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-transparent text-base bg-gray-800"
               />
             </div>
           </div>
@@ -153,7 +153,7 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }: CreateRoomModalProp
           <div className="flex-1 overflow-y-auto p-4 custom-scroll">
             {users.length === 0 ? (
               <div className="text-center text-gray-500 py-8">
-                <p className="text-sm">
+                <p className="text-base">
                   {searchQuery ? 'No users found' : 'No users available'}
                 </p>
               </div>
@@ -176,16 +176,16 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }: CreateRoomModalProp
                           className="object-cover"
                         />
                       ) : (
-                        <span className="text-white text-xs font-semibold">
+                        <span className="text-white text-sm font-semibold">
                           {(user.display_name || user.username || 'U').substring(0, 2).toUpperCase()}
                         </span>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">
+                      <p className="text-base font-medium text-white truncate">
                         {user.display_name || user.username || 'Unknown User'}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-sm text-gray-500 truncate">
                         @{user.username || 'unknown'}
                       </p>
                     </div>
@@ -205,7 +205,7 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }: CreateRoomModalProp
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors text-sm font-medium"
+              className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors text-base font-medium"
               disabled={isCreatingRoom}
             >
               Cancel
@@ -213,7 +213,7 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }: CreateRoomModalProp
             <button
               type="submit"
               disabled={!roomName.trim() || isCreatingRoom}
-              className="flex-1 px-4 py-2 bg-[#0059ff] text-white rounded-md hover:bg-[#0059ffcd] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+              className="flex-1 px-4 py-2 bg-[#0059ff] text-white rounded-md hover:bg-[#0059ffcd] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base font-medium"
             >
               {isCreatingRoom ? 'Creating...' : 'Create Room'}
             </button>

@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { IoArrowBack } from "react-icons/io5";
 import Link from "next/link";
-import { 
+import {
   useLoginMutation,
   useSendPasswordResetOtpMutation,
   useVerifyPasswordResetOtpMutation,
@@ -67,7 +67,7 @@ const Login = () => {
 
       // Clear RTK Query cache before storing new tokens
       store.dispatch(baseApi.util.resetApiState());
-      
+
       storeAuthTokens({
         accessToken,
         refreshToken: typeof refreshToken === "string" ? refreshToken : undefined,
@@ -101,9 +101,9 @@ const Login = () => {
     } catch (error: unknown) {
       console.error("Login failed:", error);
       toast.error('Failed to login', {
-        description: (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'An error occurred',
+        description: (error as { data?: { error?: string; message?: string } })?.data?.error ||
+          (error as { data?: { error?: string; message?: string } })?.data?.message ||
+          'An error occurred',
       });
       // Error handling UI is shown below the form
     }
@@ -126,9 +126,9 @@ const Login = () => {
     } catch (error: unknown) {
       console.error("Failed to send OTP:", error);
       toast.error('Failed to send OTP', {
-        description: (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'An error occurred',
+        description: (error as { data?: { error?: string; message?: string } })?.data?.error ||
+          (error as { data?: { error?: string; message?: string } })?.data?.message ||
+          'An error occurred',
       });
     }
   };
@@ -151,9 +151,9 @@ const Login = () => {
     } catch (error: unknown) {
       console.error("Failed to verify OTP:", error);
       toast.error('Invalid OTP', {
-        description: (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'Please check your OTP and try again',
+        description: (error as { data?: { error?: string; message?: string } })?.data?.error ||
+          (error as { data?: { error?: string; message?: string } })?.data?.message ||
+          'Please check your OTP and try again',
       });
     }
   };
@@ -187,9 +187,9 @@ const Login = () => {
     } catch (error: unknown) {
       console.error("Failed to reset password:", error);
       toast.error('Failed to reset password', {
-        description: (error as { data?: { error?: string; message?: string } })?.data?.error || 
-                          (error as { data?: { error?: string; message?: string } })?.data?.message || 
-                          'An error occurred',
+        description: (error as { data?: { error?: string; message?: string } })?.data?.error ||
+          (error as { data?: { error?: string; message?: string } })?.data?.message ||
+          'An error occurred',
       });
     }
   };
@@ -234,7 +234,7 @@ const Login = () => {
           {currentMode === 'login' && (
             <>
               <h2 className="text-[2rem] font-semibold mb-2">Log in</h2>
-              <p className="text-sm mb-6">
+              <p className="text-base mb-6">
                 By continuing, you agree to our{" "}
                 <span className="text-blue-300">User Agreement</span> and
                 acknowledge that you understand the{" "}
@@ -256,10 +256,10 @@ const Login = () => {
                     })}
                     type="text"
                     placeholder="Email or User Name"
-                    className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-sm placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                   {loginForm.formState.errors.email && (
-                    <p className="text-red-400 text-xs mt-1">
+                    <p className="text-red-400 text-sm mt-1">
                       {loginForm.formState.errors.email.message}
                     </p>
                   )}
@@ -270,16 +270,16 @@ const Login = () => {
                     {...loginForm.register("password", { required: "Password is required" })}
                     type="password"
                     placeholder="Password"
-                    className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-sm placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                   {loginForm.formState.errors.password && (
-                    <p className="text-red-400 text-xs mt-1">
+                    <p className="text-red-400 text-sm mt-1">
                       {loginForm.formState.errors.password.message}
                     </p>
                   )}
                 </div>
 
-                <div className="flex justify-between items-center text-xs sm:text-sm">
+                <div className="flex justify-between items-center text-sm sm:text-base">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -292,7 +292,7 @@ const Login = () => {
 
                 {/* <div className="flex items-center my-4">
                   <div className="flex-grow border-t border-gray-400"></div>
-                  <span className="px-2 text-gray-200 text-sm">Or</span>
+                  <span className="px-2 text-gray-200 text-base">Or</span>
                   <div className="flex-grow border-t border-gray-400"></div>
                 </div> */}
 
@@ -310,7 +310,7 @@ const Login = () => {
                   <FaApple className="text-xl" /> Continue With Apple
                 </button> */}
 
-                <div className="flex justify-between text-xs sm:text-sm mt-3">
+                <div className="flex justify-between text-sm sm:text-base mt-3">
                   <button
                     type="button"
                     onClick={() => setCurrentMode('reset-step1')}
@@ -332,7 +332,7 @@ const Login = () => {
                   {isLoggingIn ? "Logging in..." : "Log in"}
                 </button>
                 {loginError && (
-                  <p className="text-red-400 text-xs mt-2 text-center">
+                  <p className="text-red-400 text-sm mt-2 text-center">
                     Invalid email/username or password. Please try again.
                   </p>
                 )}
@@ -344,7 +344,7 @@ const Login = () => {
           {currentMode === 'reset-step1' && (
             <>
               <h2 className="text-[2rem] font-semibold mb-2">Reset your Password</h2>
-              <p className="text-sm mb-6">
+              <p className="text-base mb-6">
                 Enter your email address and we&apos;ll send you a verification code to reset your password.
               </p>
 
@@ -367,10 +367,10 @@ const Login = () => {
                     })}
                     type="email"
                     placeholder="Email address"
-                    className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-sm placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                   {resetStep1Form.formState.errors.email && (
-                    <p className="text-red-400 text-xs mt-1">
+                    <p className="text-red-400 text-sm mt-1">
                       {resetStep1Form.formState.errors.email.message}
                     </p>
                   )}
@@ -386,7 +386,7 @@ const Login = () => {
                 </button>
               </form>
 
-              <div className="flex justify-end text-xs sm:text-sm mt-6">
+              <div className="flex justify-end text-sm sm:text-base mt-6">
                 <Link href="#" className="text-white hover:underline">
                   Need Help?
                 </Link>
@@ -398,7 +398,7 @@ const Login = () => {
           {currentMode === 'reset-step2' && (
             <>
               <h2 className="text-[2rem] font-semibold mb-2">Verify OTP</h2>
-              <p className="text-sm mb-6">
+              <p className="text-base mb-6">
                 Enter the verification code sent to <span className="text-blue-300">{resetEmail}</span>
               </p>
 
@@ -425,7 +425,7 @@ const Login = () => {
                     className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-lg placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-center tracking-widest"
                   />
                   {resetStep2Form.formState.errors.otp && (
-                    <p className="text-red-400 text-xs mt-1">
+                    <p className="text-red-400 text-sm mt-1">
                       {resetStep2Form.formState.errors.otp.message}
                     </p>
                   )}
@@ -443,7 +443,7 @@ const Login = () => {
                       toast.error('Failed to resend OTP');
                     }
                   }}
-                  className="w-full text-sm text-blue-300 hover:underline"
+                  className="w-full text-base text-blue-300 hover:underline"
                 >
                   Resend OTP
                 </button>
@@ -464,7 +464,7 @@ const Login = () => {
           {currentMode === 'reset-step3' && (
             <>
               <h2 className="text-[2rem] font-semibold mb-2">Reset your Password</h2>
-              <p className="text-sm mb-6">
+              <p className="text-base mb-6">
                 Enter your new password below.
               </p>
 
@@ -487,10 +487,10 @@ const Login = () => {
                     })}
                     type="password"
                     placeholder="New Password"
-                    className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-sm placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                   {resetStep3Form.formState.errors.newPassword && (
-                    <p className="text-red-400 text-xs mt-1">
+                    <p className="text-red-400 text-sm mt-1">
                       {resetStep3Form.formState.errors.newPassword.message}
                     </p>
                   )}
@@ -503,16 +503,16 @@ const Login = () => {
                     })}
                     type="password"
                     placeholder="Confirm Password"
-                    className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-sm placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                   {resetStep3Form.formState.errors.confirmPassword && (
-                    <p className="text-red-400 text-xs mt-1">
+                    <p className="text-red-400 text-sm mt-1">
                       {resetStep3Form.formState.errors.confirmPassword.message}
                     </p>
                   )}
                 </div>
 
-                <p className="text-sm text-gray-300 mb-4">
+                <p className="text-base text-gray-300 mb-4">
                   Resetting your password will log you out on all devices
                 </p>
 

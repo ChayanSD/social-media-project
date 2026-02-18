@@ -19,7 +19,7 @@ const Subscription = () => {
         <div className="max-w-[1200px] mx-auto p-4 md:p-6">
             <div className="page-container">
                 <div className="p-6 md:p-12">
-                    
+
                     <div className="text-center mb-12">
                         <div className="flex items-center justify-center gap-4 mb-6">
                             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
@@ -48,17 +48,15 @@ const Subscription = () => {
                     {/* Pricing Plans */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         {/* Monthly Plan */}
-                        <div 
-                            className={`relative cursor-pointer transition-all duration-300 ${
-                                selectedPlan === 'monthly' ? 'scale-105' : 'hover:scale-102'
-                            }`}
+                        <div
+                            className={`relative cursor-pointer transition-all duration-300 ${selectedPlan === 'monthly' ? 'scale-105' : 'hover:scale-102'
+                                }`}
                             onClick={() => setSelectedPlan('monthly')}
                         >
-                            <div className={`p-8 rounded-2xl border-2 transition-all duration-300 ${
-                                selectedPlan === 'monthly' 
-                                    ? 'border-blue-500 bg-blue-500/10' 
-                                    : 'border-white/20 bg-white/5 hover:border-white/40'
-                            }`}>
+                            <div className={`p-8 rounded-2xl border-2 transition-all duration-300 ${selectedPlan === 'monthly'
+                                ? 'border-blue-500 bg-blue-500/10'
+                                : 'border-white/20 bg-white/5 hover:border-white/40'
+                                }`}>
                                 <div className="text-center">
                                     <h3 className="text-2xl font-bold text-white mb-2">Monthly</h3>
                                     <div className="text-4xl font-bold text-white mb-2">$99</div>
@@ -72,21 +70,19 @@ const Subscription = () => {
                         </div>
 
                         {/* Yearly Plan */}
-                        <div 
-                            className={`relative cursor-pointer transition-all duration-300 ${
-                                selectedPlan === 'yearly' ? 'scale-105' : 'hover:scale-102'
-                            }`}
+                        <div
+                            className={`relative cursor-pointer transition-all duration-300 ${selectedPlan === 'yearly' ? 'scale-105' : 'hover:scale-102'
+                                }`}
                             onClick={() => setSelectedPlan('yearly')}
                         >
-                            <div className={`p-8 rounded-2xl border-2 transition-all duration-300 ${
-                                selectedPlan === 'yearly' 
-                                    ? 'border-blue-500 bg-blue-500/10' 
-                                    : 'border-white/20 bg-white/5 hover:border-white/40'
-                            }`}>
+                            <div className={`p-8 rounded-2xl border-2 transition-all duration-300 ${selectedPlan === 'yearly'
+                                ? 'border-blue-500 bg-blue-500/10'
+                                : 'border-white/20 bg-white/5 hover:border-white/40'
+                                }`}>
                                 <div className="text-center">
                                     <div className="flex items-center justify-center gap-2 mb-2">
                                         <h3 className="text-2xl font-bold text-white">Yearly</h3>
-                                        <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Save 20%</span>
+                                        <span className="bg-green-500 text-white text-sm px-2 py-1 rounded-full">Save 20%</span>
                                     </div>
                                     <div className="text-4xl font-bold text-white mb-2">$599</div>
                                 </div>
@@ -100,13 +96,13 @@ const Subscription = () => {
                     </div>
 
                     <div className="text-center mb-8">
-                        <button onClick={()=> router.push(`/main/checkout?plan=${selectedPlan} &amount=${selectedPlan === 'monthly' ? 99 : 599}`)} className="w-full md:w-auto bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg">
+                        <button onClick={() => router.push(`/main/checkout?plan=${selectedPlan} &amount=${selectedPlan === 'monthly' ? 99 : 599}`)} className="w-full md:w-auto bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg">
                             Subscribe Now
                         </button>
                     </div>
 
-                    <div className="text-center space-y-2 text-white/60 text-sm">
-                       <p>All features are subject to availability and may vary by region.</p>
+                    <div className="text-center space-y-2 text-white/60 text-base">
+                        <p>All features are subject to availability and may vary by region.</p>
                     </div>
                 </div>
             </div>

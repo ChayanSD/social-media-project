@@ -30,7 +30,7 @@ export default function ContactsTable() {
       const day = date.getDate();
       const month = date.toLocaleDateString("en-GB", { month: "short" });
       const year = date.getFullYear();
-      
+
       return `${day} ${month} ${year}`;
     } catch {
       return "N/A";
@@ -52,7 +52,7 @@ export default function ContactsTable() {
   const handleRowClick = (contact: ContactResponse) => {
     setSelectedContact(contact);
     setIsDetailsModalOpen(true);
-    
+
     // Auto-mark as read when viewing
     if (!contact.is_read && contact.id) {
       markContactRead({ contactId: contact.id }).unwrap().catch(() => {
@@ -152,11 +152,11 @@ export default function ContactsTable() {
       accessor: (row) => (
         <div className="flex items-center gap-2">
           {row.is_read ? (
-            <span className="px-2 py-1 rounded-full text-xs bg-green-500/20 text-green-400">
+            <span className="px-2 py-1 rounded-full text-sm bg-green-500/20 text-green-400">
               Read
             </span>
           ) : (
-            <span className="px-2 py-1 rounded-full text-xs bg-blue-500/20 text-blue-400">
+            <span className="px-2 py-1 rounded-full text-sm bg-blue-500/20 text-blue-400">
               Unread
             </span>
           )}
@@ -233,14 +233,14 @@ export default function ContactsTable() {
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm text-gray-400">Name</label>
+                <label className="text-base text-gray-400">Name</label>
                 <p className="text-white font-medium">
                   {selectedContact.first_name} {selectedContact.last_name}
                 </p>
               </div>
 
               <div>
-                <label className="text-sm text-gray-400">Email</label>
+                <label className="text-base text-gray-400">Email</label>
                 <p className="text-white">
                   <a
                     href={`mailto:${selectedContact.email}`}
@@ -252,25 +252,25 @@ export default function ContactsTable() {
               </div>
 
               <div>
-                <label className="text-sm text-gray-400">Subject</label>
+                <label className="text-base text-gray-400">Subject</label>
                 <p className="text-white font-medium">{selectedContact.subject}</p>
               </div>
 
               <div>
-                <label className="text-sm text-gray-400">Message</label>
+                <label className="text-base text-gray-400">Message</label>
                 <p className="text-white whitespace-pre-wrap bg-white/5 p-4 rounded-lg">
                   {selectedContact.message}
                 </p>
               </div>
 
               <div>
-                <label className="text-sm text-gray-400">Submitted</label>
+                <label className="text-base text-gray-400">Submitted</label>
                 <p className="text-white">{formatDate(selectedContact.created_at)}</p>
               </div>
 
               {selectedContact.is_read && selectedContact.read_at && (
                 <div>
-                  <label className="text-sm text-gray-400">Read</label>
+                  <label className="text-base text-gray-400">Read</label>
                   <p className="text-white">
                     {formatDate(selectedContact.read_at)}
                     {selectedContact.read_by_name && ` by ${selectedContact.read_by_name}`}

@@ -163,7 +163,7 @@ Your continued use of our platform after changes become effective constitutes ac
                         title="Privacy Policy"
                         description="Your privacy is important to us. This policy explains how we collect, use, protect, and share your information when you use our platform."
                     />
-                    <p className="text-white/60 text-sm  text-center">
+                    <p className="text-white/60 text-base  text-center">
                         Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </p>
                 </div>
@@ -181,7 +181,7 @@ Your continued use of our platform after changes become effective constitutes ac
                                     {feature.icon}
                                 </div>
                                 <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                                <p className="text-white/60 text-sm">{feature.description}</p>
+                                <p className="text-white/60 text-base">{feature.description}</p>
                             </div>
                         ))}
                     </div>
@@ -213,9 +213,8 @@ Your continued use of our platform after changes become effective constitutes ac
                                     )}
                                 </button>
                                 <div
-                                    className={`overflow-hidden transition-all duration-300 ${
-                                        expandedSection === section.id ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
-                                    }`}
+                                    className={`overflow-hidden transition-all duration-300 ${expandedSection === section.id ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
+                                        }`}
                                 >
                                     <div className="p-4 pt-0 text-white/80 whitespace-pre-line leading-relaxed">
                                         {section.content}

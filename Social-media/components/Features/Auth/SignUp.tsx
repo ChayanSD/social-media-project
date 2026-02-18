@@ -130,12 +130,12 @@ const SignUp = () => {
       setCurrentStep(4);
     } catch (error: unknown) {
       console.error("Failed to set credentials:", error);
-      
+
       // Handle field-specific validation errors
       const apiError = error as { data?: { username?: string[]; password?: string[]; email?: string[]; message?: string } };
       if (apiError?.data) {
         const errorData = apiError.data;
-        
+
         // Handle username errors
         if (errorData.username && Array.isArray(errorData.username)) {
           setError("username", {
@@ -143,7 +143,7 @@ const SignUp = () => {
             message: errorData.username[0] || "Username validation failed",
           });
         }
-        
+
         // Handle password errors
         if (errorData.password && Array.isArray(errorData.password)) {
           setError("password", {
@@ -151,7 +151,7 @@ const SignUp = () => {
             message: errorData.password[0] || "Password validation failed",
           });
         }
-        
+
         // Handle other field errors (email, etc.)
         if (errorData.email && Array.isArray(errorData.email)) {
           // Email errors can be shown as a general error
@@ -160,7 +160,7 @@ const SignUp = () => {
             message: errorData.email[0] || "Email validation failed",
           });
         }
-        
+
         // Handle non-field errors
         if (errorData.message && !errorData.username && !errorData.password && !errorData.email) {
           setError("root", {
@@ -196,7 +196,7 @@ const SignUp = () => {
 
   const handleVerificationSubmit = async (code: string) => {
     if (!userEmail) return;
-    
+
     try {
       await verifyOtp({ email: userEmail, code }).unwrap();
       setCurrentStep(3);
@@ -260,7 +260,7 @@ const SignUp = () => {
   const renderStep1 = () => (
     <div className="max-w-[348px] text-center text-white">
       <h2 className="text-[2rem] font-semibold mb-2">Sign Up</h2>
-      <p className="text-sm mb-6">
+      <p className="text-base mb-6">
         By continuing, you agree to our{" "}
         <span className="text-blue-300">User Agreement</span> and
         acknowledge that you understand the{" "}
@@ -294,7 +294,7 @@ const SignUp = () => {
             type="email"
             placeholder="Enter your email address"
             required
-            className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-sm placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <button
             type="submit"
@@ -304,14 +304,14 @@ const SignUp = () => {
             {isSendingOtp ? "Sending..." : "Continue"}
           </button>
           {otpError && (
-            <p className="text-red-400 text-xs mt-2 text-center">
+            <p className="text-red-400 text-sm mt-2 text-center">
               Failed to send OTP. Please try again.
             </p>
           )}
         </form>
 
         <div className="text-center mt-4">
-          <Link href="/login" className="text-[#299616] hover:underline text-sm">
+          <Link href="/login" className="text-[#299616] hover:underline text-base">
             Already have an account? Log in
           </Link>
         </div>
@@ -328,16 +328,16 @@ const SignUp = () => {
         >
           <IoArrowBack className="text-xl" />
         </button>
-        {/* <button className="text-white hover:text-gray-300 text-sm">
+        {/* <button className="text-white hover:text-gray-300 text-base">
           Skip
         </button> */}
       </div>
 
       <h2 className="text-[2rem] font-semibold mb-2">Verify your email</h2>
-      <p className="text-sm mb-2">
+      <p className="text-base mb-2">
         enter the 6-digit code we sent to
       </p>
-      <p className="text-sm mb-6 text-blue-300">
+      <p className="text-base mb-6 text-blue-300">
         {userEmail}
       </p>
 
@@ -355,8 +355,8 @@ const SignUp = () => {
           required
           className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-center text-lg tracking-widest"
         />
-        
-        <div className="mt-4 text-sm">
+
+        <div className="mt-4 text-base">
           <p className="text-white mb-1">Didn&apos;t get an email?</p>
           {resendTimer > 0 ? (
             <p className="text-white">Resend in {resendTimer}</p>
@@ -380,7 +380,7 @@ const SignUp = () => {
           {isVerifyingOtp ? "Verifying..." : "Continue"}
         </button>
         {verifyOtpError && (
-          <p className="text-red-400 text-xs mt-2 text-center">
+          <p className="text-red-400 text-sm mt-2 text-center">
             Invalid verification code. Please try again.
           </p>
         )}
@@ -400,7 +400,7 @@ const SignUp = () => {
       </div>
 
       <h2 className="text-[2rem] font-semibold mb-2">Create your username and password</h2>
-      <p className="text-sm mb-6">
+      <p className="text-base mb-6">
         By continuing, you agree to our{" "}
         <span className="text-blue-300">User Agreement</span> and
         acknowledge that you understand the{" "}
@@ -416,10 +416,10 @@ const SignUp = () => {
             })}
             type="text"
             placeholder="Enter username (min. 6 characters)"
-            className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-sm placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           {errors.username && (
-            <p className="text-red-400 text-xs mt-1">
+            <p className="text-red-400 text-sm mt-1">
               {errors.username.message}
             </p>
           )}
@@ -433,16 +433,16 @@ const SignUp = () => {
             })}
             type="password"
             placeholder="Password"
-            className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-sm placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           {errors.password && (
-            <p className="text-red-400 text-xs mt-1">
+            <p className="text-red-400 text-sm mt-1">
               {errors.password.message}
             </p>
           )}
         </div>
 
-        <div className="flex justify-between items-center text-xs sm:text-sm">
+        <div className="flex justify-between items-center text-sm sm:text-base">
           {/* <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -472,7 +472,7 @@ const SignUp = () => {
           {isSettingCredentials ? "Creating account..." : "Continue"}
         </button>
         {errors.root && (
-          <p className="text-red-400 text-xs mt-2 text-center">
+          <p className="text-red-400 text-sm mt-2 text-center">
             {errors.root.message}
           </p>
         )}
@@ -483,7 +483,7 @@ const SignUp = () => {
   const renderStep4 = () => (
     <div className="max-w-[600px]  text-center text-white">
       <h2 className="text-[2rem] font-semibold mb-2">Interests</h2>
-      <p className="text-sm mb-8">
+      <p className="text-base mb-8">
         Pick things you&apos;d like to see in your home feed
       </p>
 
@@ -505,11 +505,10 @@ const SignUp = () => {
                     key={subcategory.id}
                     type="button"
                     onClick={() => handleInterestToggle(subcategory.id)}
-                    className={`px-4 py-2 rounded-full text-sm border transition ${
-                      selectedInterests.includes(subcategory.id)
-                        ? "border-teal-400 bg-teal-400/20 text-teal-400"
-                        : "border-gray-300 text-white hover:border-gray-200"
-                    }`}
+                    className={`px-4 py-2 rounded-full text-base border transition ${selectedInterests.includes(subcategory.id)
+                      ? "border-teal-400 bg-teal-400/20 text-teal-400"
+                      : "border-gray-300 text-white hover:border-gray-200"
+                      }`}
                   >
                     {subcategory.name}
                   </button>
@@ -526,11 +525,10 @@ const SignUp = () => {
           selectedInterests.length === 0 ||
           isUpdatingProfile
         }
-        className={`w-full mt-8 py-3 rounded-full font-semibold transition cursor-pointer ${
-          selectedInterests.length > 0 && !isUpdatingProfile
-            ? "bg-green-600 hover:bg-green-700 text-white"
-            : "bg-gray-600 text-gray-400 cursor-not-allowed"
-        }`}
+        className={`w-full mt-8 py-3 rounded-full font-semibold transition cursor-pointer ${selectedInterests.length > 0 && !isUpdatingProfile
+          ? "bg-green-600 hover:bg-green-700 text-white"
+          : "bg-gray-600 text-gray-400 cursor-not-allowed"
+          }`}
       >
         {isUpdatingProfile
           ? "Saving preferences..."
@@ -539,7 +537,7 @@ const SignUp = () => {
             : "Select at least 1 interest"}
       </button>
       {updateProfileError && (
-        <p className="text-red-400 text-xs mt-2 text-center">
+        <p className="text-red-400 text-sm mt-2 text-center">
           Failed to save your preferences. Please try again.
         </p>
       )}

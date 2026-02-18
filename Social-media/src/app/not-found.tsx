@@ -28,7 +28,7 @@ export default function NotFoundPage() {
             </span>
           </div>
           <h1 className="text-xl md:text-2xl font-semibold">Page not found</h1>
-          <p className="mt-2 text-sm md:text-base text-white/80">
+          <p className="mt-2 text-base md:text-base text-white/80">
             The page you’re looking for doesn’t exist, has been moved, or is temporarily unavailable.
           </p>
 

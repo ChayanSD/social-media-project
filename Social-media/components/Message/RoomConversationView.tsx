@@ -272,14 +272,14 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
         </button>
 
         <div className="relative flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6c3f79] via-[#995a98] to-[#6c3f79] flex items-center justify-center text-white text-xs font-semibold">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6c3f79] via-[#995a98] to-[#6c3f79] flex items-center justify-center text-white text-sm font-semibold">
             {room.name.substring(0, 2).toUpperCase()}
           </div>
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-white text-sm truncate">{room.name}</h3>
-          <p className="text-xs text-gray-500">Group chat</p>
+          <h3 className="font-medium text-white text-base truncate">{room.name}</h3>
+          <p className="text-sm text-gray-500">Group chat</p>
         </div>
 
         {isAdmin && (
@@ -298,13 +298,13 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
                     setShowEditModal(true);
                     setShowMenu(false);
                   }}
-                  className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 rounded-t-lg"
+                  className="w-full px-4 py-2 text-left text-base text-white hover:bg-gray-700 rounded-t-lg"
                 >
                   Edit Room
                 </button>
                 <button
                   onClick={handleDeleteRoom}
-                  className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-gray-700 rounded-b-lg"
+                  className="w-full px-4 py-2 text-left text-base text-red-400 hover:bg-gray-700 rounded-b-lg"
                   disabled={isDeleting}
                 >
                   {isDeleting ? 'Deleting...' : 'Delete Room'}
@@ -326,7 +326,7 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
                 value={editRoomName}
                 onChange={(e) => setEditRoomName(e.target.value)}
                 placeholder="Room name"
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-600 focus:border-transparent text-sm mb-4"
+                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-600 focus:border-transparent text-base mb-4"
                 required
                 disabled={isUpdating}
                 autoFocus
@@ -338,7 +338,7 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
                     setShowEditModal(false);
                     setEditRoomName(room.name);
                   }}
-                  className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors text-sm"
+                  className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors text-base"
                   disabled={isUpdating}
                 >
                   Cancel
@@ -346,7 +346,7 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
                 <button
                   type="submit"
                   disabled={!editRoomName.trim() || isUpdating}
-                  className="flex-1 px-4 py-2 bg-[#0059ff] text-white rounded-md hover:bg-[#0059ffcd] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  className="flex-1 px-4 py-2 bg-[#0059ff] text-white rounded-md hover:bg-[#0059ffcd] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base"
                 >
                   {isUpdating ? 'Updating...' : 'Update'}
                 </button>
@@ -362,26 +362,26 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
           <div className="flex items-center justify-center py-8">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-              <p className="text-sm text-gray-500">Loading messages...</p>
+              <p className="text-base text-gray-500">Loading messages...</p>
             </div>
           </div>
         ) : messagesError ? (
           <div className="flex items-center justify-center py-8">
             <div className="text-center">
-              <p className="text-sm text-red-500">Failed to load messages</p>
-              <p className="text-xs text-gray-500 mt-1">Room ID: {String(roomId)}</p>
+              <p className="text-base text-red-500">Failed to load messages</p>
+              <p className="text-sm text-gray-500 mt-1">Room ID: {String(roomId)}</p>
             </div>
           </div>
         ) : messages.length === 0 ? (
           <div className="flex items-center justify-center py-8">
-            <p className="text-sm text-gray-500">No messages yet. Start the conversation!</p>
+            <p className="text-base text-gray-500">No messages yet. Start the conversation!</p>
           </div>
         ) : (
           <>
             {messages.map((message) => (
               <div key={message.id}>
                 {message.senderId !== 'current-user' && (
-                  <p className="text-xs text-gray-500 mb-1 px-2">{message.senderName}</p>
+                  <p className="text-sm text-gray-500 mb-1 px-2">{message.senderName}</p>
                 )}
                 <MessageBubble
                   message={message}
@@ -472,7 +472,7 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
               }}
               rows={1}
               placeholder={`Message ${room.name}...`}
-              className="flex-1 px-3 py-3 bg-gray-800 border border-gray-700 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-transparent text-sm text-white resize-none custom-scroll"
+              className="flex-1 px-3 py-3 bg-gray-800 border border-gray-700 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-transparent text-base text-white resize-none custom-scroll"
             />
             <button
               type="submit"

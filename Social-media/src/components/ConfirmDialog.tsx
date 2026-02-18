@@ -58,7 +58,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 rounded-full text-sm text-gray-200 bg-transparent hover:bg-white/10 transition-colors cursor-pointer disabled:cursor-not-allowed"
+            className="px-4 py-2 rounded-full text-base text-gray-200 bg-transparent hover:bg-white/10 transition-colors cursor-pointer disabled:cursor-not-allowed"
             disabled={isSubmitting}
           >
             {cancelLabel}
@@ -67,7 +67,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             type="button"
             onClick={handleConfirm}
             disabled={isSubmitting}
-            className={`px-4 py-2 rounded-full text-sm text-white ${confirmClasses} disabled:opacity-60 disabled:cursor-not-allowed transition-colors cursor-pointer`}
+            className={`px-4 py-2 rounded-full text-base text-white ${confirmClasses} disabled:opacity-60 disabled:cursor-not-allowed transition-colors cursor-pointer`}
           >
             {confirmLabel}
           </button>

@@ -251,10 +251,10 @@ const MessageBubble = ({
               onChange={(e) => setEditText(e.target.value)}
               onKeyDown={handleKeyDown}
               onBlur={handleEdit}
-              className="bg-transparent text-current text-sm leading-relaxed resize-none focus:outline-none overflow-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              className="bg-transparent text-current text-base leading-relaxed resize-none focus:outline-none overflow-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             />
           ) : (
-            <p ref={textRef} className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.text}</p>
+            <p ref={textRef} className="text-base leading-relaxed whitespace-pre-wrap break-words">{message.text}</p>
           )}
         </div>
 
@@ -268,7 +268,7 @@ const MessageBubble = ({
                   onClick={() => onReact?.(message.id, type)}
                   className={`flex items-center gap-1 hover:opacity-80 transition-opacity ${message.user_reaction === type ? 'text-blue-500 font-medium' : ''}`}
                 >
-                  <span className="text-xs">{REACTION_MAP[type]}</span>
+                  <span className="text-sm">{REACTION_MAP[type]}</span>
                   <span className="text-[10px]">{count}</span>
                 </button>
               ))}

@@ -125,11 +125,10 @@ export default function SubscriptionPlansModal({
                 {plans.map((plan) => (
                   <div
                     key={plan.id}
-                    className={`relative p-6  rounded-xl border-2 transition-all ${
-                      selectedPlan === plan.id
+                    className={`relative p-6  rounded-xl border-2 transition-all ${selectedPlan === plan.id
                         ? "border-purple-500 bg-purple-500/10"
                         : "border-white/20 bg-white/5"
-                    }`}
+                      }`}
                   >
                     <div className="mb-4">
                       <h3 className="text-xl font-bold text-white mb-2">
@@ -156,7 +155,7 @@ export default function SubscriptionPlansModal({
                       {plan.features.map((feature, idx) => (
                         <div key={idx} className="flex items-center gap-2">
                           <Check className="w-5 h-5 text-green-400" />
-                          <span className="text-white/80 text-sm">{feature}</span>
+                          <span className="text-white/80 text-base">{feature}</span>
                         </div>
                       ))}
                     </div>

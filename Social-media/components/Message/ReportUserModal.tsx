@@ -29,7 +29,7 @@ const ReportUserModal = ({ isOpen, onClose, userId, username }: ReportUserModalP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!reason) {
       toast.error('Please select a reason');
       return;
@@ -61,50 +61,50 @@ const ReportUserModal = ({ isOpen, onClose, userId, username }: ReportUserModalP
       maxWidth="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <p className="text-xs text-white/60 mb-4">
+        <p className="text-sm text-white/60 mb-4">
           Please select a reason for reporting this user. Our team will review your report.
         </p>
 
         {/* Reason Selection */}
-          <div>
-            <label className="block text-sm font-medium text-white mb-2">
-              Reason <span className="text-red-500">*</span>
-            </label>
-            <div className="space-y-2">
-              {REPORT_REASONS.map((option) => (
-                <label
-                  key={option.value}
-                  className="flex items-center p-3 rounded-lg border border-white/10 hover:bg-white/5 cursor-pointer transition-colors"
-                >
-                  <input
-                    type="radio"
-                    name="reason"
-                    value={option.value}
-                    checked={reason === option.value}
-                    onChange={(e) => setReason(e.target.value as typeof reason)}
-                    className="mr-3 w-4 h-4 text-[#0059ff] focus:ring-[#0059ff] focus:ring-2"
-                    disabled={isLoading}
-                  />
-                  <span className="text-sm text-white">{option.label}</span>
-                </label>
-              ))}
-            </div>
+        <div>
+          <label className="block text-base font-medium text-white mb-2">
+            Reason <span className="text-red-500">*</span>
+          </label>
+          <div className="space-y-2">
+            {REPORT_REASONS.map((option) => (
+              <label
+                key={option.value}
+                className="flex items-center p-3 rounded-lg border border-white/10 hover:bg-white/5 cursor-pointer transition-colors"
+              >
+                <input
+                  type="radio"
+                  name="reason"
+                  value={option.value}
+                  checked={reason === option.value}
+                  onChange={(e) => setReason(e.target.value as typeof reason)}
+                  className="mr-3 w-4 h-4 text-[#0059ff] focus:ring-[#0059ff] focus:ring-2"
+                  disabled={isLoading}
+                />
+                <span className="text-base text-white">{option.label}</span>
+              </label>
+            ))}
           </div>
+        </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-white mb-2">
-              Additional Details (Optional)
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Provide any additional information that might help us review this report..."
-              rows={4}
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0059ff] focus:border-transparent text-sm text-white resize-none custom-scroll"
-              disabled={isLoading}
-            />
-          </div>
+        {/* Description */}
+        <div>
+          <label className="block text-base font-medium text-white mb-2">
+            Additional Details (Optional)
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Provide any additional information that might help us review this report..."
+            rows={4}
+            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0059ff] focus:border-transparent text-base text-white resize-none custom-scroll"
+            disabled={isLoading}
+          />
+        </div>
 
         {/* Actions */}
         <div className="flex gap-3 pt-2">

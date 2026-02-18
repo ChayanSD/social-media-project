@@ -190,7 +190,7 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
                   <h2 className="text-2xl font-semibold text-white">{title}</h2>
                 )}
                 {description && (
-                  <p className="text-sm text-white/60 mt-1">{description}</p>
+                  <p className="text-base text-white/60 mt-1">{description}</p>
                 )}
               </div>
             )}
@@ -258,7 +258,7 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
                         <p className="text-red-400 text-lg font-medium mb-1">
                           Error Loading Data
                         </p>
-                        <p className="text-white/60 text-sm">
+                        <p className="text-white/60 text-base">
                           {errorMessage}
                         </p>
                       </div>
@@ -334,7 +334,7 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
       {/* Client-side Pagination Controls */}
       {!disablePagination && !serverPagination && data.length > 0 && (
         <div className="flex items-center justify-between px-4 py-3 border-t border-white/10 bg-white/5">
-          <div className="text-sm text-white/60">
+          <div className="text-base text-white/60">
             Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, data.length)} of {data.length} entries
           </div>
 
@@ -367,7 +367,7 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
                   <button
                     key={pageNum}
                     onClick={() => handlePageClick(pageNum)}
-                    className={`px-3 py-1 rounded-lg text-sm transition ${currentPage === pageNum
+                    className={`px-3 py-1 rounded-lg text-base transition ${currentPage === pageNum
                       ? "bg-[#6B83FA] text-white"
                       : "bg-white/10 text-white/80 hover:bg-white/20"
                       }`}
@@ -400,7 +400,7 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
       {serverPagination && serverPagination.totalCount > 0 && (
         <div className="flex items-center justify-between px-4 py-3 border-t border-white/10 bg-white/5">
           <div className="flex items-center gap-4">
-            <div className="text-sm text-white/60">
+            <div className="text-base text-white/60">
               Showing {(serverPagination.currentPage - 1) * serverPagination.pageSize + 1} to {Math.min(serverPagination.currentPage * serverPagination.pageSize, serverPagination.totalCount)} of {serverPagination.totalCount} entries
             </div>
             {/* Limit Selector */}
@@ -409,7 +409,7 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
                 <select
                   value={serverPagination.pageSize}
                   onChange={(e) => serverPagination.onLimitChange(Number(e.target.value))}
-                  className="appearance-none bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer pr-8"
+                  className="appearance-none bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-base text-white focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer pr-8"
                 >
                   <option value={10} className="bg-[#1F2149] text-white">10</option>
                   <option value={20} className="bg-[#1F2149] text-white">20</option>
@@ -450,7 +450,7 @@ export function CustomTable<T extends { id?: string | number } | Record<string, 
                   <button
                     key={pageNum}
                     onClick={() => serverPagination.onPageChange(pageNum)}
-                    className={`px-3 py-1 rounded-lg text-sm transition cursor-pointer ${serverPagination.currentPage === pageNum
+                    className={`px-3 py-1 rounded-lg text-base transition cursor-pointer ${serverPagination.currentPage === pageNum
                       ? "bg-[#6B83FA] text-white"
                       : "bg-white/10 text-white/80 hover:bg-white/20"
                       }`}

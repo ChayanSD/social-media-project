@@ -56,7 +56,7 @@ export default function MarketPlaceLayout({ children }: { children: React.ReactN
               {/* <input
                 type="text"
                 placeholder="Search..."
-                className="w-full lg:w-96 bg-white/10 border border-white/20 rounded-full px-4 py-2 text-sm focus:outline-none placeholder:text-gray-300"
+                className="w-full lg:w-96 bg-white/10 border border-white/20 rounded-full px-4 py-2 text-base focus:outline-none placeholder:text-gray-300"
               /> */}
               <div></div>
               <h2 className="text-lg font-semibold lg:hidden">Marketplace</h2>
@@ -66,7 +66,7 @@ export default function MarketPlaceLayout({ children }: { children: React.ReactN
                 {topNavLinks.map((btn) => (
                   <Link href={btn.href} key={btn.label}>
                     <button
-                      className={`px-4 py-2 rounded-full cursor-pointer text-sm transition-colors ${isActive(btn.href)
+                      className={`px-4 py-2 rounded-full cursor-pointer text-base transition-colors ${isActive(btn.href)
                         ? "bg-[#06133fbf] text-white font-medium"
                         : "hover:bg-white/10"
                         }`}
@@ -83,7 +83,7 @@ export default function MarketPlaceLayout({ children }: { children: React.ReactN
               {topNavLinks.map((btn) => (
                 <Link href={btn.href} key={btn.label}>
                   <button
-                    className={`px-4 py-1.5 rounded-full cursor-pointer text-sm whitespace-nowrap ${isActive(btn.href)
+                    className={`px-4 py-1.5 rounded-full cursor-pointer text-base whitespace-nowrap ${isActive(btn.href)
                       ? "bg-[#06133fbf] text-white font-medium"
                       : "bg-white/10 hover:bg-white/20"
                       }`}

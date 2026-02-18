@@ -235,7 +235,7 @@ const ProfileSidebar = ({
                 <h3 className="text-xl font-semibold">
                   {profileName || (isError ? "Unable to load user" : "Unknown User")}
                 </h3>
-                <p className="text-sm text-white/80">
+                <p className="text-base text-white/80">
                   {profileEmail || (isError ? "Please try again later" : "No email available")}
                 </p>
               </>
@@ -249,7 +249,7 @@ const ProfileSidebar = ({
                 <Link
                   key={index}
                   href={safeHref(item.href)}
-                  className="w-full text-sm text-left p-3 hover:bg-white/10 rounded-lg transition-colors duration-200 flex items-center gap-3"
+                  className="w-full text-base text-left p-3 hover:bg-white/10 rounded-lg transition-colors duration-200 flex items-center gap-3"
                 >
                   <IconComponent size={20} className="text-white" />
                   <span className="text-white font-medium">{item.label}</span>
@@ -259,7 +259,7 @@ const ProfileSidebar = ({
             {isAdmin && (
               <Link
                 href="/dashboard"
-                className="w-full text-sm text-left p-3 hover:bg-white/10 rounded-lg transition-colors duration-200 flex items-center gap-3"
+                className="w-full text-base text-left p-3 hover:bg-white/10 rounded-lg transition-colors duration-200 flex items-center gap-3"
               >
                 <IoPieChartOutline size={20} className="text-white" />
                 <span className="text-white font-medium">Dashboard</span>
@@ -269,7 +269,7 @@ const ProfileSidebar = ({
             {showSignOut && (
               <button
                 onClick={handleLogout}
-                className="w-full text-sm text-left p-3 hover:bg-red-700/60 rounded-lg transition-colors duration-200 flex items-center gap-3 cursor-pointer text-white font-medium mt-2 border border-white/10"
+                className="w-full text-base text-left p-3 hover:bg-red-700/60 rounded-lg transition-colors duration-200 flex items-center gap-3 cursor-pointer text-white font-medium mt-2 border border-white/10"
               >
                 <FiLogOut size={20} />
                 Sign Out

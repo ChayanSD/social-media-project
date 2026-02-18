@@ -21,7 +21,7 @@ export function SearchFilter({
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
       {label && (
-        <label className="text-sm text-white/70 whitespace-nowrap">
+        <label className="text-base text-white/70 whitespace-nowrap">
           {label}:
         </label>
       )}
@@ -32,7 +32,7 @@ export function SearchFilter({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="pl-10 pr-4 py-2 w-full h-9 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm cursor-pointer"
+          className="pl-10 pr-4 py-2 w-full h-9 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base cursor-pointer"
         />
       </div>
     </div>

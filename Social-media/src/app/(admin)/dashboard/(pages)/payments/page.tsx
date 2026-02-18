@@ -47,7 +47,7 @@ export default function PaymentsPage() {
 
     return (
       <span
-        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${styles[status as keyof typeof styles] || styles.pending
+        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium border ${styles[status as keyof typeof styles] || styles.pending
           }`}
       >
         {icons[status as keyof typeof icons] || <Clock className="w-4 h-4" />}
@@ -90,8 +90,8 @@ export default function PaymentsPage() {
               )}
             </div>
             <div>
-              <p className="text-sm font-medium text-white">{payment.user.username}</p>
-              <p className="text-xs text-white/60">{payment.user.email}</p>
+              <p className="text-base font-medium text-white">{payment.user.username}</p>
+              <p className="text-sm text-white/60">{payment.user.email}</p>
             </div>
           </div>
         ),
@@ -101,15 +101,15 @@ export default function PaymentsPage() {
         header: "Plan",
         accessor: (payment) =>
           payment.subscription?.plan ? (
-            <span className="text-sm text-white/80">{payment.subscription.plan.display_name}</span>
+            <span className="text-base text-white/80">{payment.subscription.plan.display_name}</span>
           ) : (
-            <span className="text-sm text-white/40">N/A</span>
+            <span className="text-base text-white/40">N/A</span>
           ),
       },
       {
         header: "Amount",
         accessor: (payment) => (
-          <span className="text-sm font-semibold text-white">{formatAmount(payment.amount)}</span>
+          <span className="text-base font-semibold text-white">{formatAmount(payment.amount)}</span>
         ),
       },
       {
@@ -118,7 +118,7 @@ export default function PaymentsPage() {
       },
       {
         header: "Date",
-        accessor: (payment) => <span className="text-sm text-white/80">{formatDate(payment.created_at)}</span>,
+        accessor: (payment) => <span className="text-base text-white/80">{formatDate(payment.created_at)}</span>,
       },
     ],
     []
@@ -242,7 +242,7 @@ export default function PaymentsPage() {
                 <DollarSign className="w-6 h-6 text-green-400" />
               </div>
               <div>
-                <p className="text-sm text-white/60">Total Revenue</p>
+                <p className="text-base text-white/60">Total Revenue</p>
                 <p className="text-2xl font-bold text-white">
                   {formatAmount(summary.total_revenue.toString())}
                 </p>
@@ -255,7 +255,7 @@ export default function PaymentsPage() {
                 <CreditCard className="w-6 h-6 text-blue-400" />
               </div>
               <div>
-                <p className="text-sm text-white/60">Total Payments</p>
+                <p className="text-base text-white/60">Total Payments</p>
                 <p className="text-2xl font-bold text-white">{summary.total_payments}</p>
               </div>
             </div>

@@ -113,7 +113,7 @@ export default function ReportedPostsTable() {
     return (
       <div className="flex items-center justify-center gap-1.5">
         {colors.icon}
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${colors.bg} ${colors.text}`}>
+        <span className={`px-3 py-1 rounded-full text-sm font-medium ${colors.bg} ${colors.text}`}>
           {statusKey.charAt(0).toUpperCase() + statusKey.slice(1)}
         </span>
       </div>
@@ -277,7 +277,7 @@ export default function ReportedPostsTable() {
           ) : (
             <User className="w-4 h-4 text-purple-400" />
           )}
-          <span className="text-xs text-white/60">{row.type_label || (row.report_type === 'post' ? 'Post' : 'User')}</span>
+          <span className="text-sm text-white/60">{row.type_label || (row.report_type === 'post' ? 'Post' : 'User')}</span>
         </div>
       ),
     },
@@ -335,7 +335,7 @@ export default function ReportedPostsTable() {
     {
       header: "Reason",
       accessor: (row) => (
-        <span className="px-2 py-1 rounded text-xs bg-purple-500/20 text-purple-300">
+        <span className="px-2 py-1 rounded text-sm bg-purple-500/20 text-purple-300">
           {getReasonLabel(row.reason)}
         </span>
       ),
@@ -347,7 +347,7 @@ export default function ReportedPostsTable() {
     },
     {
       header: "Reported At",
-      accessor: (row) => <span className="text-sm">{formatDate(row.created_at)}</span>,
+      accessor: (row) => <span className="text-base">{formatDate(row.created_at)}</span>,
     },
     {
       header: "Reviewed By",
@@ -391,7 +391,7 @@ export default function ReportedPostsTable() {
               </>
             )}
             {!isPending && (
-              <span className="text-xs text-white/40">Handled</span>
+              <span className="text-sm text-white/40">Handled</span>
             )}
             <button
               onClick={(e) => handleDeleteClick(row, e)}
@@ -482,7 +482,7 @@ export default function ReportedPostsTable() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-white leading-tight">Report Review</h3>
-                  <p className="text-sm text-white/50">{selectedReport.type_label || (selectedReport.report_type === 'post' ? 'Post Report' : 'User Report')}</p>
+                  <p className="text-base text-white/50">{selectedReport.type_label || (selectedReport.report_type === 'post' ? 'Post Report' : 'User Report')}</p>
                 </div>
               </div>
               <button
@@ -498,7 +498,7 @@ export default function ReportedPostsTable() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 {/* Reporter Card */}
                 <div className="bg-white/5 rounded-2xl p-5 border border-white/10">
-                  <h4 className="text-xs font-bold text-white/40 uppercase tracking-wider mb-4">Reporter Information</h4>
+                  <h4 className="text-sm font-bold text-white/40 uppercase tracking-wider mb-4">Reporter Information</h4>
                   <div className="flex items-center gap-4">
                     <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-purple-500/30">
                       <Image
@@ -510,15 +510,15 @@ export default function ReportedPostsTable() {
                     </div>
                     <div>
                       <p className="text-lg font-bold text-white leading-none mb-1">{selectedReport.reporter?.display_name || "Anonymous"}</p>
-                      <p className="text-sm text-purple-400 font-medium tracking-tight">@{selectedReport.reporter?.username || "unknown"}</p>
-                      <p className="text-xs text-white/40 mt-1">{selectedReport.reporter?.email || "No email available"}</p>
+                      <p className="text-base text-purple-400 font-medium tracking-tight">@{selectedReport.reporter?.username || "unknown"}</p>
+                      <p className="text-sm text-white/40 mt-1">{selectedReport.reporter?.email || "No email available"}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Reported User/Author Card */}
                 <div className="bg-white/5 rounded-2xl p-5 border border-white/10">
-                  <h4 className="text-xs font-bold text-white/40 uppercase tracking-wider mb-4">
+                  <h4 className="text-sm font-bold text-white/40 uppercase tracking-wider mb-4">
                     {selectedReport.report_type === 'post' ? 'Post Author Details' : 'Reported User Details'}
                   </h4>
                   {(() => {
@@ -539,8 +539,8 @@ export default function ReportedPostsTable() {
                           </div>
                           <div>
                             <p className="text-lg font-bold text-white leading-none mb-1">{reportedUser?.display_name || "N/A"}</p>
-                            <p className="text-sm text-red-400 font-medium tracking-tight">@{reportedUser?.username || "unknown"}</p>
-                            <p className="text-xs text-white/40 mt-1">{reportedUser?.email || "No email available"}</p>
+                            <p className="text-base text-red-400 font-medium tracking-tight">@{reportedUser?.username || "unknown"}</p>
+                            <p className="text-sm text-white/40 mt-1">{reportedUser?.email || "No email available"}</p>
                           </div>
                         </div>
 
@@ -550,7 +550,7 @@ export default function ReportedPostsTable() {
                             <button
                               onClick={() => reportedUser?.id && handleBlockGlobal(reportedUser.id)}
                               disabled={isBlockingGlobal}
-                              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold transition disabled:opacity-50 cursor-pointer"
+                              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-bold transition disabled:opacity-50 cursor-pointer"
                             >
                               <UserX className="w-4 h-4" />
                               {isBlockingGlobal ? "Blocking..." : "Block Global"}
@@ -559,7 +559,7 @@ export default function ReportedPostsTable() {
                             <button
                               onClick={() => reportedUser?.id && handleUnblockGlobal(reportedUser.id)}
                               disabled={isUnblockingGlobal}
-                              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-green-500/10 hover:bg-green-500/20 text-green-400 text-xs font-bold transition disabled:opacity-50 cursor-pointer"
+                              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-green-500/10 hover:bg-green-500/20 text-green-400 text-sm font-bold transition disabled:opacity-50 cursor-pointer"
                             >
                               <CheckCircle2 className="w-4 h-4" />
                               {isUnblockingGlobal ? "Unblocking..." : "Unblock Global"}
@@ -570,7 +570,7 @@ export default function ReportedPostsTable() {
                             <button
                               onClick={() => reportedUser?.id && selectedReport.reporter?.id && handleBlockLocal(selectedReport.reporter.id, reportedUser.id)}
                               disabled={isBlockingLocal}
-                              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 text-xs font-bold transition disabled:opacity-50 cursor-pointer"
+                              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 text-sm font-bold transition disabled:opacity-50 cursor-pointer"
                             >
                               <UserMinus className="w-4 h-4" />
                               {isBlockingLocal ? "Blocking..." : "Block by this user"}
@@ -579,7 +579,7 @@ export default function ReportedPostsTable() {
                             <button
                               onClick={() => reportedUser?.id && selectedReport.reporter?.id && handleUnblockLocal(selectedReport.reporter.id, reportedUser.id)}
                               disabled={isUnblockingLocal}
-                              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-xs font-bold transition disabled:opacity-50 cursor-pointer"
+                              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-sm font-bold transition disabled:opacity-50 cursor-pointer"
                             >
                               <User className="w-4 h-4" />
                               {isUnblockingLocal ? "Unblocking..." : "Unblock by this user"}
@@ -596,13 +596,13 @@ export default function ReportedPostsTable() {
               <div className="bg-white/5 rounded-2xl p-6 border border-white/10 mb-8">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h4 className="text-xs font-bold text-white/40 uppercase tracking-wider mb-1">Reason for Report</h4>
-                    <p className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm font-bold inline-block border border-purple-500/30">
+                    <h4 className="text-sm font-bold text-white/40 uppercase tracking-wider mb-1">Reason for Report</h4>
+                    <p className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-base font-bold inline-block border border-purple-500/30">
                       {getReasonLabel(selectedReport.reason)}
                     </p>
                   </div>
                   <div className="text-right">
-                    <h4 className="text-xs font-bold text-white/40 uppercase tracking-wider mb-1">Status</h4>
+                    <h4 className="text-sm font-bold text-white/40 uppercase tracking-wider mb-1">Status</h4>
                     <div className="inline-block">{getStatusBadge(selectedReport.status)}</div>
                   </div>
                 </div>
@@ -614,7 +614,7 @@ export default function ReportedPostsTable() {
                       className="w-full p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition flex items-center justify-between cursor-pointer"
                     >
                       <div>
-                        <h4 className="text-xs font-bold text-white/40 uppercase tracking-wider mb-1">Reported Post</h4>
+                        <h4 className="text-sm font-bold text-white/40 uppercase tracking-wider mb-1">Reported Post</h4>
                         <p className="text-white font-bold text-lg">{selectedReport.post_title || "View Post Content"}</p>
                       </div>
                       <div className="text-white/40">{showPostContent ? '▼' : '▶'}</div>
@@ -637,8 +637,8 @@ export default function ReportedPostsTable() {
                       className="w-full p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition flex items-center justify-between cursor-pointer"
                     >
                       <div>
-                        <h4 className="text-xs font-bold text-white/40 uppercase tracking-wider mb-1">Chat History</h4>
-                        <p className="text-white font-bold text-sm">View conversation between users</p>
+                        <h4 className="text-sm font-bold text-white/40 uppercase tracking-wider mb-1">Chat History</h4>
+                        <p className="text-white font-bold text-base">View conversation between users</p>
                       </div>
                       <div className="text-white/40">{showChatHistory ? '▼' : '▶'}</div>
                     </button>
@@ -653,7 +653,7 @@ export default function ReportedPostsTable() {
                 )}
 
                 <div>
-                  <h4 className="text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Detailed Description</h4>
+                  <h4 className="text-sm font-bold text-white/40 uppercase tracking-wider mb-2">Detailed Description</h4>
                   <p className="text-white/80 leading-relaxed text-base italic border-l-4 border-purple-500/50 pl-4 py-1">
                     {selectedReport.description || "No description provided by the reporter."}
                   </p>
@@ -661,7 +661,7 @@ export default function ReportedPostsTable() {
               </div>
 
               {/* metadata */}
-              <div className="flex flex-wrap gap-6 text-sm text-white/40">
+              <div className="flex flex-wrap gap-6 text-base text-white/40">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
                   <span>Reported on: {formatDate(selectedReport.created_at)}</span>
@@ -770,7 +770,7 @@ function PostContentPreview({ postId, onDelete, isDeleting }: { postId: number |
         </div>
       )}
 
-      <div className="flex items-center gap-4 text-sm text-white/40 mb-4">
+      <div className="flex items-center gap-4 text-base text-white/40 mb-4">
         <span>👍 {post.likes_count || 0} likes</span>
         <span>💬 {post.comments_count || 0} comments</span>
         <span>🔄 {post.shares_count || 0} shares</span>
@@ -807,15 +807,15 @@ function ChatHistoryPreview({ reporterId, reportedId }: { reporterId: number | s
 
   return (
     <div className="mt-4 p-4 bg-white/5 rounded-xl border border-white/10 max-h-96 overflow-y-auto custom-scrollbar">
-      <p className="text-xs text-white/40 mb-4">Showing last {messages.length} messages</p>
+      <p className="text-sm text-white/40 mb-4">Showing last {messages.length} messages</p>
       <div className="space-y-3">
         {messages.slice().reverse().map((msg: any) => (
           <div key={msg.id} className="p-3 bg-white/5 rounded-lg">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-bold text-purple-400">@{msg.sender?.username || "Unknown"}</span>
-              <span className="text-xs text-white/40">{new Date(msg.created_at).toLocaleString()}</span>
+              <span className="text-base font-bold text-purple-400">@{msg.sender?.username || "Unknown"}</span>
+              <span className="text-sm text-white/40">{new Date(msg.created_at).toLocaleString()}</span>
             </div>
-            <p className="text-white/80 text-sm">{msg.content}</p>
+            <p className="text-white/80 text-base">{msg.content}</p>
           </div>
         ))}
       </div>

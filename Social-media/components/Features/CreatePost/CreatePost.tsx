@@ -333,7 +333,7 @@ const CreatePost = ({
                         }`}
                     >
                       <Icon size={18} />
-                      <span className="text-sm font-medium">{tab.label}</span>
+                      <span className="text-base font-medium">{tab.label}</span>
                     </button>
                   );
                 })}
@@ -363,12 +363,12 @@ const CreatePost = ({
                   className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300"
                   placeholder="Enter your post title..."
                 />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-base">
                   {titleValue?.length || 0}/300
                 </div>
               </div>
               {errors.title && (
-                <p className="text-red-400 text-sm">{errors.title.message}</p>
+                <p className="text-red-400 text-base">{errors.title.message}</p>
               )}
             </div>
 
@@ -379,7 +379,7 @@ const CreatePost = ({
                 {tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm border border-purple-400/30"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-base border border-purple-400/30"
                   >
                     #{tag}
                     <button
@@ -402,7 +402,7 @@ const CreatePost = ({
                 disabled={tags.length >= 5}
               />
               {tags.length >= 5 && (
-                <p className="text-yellow-400 text-sm">
+                <p className="text-yellow-400 text-base">
                   Maximum 5 tags allowed
                 </p>
               )}
@@ -418,7 +418,7 @@ const CreatePost = ({
                           type="button"
                           onClick={() => handleInterestClick(interest.name)}
                           disabled={isDisabled}
-                          className={`px-3 py-1 rounded-full text-xs transition-all ${isSelected
+                          className={`px-3 py-1 rounded-full text-sm transition-all ${isSelected
                             ? "bg-purple-500/30 text-purple-300 border border-purple-400/50"
                             : isDisabled
                               ? "bg-white/5 text-white/30 border border-white/10 cursor-not-allowed"
@@ -462,10 +462,10 @@ const CreatePost = ({
                   <p className="text-white mb-2">
                     Click to upload Image
                   </p>
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-gray-400 text-base">
                     Images up to 10MB each
                   </p>
-                  <p className="text-gray-500 text-xs mt-1">
+                  <p className="text-gray-500 text-sm mt-1">
                     Supported: JPG, PNG, WEBP, JPEG
                   </p>
                 </div>
@@ -479,7 +479,7 @@ const CreatePost = ({
                 />
 
                 <div className="space-y-2 mt-4">
-                  <label className="block text-white text-sm font-medium">Or paste a video link (YouTube, Vimeo, etc.)</label>
+                  <label className="block text-white text-base font-medium">Or paste a video link (YouTube, Vimeo, etc.)</label>
                   <input
                     {...register("videoUrl")}
                     type="url"
@@ -578,7 +578,7 @@ const CreatePost = ({
                   placeholder="https://example.com"
                 />
                 {errors.linkUrl && (
-                  <p className="text-red-400 text-sm">
+                  <p className="text-red-400 text-base">
                     {errors.linkUrl.message}
                   </p>
                 )}
@@ -616,7 +616,7 @@ const CreatePost = ({
         {/* Character Count for Content */}
         {activeTab === "text" && contentValue && (
           <div className="mt-4 text-center">
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400 text-base">
               Content length: {contentValue.length} characters
             </p>
           </div>
@@ -629,7 +629,7 @@ const CreatePost = ({
         maxWidth="4xl"
       >
         {mediaPreviews.length === 0 ? (
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-400 text-base">
             No media selected yet. Upload images or videos to preview them here.
           </p>
         ) : (
@@ -662,13 +662,13 @@ const CreatePost = ({
                         preload="metadata"
                         playsInline
                       />
-                      <div className="absolute top-2 left-2 px-2 py-1 bg-black/70 rounded text-white text-xs font-medium">
+                      <div className="absolute top-2 left-2 px-2 py-1 bg-black/70 rounded text-white text-sm font-medium">
                         Video
                       </div>
                     </div>
                   ) : (
                     <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                      <p className="text-white/60 text-sm">Unsupported file type</p>
+                      <p className="text-white/60 text-base">Unsupported file type</p>
                     </div>
                   )}
                   <button
@@ -679,7 +679,7 @@ const CreatePost = ({
                     <IoMdClose size={16} />
                     <span className="sr-only">Remove media</span>
                   </button>
-                  <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 rounded text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 rounded text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                     {media.file.name.length > 20
                       ? `${media.file.name.substring(0, 20)}...`
                       : media.file.name}

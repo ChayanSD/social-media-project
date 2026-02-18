@@ -40,7 +40,7 @@ const MessagePopup = ({ isOpen, onClose }: MessagePopupProps) => {
   const [selectedRoomId, setSelectedRoomId] = useState<number | string | null>(null);
   const { data: roomsResponse } = useGetChatRoomsQuery(undefined, { skip: !isOpen });
   const [deleteRoom] = useDeleteChatRoomMutation();
-  
+
   // Initialize WebSocket connection when popup is open
   useChatWebSocket({ enabled: isOpen });
 
@@ -101,14 +101,14 @@ const MessagePopup = ({ isOpen, onClose }: MessagePopupProps) => {
     <div className="fixed bottom-4 right-4 z-50 w-80 h-96 bg-[#06133f] rounded-lg shadow-2xl flex flex-col animate-in slide-in-from-bottom-2 duration-300">
       {selectedUser ? (
         selectedUser.isGroup ? (
-          <RoomConversationView 
+          <RoomConversationView
             room={{
               id: selectedUser.id,
               name: selectedUser.name,
               roomId: selectedUser.roomId,
               isGroup: true,
-            }} 
-            onBack={handleBackToList} 
+            }}
+            onBack={handleBackToList}
           />
         ) : (
           <ConversationView user={selectedUser} onBack={handleBackToList} />
@@ -118,55 +118,53 @@ const MessagePopup = ({ isOpen, onClose }: MessagePopupProps) => {
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-700 bg-[#06133f] rounded-t-lg">
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-white text-sm">Messages</h3>
+              <h3 className="font-semibold text-white text-base">Messages</h3>
               {unreadCount > 0 && (
-                <span className="bg-[#ff4500] text-white text-xs px-2 py-1 rounded-full font-medium">
+                <span className="bg-[#ff4500] text-white text-sm px-2 py-1 rounded-full font-medium">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
             </div>
-                  <div className="flex items-center gap-1 text-white">
-                    {activeTab === "rooms" && (
-                      <button 
-                        onClick={() => setShowCreateRoomModal(true)}
-                        className="p-1.5 hover:bg-gray-500 rounded-full transition-colors"
-                        title="Create Room"
-                      >
-                        <AiOutlinePlus size={14} />
-                      </button>
-                    )}
-                    <button 
-                      onClick={handleClose}
-                      className="p-1.5 hover:bg-gray-500 rounded-full transition-colors"
-                      title="Close"
-                    >
-                      <AiOutlineClose size={14} />
-                    </button>
-                  </div>
-                </div>
+            <div className="flex items-center gap-1 text-white">
+              {activeTab === "rooms" && (
+                <button
+                  onClick={() => setShowCreateRoomModal(true)}
+                  className="p-1.5 hover:bg-gray-500 rounded-full transition-colors"
+                  title="Create Room"
+                >
+                  <AiOutlinePlus size={14} />
+                </button>
+              )}
+              <button
+                onClick={handleClose}
+                className="p-1.5 hover:bg-gray-500 rounded-full transition-colors"
+                title="Close"
+              >
+                <AiOutlineClose size={14} />
+              </button>
+            </div>
+          </div>
 
           {/* Tabs */}
           <div className="px-3 pt-2 border-b border-gray-800 bg-[#06133f]">
-            <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-2 text-sm">
               <button
                 type="button"
                 onClick={() => setActiveTab("users")}
-                className={`flex-1 py-1.5 rounded-full cursor-pointer transition-colors ${
-                  activeTab === "users"
-                    ? "bg-white text-black font-semibold"
-                    : "bg-transparent text-white/60 hover:text-white"
-                }`}
+                className={`flex-1 py-1.5 rounded-full cursor-pointer transition-colors ${activeTab === "users"
+                  ? "bg-white text-black font-semibold"
+                  : "bg-transparent text-white/60 hover:text-white"
+                  }`}
               >
                 Users
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("rooms")}
-                className={`flex-1 py-1.5 rounded-full cursor-pointer transition-colors ${
-                  activeTab === "rooms"
-                    ? "bg-white text-black font-semibold"
-                    : "bg-transparent text-white/60 hover:text-white"
-                }`}
+                className={`flex-1 py-1.5 rounded-full cursor-pointer transition-colors ${activeTab === "rooms"
+                  ? "bg-white text-black font-semibold"
+                  : "bg-transparent text-white/60 hover:text-white"
+                  }`}
               >
                 Rooms
               </button>
@@ -182,7 +180,7 @@ const MessagePopup = ({ isOpen, onClose }: MessagePopupProps) => {
                 placeholder={activeTab === "users" ? "Search users..." : "Search messages..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full text-white pl-9 pr-4 py-2 border border-gray-800 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-transparent text-sm"
+                className="w-full text-white pl-9 pr-4 py-2 border border-gray-800 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-transparent text-base"
               />
             </div>
           </div>
@@ -193,8 +191,8 @@ const MessagePopup = ({ isOpen, onClose }: MessagePopupProps) => {
             {activeTab === "users" ? (
               <MessageUserList searchQuery={searchQuery} onUserSelect={handleUserSelect} />
             ) : (
-              <MessageList 
-                searchQuery={searchQuery} 
+              <MessageList
+                searchQuery={searchQuery}
                 onUserSelect={handleUserSelect}
                 onManageRoom={handleManageRoom}
                 onDeleteRoom={handleDeleteRoom}
@@ -203,7 +201,7 @@ const MessagePopup = ({ isOpen, onClose }: MessagePopupProps) => {
           </div>
         </>
       )}
-      
+
       {/* Create Room Modal */}
       <CreateRoomModal
         isOpen={showCreateRoomModal}

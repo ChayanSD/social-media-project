@@ -128,7 +128,7 @@ const ConversationMessagesModal: React.FC<ConversationMessagesModalProps> = ({
                         />
                       </div>
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-[#6B83FA] flex items-center justify-center text-white font-semibold text-sm border border-white/20">
+                      <div className="w-10 h-10 rounded-full bg-[#6B83FA] flex items-center justify-center text-white font-semibold text-base border border-white/20">
                         {getUserInitials(senderName)}
                       </div>
                     )}
@@ -137,14 +137,14 @@ const ConversationMessagesModal: React.FC<ConversationMessagesModalProps> = ({
                   {/* Message Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-white">
+                      <span className="text-base font-medium text-white">
                         {senderName}
                       </span>
-                      <span className="text-xs text-white/50">
+                      <span className="text-sm text-white/50">
                         {formatDate(message.created_at)}
                       </span>
                     </div>
-                    <div className="bg-white/10 rounded-lg px-4 py-2 text-white text-sm">
+                    <div className="bg-white/10 rounded-lg px-4 py-2 text-white text-base">
                       {message.content || "(No content)"}
                     </div>
                   </div>

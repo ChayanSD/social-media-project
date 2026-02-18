@@ -474,7 +474,7 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
               unoptimized={true}
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6c3f79] via-[#995a98] to-[#6c3f79] flex items-center justify-center text-white text-xs font-semibold">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6c3f79] via-[#995a98] to-[#6c3f79] flex items-center justify-center text-white text-sm font-semibold">
               {updatedUser.name.substring(0, 2).toUpperCase()}
             </div>
           )}
@@ -482,8 +482,8 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-white text-sm truncate">{updatedUser.name}</h3>
-          <p className="text-xs text-gray-500">
+          <h3 className="font-medium text-white text-base truncate">{updatedUser.name}</h3>
+          <p className="text-sm text-gray-500">
             {updatedUser.isOnline ? 'Online' : (updatedUser.lastSeen ? `Last seen ${formatLastSeen(updatedUser.lastSeen)}` : 'Offline')}
           </p>
         </div>
@@ -503,14 +503,14 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
               <button
                 onClick={handleBlockUser}
                 disabled={isBlocking || isUnblocking}
-                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed first:rounded-t-lg"
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-base text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed first:rounded-t-lg"
               >
                 <MdBlock size={18} />
                 {isBlocked ? 'Unblock User' : 'Block User'}
               </button>
               <button
                 onClick={handleReportUser}
-                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-gray-800 transition-colors last:rounded-b-lg"
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-base text-red-400 hover:bg-gray-800 transition-colors last:rounded-b-lg"
               >
                 <MdReport size={18} />
                 Report User
@@ -530,10 +530,10 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
             }`}>
             <div className="flex items-start gap-3">
               <div className={`flex-1 ${messageRequestInfo.isReceiver ? 'text-yellow-400' : 'text-blue-400'}`}>
-                <p className="text-sm font-medium mb-1">
+                <p className="text-base font-medium mb-1">
                   {messageRequestInfo.isReceiver ? '📩 Message Request Received' : '⏱ Message Request Sent'}
                 </p>
-                <p className="text-sm text-gray-300 mb-3">
+                <p className="text-base text-gray-300 mb-3">
                   {messageRequestInfo.request?.content || "No message content"}
                 </p>
                 {messageRequestInfo.isReceiver ? (
@@ -541,7 +541,7 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
                     <button
                       onClick={handleAcceptRequest}
                       disabled={isAccepting || isRejecting}
-                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-base font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {isAccepting ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
@@ -552,7 +552,7 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
                     <button
                       onClick={handleRejectRequest}
                       disabled={isAccepting || isRejecting}
-                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-base font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {isRejecting ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
@@ -565,7 +565,7 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
                   <button
                     onClick={handleCancelRequest}
                     disabled={isCancelling}
-                    className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-base font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
                     {isCancelling ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
@@ -583,12 +583,12 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
           <div className="flex items-center justify-center py-8">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-              <p className="text-sm text-gray-500">Loading messages...</p>
+              <p className="text-base text-gray-500">Loading messages...</p>
             </div>
           </div>
         ) : messages.length === 0 && !messageRequestInfo ? (
           <div className="flex items-center justify-center py-8">
-            <p className="text-sm text-gray-500">No messages yet. Start the conversation!</p>
+            <p className="text-base text-gray-500">No messages yet. Start the conversation!</p>
           </div>
         ) : (
           <>
@@ -637,11 +637,11 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
         {blockStatus.i_blocked_them ? (
           <div className="flex items-center justify-center p-4 bg-gray-800/50 rounded-lg border border-gray-700">
             <div className="text-center flex">
-              <p className="text-xs text-gray-400 text-nowrap">You have blocked {user.name} ,   </p>
+              <p className="text-sm text-gray-400 text-nowrap">You have blocked {user.name} ,   </p>
               <button
                 onClick={handleBlockUser}
                 disabled={isBlocking || isUnblocking}
-                className="text-xs cursor-pointer text-green-600 hover:text-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="text-sm cursor-pointer text-green-600 hover:text-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isBlocking || isUnblocking ? 'Unblocking...' : 'Unblock'}
               </button>
@@ -649,7 +649,7 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
           </div>
         ) : blockStatus.they_blocked_me ? (
           <div className="flex items-center justify-center p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-            <p className="text-xs text-gray-400">This person has blocked you. Can&apos;t send message anymore.</p>
+            <p className="text-sm text-gray-400">This person has blocked you. Can&apos;t send message anymore.</p>
           </div>
         ) : (
           <div className="relative" ref={emojiPickerRef}>
@@ -702,7 +702,7 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
                 }}
                 rows={1}
                 placeholder={`Message ${user.name}...`}
-                className="flex-1 px-3 py-3 bg-gray-800 border border-gray-700 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-transparent text-sm text-white resize-none custom-scroll"
+                className="flex-1 px-3 py-3 bg-gray-800 border border-gray-700 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-700 focus:border-transparent text-base text-white resize-none custom-scroll"
               />
               <button
                 type="submit"

@@ -10,10 +10,10 @@ const AboutUs = () => {
     const statsRef = useRef<HTMLDivElement>(null);
     const timersRef = useRef<NodeJS.Timeout[]>([]);
     const observerRef = useRef<IntersectionObserver | null>(null);
-    
+
     // Fetch stats from API
     const { data: statsData, isLoading: isLoadingStats } = useGetPublicStatsQuery();
-    
+
     // Reset animation when new data arrives
     useEffect(() => {
         if (statsData?.data) {
@@ -64,33 +64,33 @@ const AboutUs = () => {
                 { number: '24/7', label: 'Support', targetValue: null }, // Special case
             ];
         }
-        
+
         // Determine format based on value
         const formatUserValue = (value: number) => {
             if (value >= 1000) return `${(value / 1000).toFixed(0)}K+`;
             return `${value}+`;
         };
-        
+
         const formatPostValue = (value: number) => {
             if (value >= 1000) return `${(value / 1000).toFixed(0)}K+`;
             return `${value}+`;
         };
-        
+
         return [
-            { 
-                number: formatUserValue(apiData.total_users), 
-                label: 'Active Users', 
-                targetValue: apiData.total_users 
+            {
+                number: formatUserValue(apiData.total_users),
+                label: 'Active Users',
+                targetValue: apiData.total_users
             },
-            { 
-                number: `${apiData.total_communities}+`, 
-                label: 'Communities', 
-                targetValue: apiData.total_communities 
+            {
+                number: `${apiData.total_communities}+`,
+                label: 'Communities',
+                targetValue: apiData.total_communities
             },
-            { 
-                number: formatPostValue(apiData.total_posts), 
-                label: 'Posts Shared', 
-                targetValue: apiData.total_posts 
+            {
+                number: formatPostValue(apiData.total_posts),
+                label: 'Posts Shared',
+                targetValue: apiData.total_posts
             },
             { number: '24/7', label: 'Support', targetValue: null }, // Special case
         ];
@@ -112,14 +112,14 @@ const AboutUs = () => {
         // Clear any existing timers first
         timersRef.current.forEach(timer => clearInterval(timer));
         timersRef.current = [];
-        
+
         if (isLoadingStats || !statsData?.data) return;
-        
+
         // Check if already animated using a ref to avoid stale closure
         if (hasAnimated) return;
-        
+
         setHasAnimated(true);
-        
+
         const apiData = statsData.data;
         const targetValues = [
             apiData.total_users,
@@ -127,10 +127,10 @@ const AboutUs = () => {
             apiData.total_posts,
             null, // Support - no animation
         ];
-        
+
         // Reset animated stats to 0
         setAnimatedStats([0, 0, 0, 0]);
-        
+
         // Animate each stat
         targetValues.forEach((targetValue, index) => {
             if (targetValue === null || targetValue === 0) {
@@ -174,7 +174,7 @@ const AboutUs = () => {
                     });
                 }
             }, stepDuration);
-            
+
             timersRef.current.push(timer);
         });
     }, [isLoadingStats, statsData, hasAnimated]);
@@ -192,11 +192,11 @@ const AboutUs = () => {
 
         const checkVisibilityAndAnimate = () => {
             if (!statsRef.current || hasAnimated) return;
-            
+
             const rect = statsRef.current.getBoundingClientRect();
             const windowHeight = window.innerHeight || document.documentElement.clientHeight;
             const isVisible = rect.top < windowHeight * 1.2 && rect.bottom > -100;
-            
+
             if (isVisible) {
                 startAnimation();
             }
@@ -290,12 +290,12 @@ const AboutUs = () => {
                                     className="bg-white/5 rounded-xl border border-white/10 p-6 text-center"
                                 >
                                     <div className="text-3xl font-bold text-white mb-2">
-                                        {stat.targetValue === null 
-                                            ? stat.number 
+                                        {stat.targetValue === null
+                                            ? stat.number
                                             : formatNumber(animatedStats[index], stat.number)
                                         }
                                     </div>
-                                    <div className="text-white/60 text-sm">{stat.label}</div>
+                                    <div className="text-white/60 text-base">{stat.label}</div>
                                 </div>
                             ))}
                         </div>
@@ -315,7 +315,7 @@ const AboutUs = () => {
                                     {value.icon}
                                 </div>
                                 <h3 className="text-lg font-semibold text-white mb-2">{value.title}</h3>
-                                <p className="text-white/60 text-sm">{value.description}</p>
+                                <p className="text-white/60 text-base">{value.description}</p>
                             </div>
                         ))}
                     </div>

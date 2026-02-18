@@ -98,11 +98,11 @@ export default function MarketplaceSidebar({
               </li>
             ) : isError ? (
               <li className="px-3 py-2">
-                <p className="text-red-400 text-sm">Failed to load categories</p>
+                <p className="text-red-400 text-base">Failed to load categories</p>
               </li>
             ) : categories.length === 0 ? (
               <li className="px-3 py-2">
-                <p className="text-gray-400 text-sm">No categories available</p>
+                <p className="text-gray-400 text-base">No categories available</p>
               </li>
             ) : (
               categories.map((category) => {
@@ -113,26 +113,23 @@ export default function MarketplaceSidebar({
                   <li key={category.id}>
                     <button
                       onClick={() => handleCategoryClick(category.name)}
-                      className={`w-full flex cursor-pointer items-center justify-between px-3 py-2 rounded-md text-base transition-all duration-150 text-left ${
-                        isCategoryActive
+                      className={`w-full flex cursor-pointer items-center justify-between px-3 py-2 rounded-md text-base transition-all duration-150 text-left ${isCategoryActive
                           ? "bg-[#fc859d3a] text-white"
                           : "hover:bg-white/10 text-gray-100"
-                      }`}
+                        }`}
                     >
                       <span className="font-medium">{category.name}</span>
                       {category.subcategories.length > 0 && (
                         <span
-                          className={`inline-block w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] border-t-gray-300 transition-transform duration-300 ${
-                            isExpanded ? "" : "-rotate-90"
-                          }`}
+                          className={`inline-block w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] border-t-gray-300 transition-transform duration-300 ${isExpanded ? "" : "-rotate-90"
+                            }`}
                         />
                       )}
                     </button>
                     {category.subcategories.length > 0 && (
                       <div
-                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                          isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                        }`}
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                          }`}
                       >
                         <ul className="ml-4 mt-1 space-y-1 border-l border-white/10 pl-3">
                           {category.subcategories.map((subcategory) => {
@@ -146,11 +143,10 @@ export default function MarketplaceSidebar({
                                 <Link
                                   href={href}
                                   onClick={onClose}
-                                  className={`block px-3 py-1.5 rounded-md text-sm transition-all duration-150 ${
-                                    isActive
+                                  className={`block px-3 py-1.5 rounded-md text-base transition-all duration-150 ${isActive
                                       ? "bg-[#fc859d3a] text-white"
                                       : "hover:bg-white/10 text-gray-300"
-                                  }`}
+                                    }`}
                                 >
                                   {subcategory.name}
                                 </Link>

@@ -43,7 +43,7 @@ const StoryItem: React.FC<StoryItemProps> = ({ story, onClick }) => {
           </div>
         )}
       </div>
-      <p className="text-xs text-white text-center mt-1 truncate w-20">
+      <p className="text-sm text-white text-center mt-1 truncate w-20">
         {story.author}
       </p>
     </div>

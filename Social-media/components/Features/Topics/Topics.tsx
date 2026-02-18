@@ -164,11 +164,10 @@ const Topics = () => {
                             <button
                                 key={category.id}
                                 onClick={() => setSelectedCategory(category.id)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
-                                    selectedCategory === category.id
-                                        ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white'
-                                        : 'bg-white/5 hover:bg-white/10 text-white/80 border border-white/10'
-                                }`}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${selectedCategory === category.id
+                                    ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white'
+                                    : 'bg-white/5 hover:bg-white/10 text-white/80 border border-white/10'
+                                    }`}
                             >
                                 {category.icon}
                                 <span>{category.label}</span>
@@ -202,16 +201,16 @@ const Topics = () => {
                                         </div>
                                         <div>
                                             <h3 className="font-semibold text-white">{topic.name}</h3>
-                                            <p className="text-sm text-purple-400">{topic.hashtag}</p>
+                                            <p className="text-base text-purple-400">{topic.hashtag}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-1 text-green-400 text-sm font-medium">
+                                    <div className="flex items-center gap-1 text-green-400 text-base font-medium">
                                         <IoTrendingUp className="w-4 h-4" />
                                         <span>{topic.trend}</span>
                                     </div>
                                 </div>
-                                <p className="text-white/60 text-sm mb-4">{topic.description}</p>
-                                <div className="flex items-center justify-between text-sm">
+                                <p className="text-white/60 text-base mb-4">{topic.description}</p>
+                                <div className="flex items-center justify-between text-base">
                                     <div className="flex items-center gap-4">
                                         <div className="flex items-center gap-1 text-white/60">
                                             <FiMessageCircle className="w-4 h-4" />
@@ -243,11 +242,11 @@ const Topics = () => {
                                 <div className="flex items-start justify-between mb-3">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2 mb-2">
-                                            <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full">
+                                            <span className="text-sm px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full">
                                                 {post.topic}
                                             </span>
-                                            <span className="text-white/40 text-sm">by {post.author}</span>
-                                            <span className="text-white/40 text-sm flex items-center gap-1">
+                                            <span className="text-white/40 text-base">by {post.author}</span>
+                                            <span className="text-white/40 text-base flex items-center gap-1">
                                                 <FiClock className="w-3 h-3" />
                                                 {post.time}
                                             </span>

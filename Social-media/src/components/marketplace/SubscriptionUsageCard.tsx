@@ -41,8 +41,8 @@ export default function SubscriptionUsageCard({
   const usagePercentage = isUnlimited
     ? 0
     : usage.posts_limit && usage.posts_limit > 0
-    ? (usage.posts_used / (usage.posts_limit ?? 0)) * 100
-    : 0;
+      ? (usage.posts_used / (usage.posts_limit ?? 0)) * 100
+      : 0;
 
   return (
     <div className="backdrop-blur-[17px] rounded-2xl p-4 md:p-6 border border-white/20 shadow-lg">
@@ -50,27 +50,26 @@ export default function SubscriptionUsageCard({
         <h3 className="text-xl font-semibold text-white">Subscription Status</h3>
         <div className="flex items-center gap-2">
           <CreditCard className="w-5 h-5 text-purple-400" />
-          <span className="text-sm font-medium text-white/80">{usage.plan_display_name || usage.plan_name}</span>
+          <span className="text-base font-medium text-white/80">{usage.plan_display_name || usage.plan_name}</span>
         </div>
       </div>
 
       {/* Usage Bar */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-white/70">Posts This Month</span>
-          <span className="text-sm font-semibold text-white">
+          <span className="text-base text-white/70">Posts This Month</span>
+          <span className="text-base font-semibold text-white">
             {usage.posts_used} / {isUnlimited ? "∞" : usage.posts_limit}
           </span>
         </div>
         <div className="w-full bg-white/10 rounded-full h-2.5 overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-300 ${
-              usagePercentage >= 90
+            className={`h-full rounded-full transition-all duration-300 ${usagePercentage >= 90
                 ? "bg-red-500"
                 : usagePercentage >= 70
-                ? "bg-yellow-500"
-                : "bg-green-500"
-            }`}
+                  ? "bg-yellow-500"
+                  : "bg-green-500"
+              }`}
             style={{ width: `${Math.min(usagePercentage, 100)}%` }}
           />
         </div>
@@ -81,7 +80,7 @@ export default function SubscriptionUsageCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm text-white/70">Remaining Posts</span>
+            <span className="text-base text-white/70">Remaining Posts</span>
           </div>
           <span className="text-lg font-bold text-white">
             {isUnlimited ? "∞" : usage.remaining_posts ?? 0}
@@ -90,8 +89,8 @@ export default function SubscriptionUsageCard({
         {usage.has_credits && (
           <div className="mt-2 pt-2 border-t border-white/10">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-white/70">Post Credits</span>
-              <span className="text-sm font-semibold text-green-400">
+              <span className="text-base text-white/70">Post Credits</span>
+              <span className="text-base font-semibold text-green-400">
                 {usage.credit_count} available
               </span>
             </div>
@@ -102,7 +101,7 @@ export default function SubscriptionUsageCard({
       {/* Actions - Only show when user cannot post */}
       {!usage.can_post && (
         <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 mb-4">
-          <p className="text-sm text-yellow-300 mb-3">
+          <p className="text-base text-yellow-300 mb-3">
             You&apos;ve reached your posting limit. Upgrade your plan to continue posting.
           </p>
           {onUpgrade && (

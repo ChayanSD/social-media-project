@@ -21,12 +21,12 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, addReply }) => {
 
   return (
     <div className="ml-4 mt-4">
-      <div className="bg-slate-800 p-3 rounded-md text-white text-sm">
+      <div className="bg-slate-800 p-3 rounded-md text-white text-base">
         <p><strong>{comment.author}</strong>: {comment.text}</p>
       </div>
       <button
         onClick={() => setReplying(!replying)}
-        className="text-xs text-blue-400 mt-1 hover:underline"
+        className="text-sm text-blue-400 mt-1 hover:underline"
       >
         Reply
       </button>
@@ -37,11 +37,11 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, addReply }) => {
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
             placeholder="Write a reply..."
-            className="w-full bg-slate-900 text-white p-2 rounded border border-slate-600 text-sm"
+            className="w-full bg-slate-900 text-white p-2 rounded border border-slate-600 text-base"
           />
           <button
             onClick={handleReply}
-            className="mt-1 text-sm text-white bg-blue-600 px-2 py-1 rounded"
+            className="mt-1 text-base text-white bg-blue-600 px-2 py-1 rounded"
           >
             Submit
           </button>

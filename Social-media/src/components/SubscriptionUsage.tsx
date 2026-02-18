@@ -35,18 +35,17 @@ export default function SubscriptionUsage() {
 
       <div className="space-y-3">
         <div>
-          <p className="text-sm text-white/60 mb-1">Current Plan</p>
+          <p className="text-base text-white/60 mb-1">Current Plan</p>
           <p className="text-lg font-medium text-white">{usage.plan_name}</p>
         </div>
 
         <div>
-          <p className="text-sm text-white/60 mb-1">Posts This Month</p>
+          <p className="text-base text-white/60 mb-1">Posts This Month</p>
           <div className="flex items-center gap-2">
             <div className="flex-1 bg-white/10 rounded-full h-2 overflow-hidden">
               <div
-                className={`h-full transition-all ${
-                  usage.can_post ? "bg-green-500" : "bg-red-500"
-                }`}
+                className={`h-full transition-all ${usage.can_post ? "bg-green-500" : "bg-red-500"
+                  }`}
                 style={{
                   width: isUnlimited
                     ? "100%"
@@ -54,7 +53,7 @@ export default function SubscriptionUsage() {
                 }}
               />
             </div>
-            <span className="text-sm text-white font-medium">
+            <span className="text-base text-white font-medium">
               {usage.posts_used}
               {!isUnlimited && ` / ${usage.posts_limit}`}
             </span>
@@ -63,7 +62,7 @@ export default function SubscriptionUsage() {
 
         {!isUnlimited && (
           <div>
-            <p className="text-sm text-white/60 mb-1">Remaining Posts</p>
+            <p className="text-base text-white/60 mb-1">Remaining Posts</p>
             <p className="text-xl font-bold text-white">
               {remaining !== null ? remaining : "Unlimited"}
             </p>
@@ -72,7 +71,7 @@ export default function SubscriptionUsage() {
 
         {usage.has_credits && (
           <div className="pt-2 border-t border-white/10">
-            <p className="text-sm text-white/60 mb-1">Available Credits</p>
+            <p className="text-base text-white/60 mb-1">Available Credits</p>
             <p className="text-lg font-medium text-green-400">
               {usage.credit_count} post{usage.credit_count !== 1 ? "s" : ""}
             </p>
@@ -81,7 +80,7 @@ export default function SubscriptionUsage() {
 
         {!usage.can_post && (
           <div className="pt-3 border-t border-white/10">
-            <p className="text-sm text-red-400">
+            <p className="text-base text-red-400">
               You&apos;ve reached your posting limit. Upgrade your plan or purchase additional posts.
             </p>
           </div>

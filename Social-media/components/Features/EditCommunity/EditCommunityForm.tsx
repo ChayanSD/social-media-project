@@ -28,7 +28,7 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
   const [dragActive, setDragActive] = useState({ cover_image: false, profile_image: false });
   const [community, setCommunity] = useState<CommunityItem | null>(null);
   const [isLoadingCommunity, setIsLoadingCommunity] = useState(true);
-  
+
   const { data: communitiesResponse } = useGetMyCommunitiesQuery();
   const [updateCommunity, { isLoading: isUpdating }] = useUpdateCommunityMutation();
 
@@ -39,16 +39,16 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
   // Find and load community data
   useEffect(() => {
     if (communitiesResponse) {
-      const communities = 
+      const communities =
         communitiesResponse.data ??
         communitiesResponse.results?.data ??
         communitiesResponse.communities ??
         [];
-      
+
       const foundCommunity = communities.find(
         (c) => c.name === communityName || c.id?.toString() === communityName
       );
-      
+
       if (foundCommunity) {
         setCommunity(foundCommunity);
         reset({
@@ -56,29 +56,29 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
           description: foundCommunity.description || "",
           visibility: foundCommunity.visibility || "public",
         });
-        
+
         // Set preview images from existing community
         if (foundCommunity.cover_image) {
-          const coverImagePath = foundCommunity.cover_image.startsWith("/") 
-            ? foundCommunity.cover_image.slice(1) 
+          const coverImagePath = foundCommunity.cover_image.startsWith("/")
+            ? foundCommunity.cover_image.slice(1)
             : foundCommunity.cover_image;
           setCoverImagePreview(`${coverImagePath}`);
         } else if (foundCommunity.banner) {
           // Fallback to banner if cover_image doesn't exist
-          const bannerPath = foundCommunity.banner.startsWith("/") 
-            ? foundCommunity.banner.slice(1) 
+          const bannerPath = foundCommunity.banner.startsWith("/")
+            ? foundCommunity.banner.slice(1)
             : foundCommunity.banner;
           setCoverImagePreview(`${bannerPath}`);
         }
         if (foundCommunity.profile_image) {
-          const profileImagePath = foundCommunity.profile_image.startsWith("/") 
-            ? foundCommunity.profile_image.slice(1) 
+          const profileImagePath = foundCommunity.profile_image.startsWith("/")
+            ? foundCommunity.profile_image.slice(1)
             : foundCommunity.profile_image;
           setProfileImagePreview(`${profileImagePath}`);
         } else if (foundCommunity.icon) {
           // Fallback to icon if profile_image doesn't exist
-          const iconPath = foundCommunity.icon.startsWith("/") 
-            ? foundCommunity.icon.slice(1) 
+          const iconPath = foundCommunity.icon.startsWith("/")
+            ? foundCommunity.icon.slice(1)
             : foundCommunity.icon;
           setProfileImagePreview(`${iconPath}`);
         }
@@ -115,14 +115,14 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
       router.push("/main/manage-communities");
     } catch (error: unknown) {
       console.error('Error updating community:', error);
-      const errorMessage = 
-        (error && typeof error === 'object' && 'data' in error && 
-         error.data && typeof error.data === 'object' && 
-         ('message' in error.data || 'detail' in error.data))
-          ? (error.data as { message?: string; detail?: string }).message || 
-            (error.data as { message?: string; detail?: string }).detail
+      const errorMessage =
+        (error && typeof error === 'object' && 'data' in error &&
+          error.data && typeof error.data === 'object' &&
+          ('message' in error.data || 'detail' in error.data))
+          ? (error.data as { message?: string; detail?: string }).message ||
+          (error.data as { message?: string; detail?: string }).detail
           : "Failed to update community. Please try again.";
-      
+
       toast.error("Error updating community", {
         description: errorMessage || "Failed to update community. Please try again.",
       });
@@ -144,15 +144,15 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
         alert('File size must be less than 5MB');
         return;
       }
-      
+
       // Create a FileList-like object to set in the form
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
       const fileList = dataTransfer.files;
-      
+
       // Update form value
       setValue(type, fileList);
-      
+
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
@@ -187,7 +187,7 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(prev => ({ ...prev, [type]: false }));
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileChange(e.dataTransfer.files[0], type);
     }
@@ -206,7 +206,7 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <p className="text-red-400 text-lg mb-2">Community not found</p>
-          <p className="text-white/60 text-sm mb-4">
+          <p className="text-white/60 text-base mb-4">
             The community you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to edit it.
           </p>
           <button
@@ -234,14 +234,14 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                 <h2 className="text-2xl font-semibold mb-2">
                   Edit Community Details
                 </h2>
-                <p className="text-sm text-gray-300">
+                <p className="text-base text-gray-300">
                   Update your community name and description
                 </p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block mb-1 text-sm font-medium">
+                  <label className="block mb-1 text-base font-medium">
                     Community Name
                   </label>
                   <input
@@ -251,7 +251,7 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                 </div>
 
                 <div>
-                  <label className="block mb-1 text-sm font-medium">
+                  <label className="block mb-1 text-base font-medium">
                     Description
                   </label>
                   <textarea
@@ -286,7 +286,7 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                 <h2 className="text-2xl font-semibold mb-2">
                   Update Community Style
                 </h2>
-                <p className="text-sm text-gray-300">
+                <p className="text-base text-gray-300">
                   Update your community&apos;s visual appearance
                 </p>
               </div>
@@ -296,11 +296,10 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                 <div>
                   <label className="block mb-3 font-medium">Cover Image</label>
                   <div
-                    className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer ${
-                      dragActive.cover_image
-                        ? 'border-purple-400 bg-purple-500/20 scale-105'
-                        : 'border-white/30 hover:border-purple-400 hover:bg-white/5'
-                    }`}
+                    className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer ${dragActive.cover_image
+                      ? 'border-purple-400 bg-purple-500/20 scale-105'
+                      : 'border-white/30 hover:border-purple-400 hover:bg-white/5'
+                      }`}
                     onDragEnter={(e) => handleDrag(e, 'cover_image')}
                     onDragLeave={(e) => handleDrag(e, 'cover_image')}
                     onDragOver={(e) => handleDrag(e, 'cover_image')}
@@ -315,7 +314,7 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                       onChange={(e) => handleFileChange(e.target.files?.[0] || null, 'cover_image')}
                       className="hidden"
                     />
-                    
+
                     {coverImagePreview ? (
                       <div className="relative w-full h-40">
                         <Image
@@ -332,7 +331,7 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                               </svg>
                             </div>
-                            <p className="text-sm text-white">Click to change</p>
+                            <p className="text-base text-white">Click to change</p>
                           </div>
                         </div>
                       </div>
@@ -345,8 +344,8 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                         </div>
                         <div>
                           <p className="text-lg font-medium text-white">Upload Cover Image</p>
-                          <p className="text-sm text-gray-300">Drag & drop or click to browse</p>
-                          <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
+                          <p className="text-base text-gray-300">Drag & drop or click to browse</p>
+                          <p className="text-sm text-gray-400 mt-1">PNG, JPG up to 5MB</p>
                         </div>
                       </div>
                     )}
@@ -357,11 +356,10 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                 <div>
                   <label className="block mb-3 font-medium">Profile Image</label>
                   <div
-                    className={`relative border-2 border-dashed rounded-xl p-6 text-center transition-all duration-300 cursor-pointer ${
-                      dragActive.profile_image
-                        ? 'border-purple-400 bg-purple-500/20 scale-105'
-                        : 'border-white/30 hover:border-purple-400 hover:bg-white/5'
-                    }`}
+                    className={`relative border-2 border-dashed rounded-xl p-6 text-center transition-all duration-300 cursor-pointer ${dragActive.profile_image
+                      ? 'border-purple-400 bg-purple-500/20 scale-105'
+                      : 'border-white/30 hover:border-purple-400 hover:bg-white/5'
+                      }`}
                     onDragEnter={(e) => handleDrag(e, 'profile_image')}
                     onDragLeave={(e) => handleDrag(e, 'profile_image')}
                     onDragOver={(e) => handleDrag(e, 'profile_image')}
@@ -376,7 +374,7 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                       onChange={(e) => handleFileChange(e.target.files?.[0] || null, 'profile_image')}
                       className="hidden"
                     />
-                    
+
                     {profileImagePreview ? (
                       <div className="relative w-20 h-20 mx-auto">
                         <Image
@@ -393,7 +391,7 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                               </svg>
                             </div>
-                            <p className="text-xs text-white">Change</p>
+                            <p className="text-sm text-white">Change</p>
                           </div>
                         </div>
                       </div>
@@ -405,9 +403,9 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                           </svg>
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-white">Upload Profile Image</p>
-                          <p className="text-xs text-gray-300">Drag & drop or click to browse</p>
-                          <p className="text-xs text-gray-400 mt-1">Square image recommended</p>
+                          <p className="text-base font-medium text-white">Upload Profile Image</p>
+                          <p className="text-sm text-gray-300">Drag & drop or click to browse</p>
+                          <p className="text-sm text-gray-400 mt-1">Square image recommended</p>
                         </div>
                       </div>
                     )}
@@ -440,7 +438,7 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                 <h2 className="text-2xl font-semibold mb-2">
                   Update Community Visibility
                 </h2>
-                <p className="text-sm text-gray-300">
+                <p className="text-base text-gray-300">
                   Decide who can view and contribute in your community.
                 </p>
               </div>
@@ -456,7 +454,7 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                   <FaGlobe className="text-lg" />
                   <div>
                     <p className="font-medium">Public</p>
-                    <p className="text-sm text-gray-300">
+                    <p className="text-base text-gray-300">
                       Anyone can view, post, and comment.
                     </p>
                   </div>
@@ -472,7 +470,7 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                   <FaEyeSlash className="text-lg" />
                   <div>
                     <p className="font-medium">Restricted</p>
-                    <p className="text-sm text-gray-300">
+                    <p className="text-base text-gray-300">
                       Anyone can view, but only approved users can contribute.
                     </p>
                   </div>
@@ -488,7 +486,7 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
                   <FaLock className="text-lg" />
                   <div>
                     <p className="font-medium">Private</p>
-                    <p className="text-sm text-gray-300">
+                    <p className="text-base text-gray-300">
                       Only approved users can view and contribute.
                     </p>
                   </div>
@@ -548,8 +546,8 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
             )}
           </div>
           <h3 className="font-semibold text-lg">{title}</h3>
-          <p className="text-sm text-gray-300 mt-1">{description}</p>
-          <div className="flex justify-center gap-2 mt-4 text-xs text-gray-400">
+          <p className="text-base text-gray-300 mt-1">{description}</p>
+          <div className="flex justify-center gap-2 mt-4 text-sm text-gray-400">
             <span>{community.members_count || 0} member{(community.members_count || 0) !== 1 ? "s" : ""}</span>•<span>{community.posts_count || 0} post{(community.posts_count || 0) !== 1 ? "s" : ""}</span>
           </div>
         </div>

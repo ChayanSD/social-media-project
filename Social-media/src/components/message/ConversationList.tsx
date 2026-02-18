@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { 
+import {
   useGetConversationsListQuery,
   useAcceptMessageRequestMutation,
   useRejectMessageRequestMutation,
@@ -35,11 +35,11 @@ export default function ConversationList({ onSelectConversation, selectedUserId 
       refetch();
       setViewingRequestId(null);
     } catch (error: unknown) {
-      const errorMessage = 
-        (error && typeof error === 'object' && 'data' in error && 
-         error.data && typeof error.data === 'object' && 'message' in error.data
-         ? String(error.data.message)
-         : null) ||
+      const errorMessage =
+        (error && typeof error === 'object' && 'data' in error &&
+          error.data && typeof error.data === 'object' && 'message' in error.data
+          ? String(error.data.message)
+          : null) ||
         "Failed to accept message request";
       toast.error(errorMessage);
     }
@@ -53,11 +53,11 @@ export default function ConversationList({ onSelectConversation, selectedUserId 
       refetch();
       setViewingRequestId(null);
     } catch (error: unknown) {
-      const errorMessage = 
-        (error && typeof error === 'object' && 'data' in error && 
-         error.data && typeof error.data === 'object' && 'message' in error.data
-         ? String(error.data.message)
-         : null) ||
+      const errorMessage =
+        (error && typeof error === 'object' && 'data' in error &&
+          error.data && typeof error.data === 'object' && 'message' in error.data
+          ? String(error.data.message)
+          : null) ||
         "Failed to reject message request";
       toast.error(errorMessage);
     }
@@ -93,7 +93,7 @@ export default function ConversationList({ onSelectConversation, selectedUserId 
       const now = new Date();
       const diff = now.getTime() - date.getTime();
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      
+
       if (days === 0) {
         return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
       } else if (days === 1) {
@@ -143,18 +143,17 @@ export default function ConversationList({ onSelectConversation, selectedUserId 
         const avatarUrl = getImageUrl(userAvatar);
         const isSelected = selectedUserId === user?.id;
         const isViewingRequest = viewingRequestId === conversation.pending_request?.id;
-        const showRequestActions = conversation.has_pending_request && 
-                                   conversation.is_request_receiver && 
-                                   isViewingRequest;
+        const showRequestActions = conversation.has_pending_request &&
+          conversation.is_request_receiver &&
+          isViewingRequest;
 
         return (
           <div
             key={user?.id}
-            className={`backdrop-blur-[17px] rounded-xl p-4 border transition-all cursor-pointer ${
-              isSelected 
-                ? "border-purple-500 bg-white/10" 
-                : "border-white/20 bg-white/5 hover:bg-white/10"
-            }`}
+            className={`backdrop-blur-[17px] rounded-xl p-4 border transition-all cursor-pointer ${isSelected
+              ? "border-purple-500 bg-white/10"
+              : "border-white/20 bg-white/5 hover:bg-white/10"
+              }`}
             onClick={() => handleConversationClick(conversation)}
           >
             <div className="flex items-start gap-4">
@@ -185,7 +184,7 @@ export default function ConversationList({ onSelectConversation, selectedUserId 
                     <Clock className="w-4 h-4 text-yellow-500" />
                   )}
                   {conversation.unread_count && conversation.unread_count > 0 && (
-                    <span className="bg-purple-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="bg-purple-500 text-white text-sm font-bold rounded-full w-5 h-5 flex items-center justify-center">
                       {conversation.unread_count > 9 ? '9+' : conversation.unread_count}
                     </span>
                   )}
@@ -196,14 +195,14 @@ export default function ConversationList({ onSelectConversation, selectedUserId 
                   <div className="mb-2">
                     {isViewingRequest ? (
                       <div className="space-y-3">
-                        <p className="text-white/70 text-sm mb-2">
+                        <p className="text-white/70 text-base mb-2">
                           {conversation.pending_request?.content || "No message content"}
                         </p>
                         <div className="flex gap-2">
                           <button
                             onClick={(e) => handleAccept(conversation.pending_request!.id!, e)}
                             disabled={isAccepting || isRejecting}
-                            className="flex-1 px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                            className="flex-1 px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-base"
                           >
                             {isAccepting ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
@@ -215,7 +214,7 @@ export default function ConversationList({ onSelectConversation, selectedUserId 
                           <button
                             onClick={(e) => handleReject(conversation.pending_request!.id!, e)}
                             disabled={isAccepting || isRejecting}
-                            className="flex-1 px-3 py-2 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                            className="flex-1 px-3 py-2 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-base"
                           >
                             {isRejecting ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
@@ -228,8 +227,8 @@ export default function ConversationList({ onSelectConversation, selectedUserId 
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        <span className="text-yellow-500 text-sm">Message request:</span>
-                        <p className="text-white/70 text-sm truncate">
+                        <span className="text-yellow-500 text-base">Message request:</span>
+                        <p className="text-white/70 text-base truncate">
                           {conversation.pending_request?.content || "No message content"}
                         </p>
                       </div>
@@ -237,22 +236,22 @@ export default function ConversationList({ onSelectConversation, selectedUserId 
                   </div>
                 ) : conversation.has_pending_request && !conversation.is_request_receiver ? (
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-blue-500 text-sm">Request sent</span>
-                    <p className="text-white/50 text-sm truncate">
+                    <span className="text-blue-500 text-base">Request sent</span>
+                    <p className="text-white/50 text-base truncate">
                       {conversation.pending_request?.content || "Waiting for response..."}
                     </p>
                   </div>
                 ) : conversation.last_message ? (
-                  <p className="text-white/70 text-sm truncate mb-1">
+                  <p className="text-white/70 text-base truncate mb-1">
                     {conversation.last_message.content || "(No content)"}
                   </p>
                 ) : (
-                  <p className="text-white/50 text-sm italic">No messages yet</p>
+                  <p className="text-white/50 text-base italic">No messages yet</p>
                 )}
 
                 {/* Timestamp */}
                 {conversation.last_message_time && (
-                  <span className="text-xs text-white/50">
+                  <span className="text-sm text-white/50">
                     {formatDate(conversation.last_message_time)}
                   </span>
                 )}

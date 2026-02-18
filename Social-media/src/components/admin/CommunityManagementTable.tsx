@@ -98,7 +98,7 @@ export default function CommunityManagementTable() {
                 unoptimized
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-medium">
+              <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-base font-medium">
                 {(row.title || row.name || "C").charAt(0).toUpperCase()}
               </div>
             )}
@@ -147,7 +147,7 @@ export default function CommunityManagementTable() {
           }
         };
         return (
-          <span className={`capitalize px-3 py-1 rounded-full text-xs font-medium ${getVisibilityStyles(visibility)}`}>
+          <span className={`capitalize px-3 py-1 rounded-full text-sm font-medium ${getVisibilityStyles(visibility)}`}>
             {visibility}
           </span>
         );

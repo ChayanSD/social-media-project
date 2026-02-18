@@ -50,11 +50,11 @@ const Storage = () => {
                             <h2 className="text-2xl font-semibold text-white">Storage Overview</h2>
                             <div className="flex items-center gap-2 text-white/60">
                                 <FiHardDrive className="w-5 h-5" />
-                                <span className="text-sm">{storageUsed} GB / {storageTotal} GB used</span>
+                                <span className="text-base">{storageUsed} GB / {storageTotal} GB used</span>
                             </div>
                         </div>
                         <div className="w-full bg-white/10 rounded-full h-4 mb-4">
-                            <div 
+                            <div
                                 className="bg-gradient-to-r from-green-500 to-emerald-600 h-4 rounded-full transition-all duration-300"
                                 style={{ width: `${storagePercentage}%` }}
                             />
@@ -66,7 +66,7 @@ const Storage = () => {
                                     <span className="text-white font-medium">Images</span>
                                 </div>
                                 <p className="text-2xl font-bold text-white">18.5 GB</p>
-                                <p className="text-sm text-white/60">1,234 files</p>
+                                <p className="text-base text-white/60">1,234 files</p>
                             </div>
                             <div className="bg-white/5 rounded-xl p-4 border border-white/10">
                                 <div className="flex items-center gap-3 mb-2">
@@ -74,7 +74,7 @@ const Storage = () => {
                                     <span className="text-white font-medium">Videos</span>
                                 </div>
                                 <p className="text-2xl font-bold text-white">22.3 GB</p>
-                                <p className="text-sm text-white/60">456 files</p>
+                                <p className="text-base text-white/60">456 files</p>
                             </div>
                             <div className="bg-white/5 rounded-xl p-4 border border-white/10">
                                 <div className="flex items-center gap-3 mb-2">
@@ -82,7 +82,7 @@ const Storage = () => {
                                     <span className="text-white font-medium">Audio</span>
                                 </div>
                                 <p className="text-2xl font-bold text-white">4.2 GB</p>
-                                <p className="text-sm text-white/60">89 files</p>
+                                <p className="text-base text-white/60">89 files</p>
                             </div>
                         </div>
                     </div>
@@ -114,11 +114,10 @@ const Storage = () => {
                             <button
                                 key={category.id}
                                 onClick={() => setSelectedCategory(category.id)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
-                                    selectedCategory === category.id
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${selectedCategory === category.id
                                         ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
                                         : 'bg-white/5 hover:bg-white/10 text-white/80 border border-white/10'
-                                }`}
+                                    }`}
                             >
                                 {category.icon}
                                 <span>{category.label}</span>

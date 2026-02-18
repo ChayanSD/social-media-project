@@ -150,7 +150,7 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
             <div className="relative flex items-center gap-2 md:gap-4 text-white">
               <button
                 onClick={() => router.push("/main/create-post")}
-                className="hidden md:flex items-center gap-3 text-sm cursor-pointer"
+                className="hidden md:flex items-center gap-3 text-base cursor-pointer"
               >
                 <FiPlus size={24} /> Create Post
               </button>
@@ -177,7 +177,7 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
                 <AiOutlineMessage size={20} className="md:w-6 md:h-6" />
                 {/* Message notification badge */}
                 {unreadMessageCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#ff4500] text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 font-medium">
+                  <span className="absolute -top-1 -right-1 bg-[#ff4500] text-white text-sm rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 font-medium">
                     {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
                   </span>
                 )}
@@ -193,7 +193,7 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
                   <NotificationIcon />
                   {/* Notification badge */}
                   {unreadNotificationCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-sm rounded-full w-5 h-5 flex items-center justify-center">
                       {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
                     </span>
                   )}
@@ -233,13 +233,13 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
             <div className="flex items-center flex-col gap-2 flex-shrink-0">
               <button
                 onClick={() => router.push("/login")}
-                className="px-6 md:px-8 py-2 md:py-2 rounded-full bg-gradient-to-b from-[#8081F9] via-[#8081F9] via-30% to-pink-400 hover:opacity-90 text-white transition-all duration-300 cursor-pointer text-sm md:text-base font-semibold shadow-lg shadow-purple-500/20"
+                className="px-6 md:px-8 py-2 md:py-2 rounded-full bg-gradient-to-b from-[#8081F9] via-[#8081F9] via-30% to-pink-400 hover:opacity-90 text-white transition-all duration-300 cursor-pointer text-base md:text-base font-semibold shadow-lg shadow-purple-500/20"
               >
                 Login
               </button>
               <button
                 onClick={() => router.push("/sign-up")}
-                className="px-4 md:px-6 py-2 md:py-2 rounded-full bg-gradient-to-t from-[#8081F9] via-[#8081F9] via-20% to-pink-400 hover:opacity-90 text-white transition-all duration-300 cursor-pointer text-sm md:text-base font-semibold shadow-lg shadow-purple-500/20"
+                className="px-4 md:px-6 py-2 md:py-2 rounded-full bg-gradient-to-t from-[#8081F9] via-[#8081F9] via-20% to-pink-400 hover:opacity-90 text-white transition-all duration-300 cursor-pointer text-base md:text-base font-semibold shadow-lg shadow-purple-500/20"
               >
                 Sign Up
               </button>

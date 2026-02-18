@@ -148,7 +148,7 @@ const ManageCommunities = () => {
           <p className="text-white text-xl font-semibold mb-2">
             No communities yet
           </p>
-          <p className="text-white/60 text-sm mb-6">
+          <p className="text-white/60 text-base mb-6">
             You haven&apos;t created any communities. Start by creating your first community!
           </p>
           <button

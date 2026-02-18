@@ -33,7 +33,7 @@ interface ServiceFormData {
 }
 
 const inputClass =
-  "w-full px-3 sm:px-4 py-2 sm:py-3 bg-black/30 border border-white/20 rounded-lg sm:rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300 text-sm sm:text-base";
+  "w-full px-3 sm:px-4 py-2 sm:py-3 bg-black/30 border border-white/20 rounded-lg sm:rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300 text-base sm:text-base";
 
 const selectClass = `${inputClass} cursor-pointer`;
 
@@ -322,7 +322,7 @@ export default function PromoteServicePage() {
             Promote Your Service
           </h2>
 
-          <p className="text-sm mb-4 text-gray-300">Required</p>
+          <p className="text-base mb-4 text-gray-300">Required</p>
 
           {/* Image Upload */}
           <div className="flex flex-wrap gap-4 mb-2">
@@ -341,7 +341,7 @@ export default function PromoteServicePage() {
                     setImagePreviews([]);
                     setValue("image", null);
                   }}
-                  className="absolute top-1 right-1 bg-red-500/80 hover:bg-red-600 text-white rounded-full p-1 text-xs"
+                  className="absolute top-1 right-1 bg-red-500/80 hover:bg-red-600 text-white rounded-full p-1 text-sm"
                 >
                   ×
                 </button>
@@ -349,7 +349,7 @@ export default function PromoteServicePage() {
             ) : (
               <label className="flex flex-col items-center justify-center w-full h-32 bg-black/30 border border-gray-400/40 rounded-md cursor-pointer hover:bg-black/40 transition">
                 <FaUpload className="text-2xl text-gray-300 mb-2" />
-                <span className="text-sm text-gray-300">Add Photo</span>
+                <span className="text-base text-gray-300">Add Photo</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -482,31 +482,31 @@ export default function PromoteServicePage() {
             </div>
 
             {selectedCategoryId && (
-              <p className="text-sm text-gray-300">
+              <p className="text-base text-gray-300">
                 <span className="font-medium">Category:</span> {selectedCategory?.name}
               </p>
             )}
 
             {selectedSubcategoryId && (
-              <p className="text-sm text-gray-300">
+              <p className="text-base text-gray-300">
                 <span className="font-medium">Subcategory:</span> {availableSubcategories.find(s => s.id === selectedSubcategoryId)?.name}
               </p>
             )}
 
             {watchFields.description && (
-              <p className="text-sm text-gray-300">
+              <p className="text-base text-gray-300">
                 <span className="font-medium">Description:</span> {watchFields.description}
               </p>
             )}
 
             {watchFields.location && (
-              <p className="text-sm text-gray-300">
+              <p className="text-base text-gray-300">
                 <span className="font-medium">Location:</span> {watchFields.location}
               </p>
             )}
 
             {watchFields.link && (
-              <p className="text-sm text-gray-300">
+              <p className="text-base text-gray-300">
                 <span className="font-medium">Platform Link:</span> <a href={watchFields.link} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">{watchFields.link}</a>
               </p>
             )}
@@ -540,7 +540,7 @@ export default function PromoteServicePage() {
                       e.stopPropagation();
                       handlePublishDraft(item);
                     }}
-                    className="cursor-pointer flex items-center justify-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg text-sm font-medium transition-all duration-300"
+                    className="cursor-pointer flex items-center justify-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg text-base font-medium transition-all duration-300"
                   >
                     Publish
                   </button>

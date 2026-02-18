@@ -252,7 +252,7 @@ const UserProfile = () => {
                       <Post post={post} profile={currentUserProfile?.data} />
                       <button
                         onClick={() => handlePublishDraft(post.id)}
-                        className="absolute top-4 right-4 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg text-sm font-medium transition-all duration-300 z-10"
+                        className="absolute top-4 right-4 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg text-base font-medium transition-all duration-300 z-10"
                       >
                         Publish
                       </button>
@@ -273,13 +273,13 @@ const UserProfile = () => {
             {isFetchingNextPage && (
               <>
                 <Loader2 className="animate-spin text-white/60" size={24} />
-                <div className="text-white/60 text-sm">Loading more posts...</div>
+                <div className="text-white/60 text-base">Loading more posts...</div>
               </>
             )}
           </div>
         )}
         {!hasNextPage && allPosts.length > 0 && (
-          <div className="text-center text-white/40 text-sm py-4">
+          <div className="text-center text-white/40 text-base py-4">
             No more posts to load
           </div>
         )}
@@ -386,7 +386,7 @@ const UserProfile = () => {
     return (
       <div className="mx-auto flex gap-10 pt-6 lg:p-4">
         <div className="w-full bg-[#06133F]/75 backdrop-blur-[17.5px] rounded-lg p-4 xl:p-10">
-          <p className="text-red-400 text-sm">User not found.</p>
+          <p className="text-red-400 text-base">User not found.</p>
         </div>
       </div>
     );

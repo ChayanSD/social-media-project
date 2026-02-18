@@ -27,20 +27,20 @@ const ProfileSidebar = () => {
                 <div className='p-4'>
                     <div className='mb-4'>
                         <h3 className='font-semibold text-white'>{profile?.display_name || profile?.username || "Name Of the profile"}</h3>
-                        <p className='text-sm text-gray-400'>Followers: {profile?.followers_count || 0}</p>
+                        <p className='text-base text-gray-400'>Followers: {profile?.followers_count || 0}</p>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <p className='text-xs text-gray-400'>Total Posts</p>
-                            <p className='text-xs font-bold text-white'>{profile?.posts_count || 0}</p>
+                            <p className='text-sm text-gray-400'>Total Posts</p>
+                            <p className='text-sm font-bold text-white'>{profile?.posts_count || 0}</p>
                         </div>
                         <div>
-                            <p className='text-xs text-gray-400'>Following</p>
-                            <p className='text-xs font-bold text-white'>{profile?.following_count || 0}</p>
+                            <p className='text-sm text-gray-400'>Following</p>
+                            <p className='text-sm font-bold text-white'>{profile?.following_count || 0}</p>
                         </div>
                         <div>
-                            <p className='text-xs text-gray-400'>Communities</p>
-                            <p className='text-xs font-bold text-white'>{profile?.communities_count || 0}</p>
+                            <p className='text-sm text-gray-400'>Communities</p>
+                            <p className='text-sm font-bold text-white'>{profile?.communities_count || 0}</p>
                         </div>
                     </div>
                 </div>
@@ -65,7 +65,7 @@ const ProfileSidebar = () => {
                             </div>
                             <div className='text-left'>
                                 <h4 className='text-white font-medium group-hover:text-gray-200 transition-colors'>Avatar</h4>
-                                <p className='text-gray-400 text-sm'>Edit your avatar or upload an image.</p>
+                                <p className='text-gray-400 text-base'>Edit your avatar or upload an image.</p>
                             </div>
                         </div>
                         <IoImageOutline className='text-gray-400 group-hover:text-white transition-colors' size={18} />
@@ -88,7 +88,7 @@ const ProfileSidebar = () => {
                             </div>
                             <div className='text-left'>
                                 <h4 className='text-white font-medium group-hover:text-gray-200 transition-colors'>Cover Photo</h4>
-                                <p className='text-gray-400 text-sm'>Update your cover photo.</p>
+                                <p className='text-gray-400 text-base'>Update your cover photo.</p>
                             </div>
                         </div>
                         <IoImageOutline className='text-gray-400 group-hover:text-white transition-colors' size={18} />
@@ -105,7 +105,7 @@ const ProfileSidebar = () => {
                             </div>
                             <div className='text-left'>
                                 <h4 className='text-white font-medium group-hover:text-gray-200 transition-colors'>Profile Details</h4>
-                                <p className='text-gray-400 text-sm'>Manage your profile information.</p>
+                                <p className='text-gray-400 text-base'>Manage your profile information.</p>
                             </div>
                         </div>
                         <IoImageOutline className='text-gray-400 group-hover:text-white transition-colors' size={18} />

@@ -26,7 +26,7 @@ const EmptyPostsState: React.FC<EmptyPostsStateProps> = ({
       <h3 className="text-white/80 text-lg font-semibold mb-2 text-center">
         {message}
       </h3>
-      <p className="text-white/50 text-sm text-center max-w-md mb-6">
+      <p className="text-white/50 text-base text-center max-w-md mb-6">
         Start sharing your thoughts and connect with others!
       </p>
       {showCreateButton && onCreateClick && (
