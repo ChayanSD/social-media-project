@@ -4,6 +4,7 @@ import bg from "../../../public/main-bg.jpg";
 import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { IoArrowBack } from "react-icons/io5";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import Link from "next/link";
 import {
   useLoginMutation,
@@ -40,6 +41,7 @@ type ResetStep3Form = {
 const Login = () => {
   const router = useRouter();
   const [currentMode, setCurrentMode] = useState<'login' | 'reset-step1' | 'reset-step2' | 'reset-step3'>('login');
+  const [showPassword, setShowPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetOtp, setResetOtp] = useState("");
   const [login, { isLoading: isLoggingIn, error: loginError }] = useLoginMutation();
@@ -265,13 +267,20 @@ const Login = () => {
                   )}
                 </div>
 
-                <div>
+                <div className="relative">
                   <input
                     {...loginForm.register("password", { required: "Password is required" })}
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="Password"
-                    className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full rounded-full border border-gray-300 bg-transparent pl-4 pr-12 py-3 text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600 transition-colors cursor-pointer"
+                  >
+                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
                   {loginForm.formState.errors.password && (
                     <p className="text-red-400 text-sm mt-1">
                       {loginForm.formState.errors.password.message}
@@ -476,7 +485,7 @@ const Login = () => {
                 }}
                 className="space-y-4"
               >
-                <div>
+                <div className="relative">
                   <input
                     {...resetStep3Form.register("newPassword", {
                       required: "New password is required",
@@ -485,10 +494,17 @@ const Login = () => {
                         message: "Password must be at least 8 characters",
                       },
                     })}
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="New Password"
-                    className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full rounded-full border border-gray-300 bg-transparent pl-4 pr-12 py-3 text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-white transition-colors cursor-pointer"
+                  >
+                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
                   {resetStep3Form.formState.errors.newPassword && (
                     <p className="text-red-400 text-sm mt-1">
                       {resetStep3Form.formState.errors.newPassword.message}
@@ -496,15 +512,22 @@ const Login = () => {
                   )}
                 </div>
 
-                <div>
+                <div className="relative">
                   <input
                     {...resetStep3Form.register("confirmPassword", {
                       required: "Please confirm your password",
                     })}
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="Confirm Password"
-                    className="w-full rounded-full border border-gray-300 bg-transparent px-4 py-3 text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full rounded-full border border-gray-300 bg-transparent pl-4 pr-12 py-3 text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-white transition-colors cursor-pointer"
+                  >
+                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
                   {resetStep3Form.formState.errors.confirmPassword && (
                     <p className="text-red-400 text-sm mt-1">
                       {resetStep3Form.formState.errors.confirmPassword.message}

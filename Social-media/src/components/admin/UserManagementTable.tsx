@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { useGetUsersQuery, User, useAdminBlockUserMutation, useAdminUnblockUserMutation, useAdminDeleteUserMutation } from "@/store/authApi";
+import { useGetUsersQuery, User, useAdminBlockUserMutation, useAdminUnblockUserMutation, useAdminDeleteUserMutation, useAdminChangeRoleMutation, useGetCurrentUserProfileQuery } from "@/store/authApi";
 import { CustomTable, Column } from "@/components/admin/CustomTable";
 import { TableFilters } from "@/components/admin/TableFilters";
 import { DateFilter, DateRangePreset, DateRange } from "@/components/admin/DateFilter";
@@ -9,7 +9,8 @@ import { SearchFilter } from "@/components/admin/SearchFilter";
 import { getApiBaseUrl } from "@/lib/utils";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { toast } from "sonner";
-import { Ban, UserCheck, User as UserIcon } from "lucide-react";
+import { Ban, UserCheck, User as UserIcon, Shield, ShieldAlert, UserPlus, UserMinus, Trash2 } from "lucide-react";
+import { Tooltip } from "@/components/admin/Tooltip";
 
 export default function UserManagementTable() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -26,11 +27,16 @@ export default function UserManagementTable() {
   const [blockUser] = useAdminBlockUserMutation();
   const [unblockUser] = useAdminUnblockUserMutation();
   const [deleteUser] = useAdminDeleteUserMutation();
+  const [changeRole] = useAdminChangeRoleMutation();
+  const { data: currentUserProfile } = useGetCurrentUserProfileQuery();
 
   const [blockDialogOpen, setBlockDialogOpen] = useState(false);
   const [unblockDialogOpen, setUnblockDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  const isSuperAdmin = currentUserProfile?.data?.is_superuser === true;
 
   const users = useMemo(() => {
     if (!data) return [];
@@ -120,6 +126,25 @@ export default function UserManagementTable() {
     }
   };
 
+  const handleChangeRole = async () => {
+    if (!selectedUser?.id) return;
+    const newRole = selectedUser.role === "admin" ? "user" : "admin";
+    try {
+      const result = await changeRole({ userId: selectedUser.id, role: newRole }).unwrap();
+      if (result.success) {
+        toast.success(result.message || `User role updated to ${newRole} successfully`);
+        setRoleDialogOpen(false);
+        setSelectedUser(null);
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { message?: string })?.message ||
+        `Failed to change user role to ${newRole}`;
+      toast.error(errorMessage);
+    }
+  };
+
   type UserRow = User;
 
   const columns: Column<UserRow>[] = [
@@ -174,9 +199,23 @@ export default function UserManagementTable() {
     },
     {
       header: "Role",
-      accessor: (row) => (
-        <span className="capitalize">{row.role || "User"}</span>
-      ),
+      accessor: (row) => {
+        const role = row.role || "user";
+        const isSuper = row.is_superuser === true;
+        const displayRole = isSuper ? "Super Admin" : role;
+        return (
+          <div className="flex items-center gap-1.5">
+            {isSuper ? (
+              <span title="Super Admin"><ShieldAlert className="w-4 h-4 text-yellow-400" /></span>
+            ) : role === "admin" ? (
+              <span title="Admin"><Shield className="w-4 h-4 text-blue-400" /></span>
+            ) : (
+              <span title="User"><UserIcon className="w-4 h-4 text-gray-400" /></span>
+            )}
+            <span className="capitalize">{displayRole}</span>
+          </div>
+        );
+      },
     },
     {
       header: "Status",
@@ -280,58 +319,112 @@ export default function UserManagementTable() {
         const isAdmin = row.role === 'admin';
 
         return (
-          <div className="flex items-center justify-center space-x-3">
-            {isActive ? (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedUser(row);
-                  setBlockDialogOpen(true);
-                }}
-                disabled={isAdmin}
-                className={`p-2 rounded-lg bg-white/10 hover:bg-white/20 transition ${isAdmin
-                  ? "opacity-50 cursor-not-allowed"
-                  : "cursor-pointer"
-                  }`}
-                title={isAdmin ? "Cannot block admin users" : "Block User"}
-              >
-                <Ban className="w-4 h-4" />
-              </button>
-            ) : (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedUser(row);
-                  setUnblockDialogOpen(true);
-                }}
-                className="p-2 cursor-pointer rounded-lg bg-white/10 hover:bg-white/20 transition"
-                title="Unblock User"
-              >
-                <UserCheck className="w-4 h-4" />
-              </button>
-            )}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedUser(row);
-                setDeleteDialogOpen(true);
-              }}
-              disabled={isAdmin}
-              className={`p-2 rounded-lg bg-white/10 hover:bg-white/20 transition ${isAdmin
-                ? "opacity-50 cursor-not-allowed"
-                : "cursor-pointer"
-                }`}
-              title={isAdmin ? "Cannot delete admin users" : "Delete User"}
+          <div className="flex items-center justify-center space-x-2">
+            {/* Role change button */}
+            <Tooltip
+              position="left"
+              text={
+                row.id === currentUserProfile?.data?.id
+                  ? "You cannot change your own role"
+                  : row.is_superuser === true
+                    ? "Super Admin — cannot be demoted"
+                    : row.role === "admin"
+                      ? isSuperAdmin
+                        ? "Remove Admin Rights"
+                        : "Only Super Admin can demote an admin"
+                      : "Promote to Admin"
+              }
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-4 h-4"
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedUser(row);
+                  setRoleDialogOpen(true);
+                }}
+                disabled={
+                  row.id === currentUserProfile?.data?.id ||
+                  (row.role === "admin" && !isSuperAdmin) ||
+                  row.is_superuser === true
+                }
+                className={`p-2 rounded-lg bg-white/10 transition ${row.id === currentUserProfile?.data?.id ||
+                  (row.role === "admin" && !isSuperAdmin) ||
+                  row.is_superuser === true
+                  ? "opacity-40 cursor-not-allowed"
+                  : "hover:bg-white/20 cursor-pointer"
+                  }`}
               >
-                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-              </svg>
-            </button>
+                {row.role === "admin" ? (
+                  <UserMinus className="w-4 h-4 text-red-400" />
+                ) : (
+                  <UserPlus className="w-4 h-4 text-green-400" />
+                )}
+              </button>
+            </Tooltip>
+
+            {/* Block / Unblock button */}
+            {isActive ? (
+              <Tooltip
+                position="left"
+                text={
+                  isAdmin && !isSuperAdmin
+                    ? "Cannot block an admin user"
+                    : "Block User — restricts platform access"
+                }
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedUser(row);
+                    setBlockDialogOpen(true);
+                  }}
+                  disabled={isAdmin && !isSuperAdmin}
+                  className={`p-2 rounded-lg bg-white/10 transition ${isAdmin && !isSuperAdmin
+                    ? "opacity-40 cursor-not-allowed"
+                    : "hover:bg-white/20 cursor-pointer"
+                    }`}
+                >
+                  <Ban className="w-4 h-4 text-orange-400" />
+                </button>
+              </Tooltip>
+            ) : (
+              <Tooltip position="left" text="Unblock User — restores platform access">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedUser(row);
+                    setUnblockDialogOpen(true);
+                  }}
+                  className="p-2 cursor-pointer rounded-lg bg-white/10 hover:bg-white/20 transition"
+                >
+                  <UserCheck className="w-4 h-4 text-green-400" />
+                </button>
+              </Tooltip>
+            )}
+
+            {/* Delete button */}
+            <Tooltip
+              position="left"
+              text={
+                isAdmin && !isSuperAdmin
+                  ? "Cannot delete an admin user"
+                  : "Permanently delete this user and all their data"
+              }
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedUser(row);
+                  setDeleteDialogOpen(true);
+                }}
+                disabled={isAdmin && !isSuperAdmin}
+                className={`p-2 rounded-lg bg-white/10 transition ${isAdmin && !isSuperAdmin
+                  ? "opacity-40 cursor-not-allowed"
+                  : "hover:bg-red-500/30 cursor-pointer"
+                  }`}
+              >
+                <Trash2 className="w-4 h-4 text-red-400" />
+              </button>
+            </Tooltip>
           </div>
         );
       },
@@ -433,6 +526,25 @@ export default function UserManagementTable() {
         onConfirm={handleDeleteUser}
         onCancel={() => {
           setDeleteDialogOpen(false);
+          setSelectedUser(null);
+        }}
+      />
+
+      {/* Role Change Confirmation Dialog */}
+      <ConfirmDialog
+        open={roleDialogOpen}
+        title={selectedUser?.role === "admin" ? "Remove Admin Rights" : "Promote to Admin"}
+        description={
+          selectedUser?.role === "admin"
+            ? `Are you sure you want to remove admin rights from ${selectedUser?.username || "this user"}? They will lose access to the admin dashboard.`
+            : `Are you sure you want to promote ${selectedUser?.username || "this user"} to Admin? They will have full access to the admin dashboard.`
+        }
+        confirmLabel={selectedUser?.role === "admin" ? "Remove Rights" : "Make Admin"}
+        cancelLabel="Cancel"
+        variant={selectedUser?.role === "admin" ? "destructive" : "default"}
+        onConfirm={handleChangeRole}
+        onCancel={() => {
+          setRoleDialogOpen(false);
           setSelectedUser(null);
         }}
       />
