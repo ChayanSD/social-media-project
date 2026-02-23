@@ -87,7 +87,7 @@ class AdminUserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'email', 'avatar', 'display_name', 
-            'role', 'is_active', 'date_joined', 'last_login',
+            'role', 'is_superuser', 'is_active', 'date_joined', 'last_login',
             'posts_count', 'interests_count', 'interests'
         ]
     

@@ -201,7 +201,8 @@ class SetCredentialsView(APIView):
                 "id": user.id,
                 "email": user.email,
                 "username": user.username,
-                "role": user.role if hasattr(user, 'role') else 'user'
+                "role": user.role if hasattr(user, 'role') else 'user',
+                "is_superuser": user.is_superuser
             }
         }, status=201)
         
@@ -250,7 +251,8 @@ class LoginView(APIView):
                 "id": user.id,
                 "email": user.email,
                 "username": user.username,
-                "role": user.role
+                "role": user.role,
+                "is_superuser": user.is_superuser
             }
             }, status=200)
 
@@ -353,26 +355,68 @@ class AdminBlockUserView(APIView):
         action = "unblocked" if is_unblock else "blocked"
         return Response({
             "success": True,
-            "message": f"User {user.username} has been {action} successfully"
+            "message": f"User {user.username} has been unblocked successfully"
         }, status=status.HTTP_200_OK)
-    
-    def delete(self, request, user_id):
-        """Unblock a user"""
+
+
+class AdminChangeRoleView(APIView):
+    """Change user role (admin only)"""
+    permission_classes = [permissions.IsAuthenticated, IsAdmin]
+
+    def post(self, request, user_id):
+        new_role = request.data.get('role')
+        if new_role not in ['user', 'admin']:
+            return Response({
+                "success": False,
+                "error": "Invalid role. Must be 'user' or 'admin'."
+            }, status=400)
+
         try:
-            user = User.objects.get(id=user_id)
+            target_user = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return Response({
                 "success": False,
                 "error": "User not found"
             }, status=404)
+
+        current_user = request.user
+
+        # Prevent changing your own role
+        if target_user.id == current_user.id:
+            return Response({
+                "success": False,
+                "error": "You cannot change your own role"
+            }, status=400)
+
+        # Logic for demotion: Only superuser can demote an admin
+        if target_user.role == 'admin' and new_role == 'user':
+            if not current_user.is_superuser:
+                return Response({
+                    "success": False,
+                    "error": "Only super admins can demote an admin to user"
+                }, status=403)
+
+        # Update role
+        target_user.role = new_role
         
-        # Unblock user by setting is_active to True
-        user.is_active = True
-        user.save()
+        # Consistently manage is_staff status for dashboard access
+        if new_role == 'admin':
+            target_user.is_staff = True
+        else:
+            # Only remove is_staff if they aren't a superuser (shouldn't happen for superusers anyway if using 'user' role)
+            if not target_user.is_superuser:
+                target_user.is_staff = False
         
+        target_user.save()
+
         return Response({
             "success": True,
-            "message": f"User {user.username} has been unblocked successfully"
+            "message": f"User {target_user.username} role updated to {new_role} successfully",
+            "data": {
+                "user_id": target_user.id,
+                "username": target_user.username,
+                "new_role": target_user.role
+            }
         }, status=200)
 
 
@@ -1716,10 +1760,15 @@ class ProfileViewSet(viewsets.ModelViewSet):
         
         profile = get_object_or_404(Profile, user=request.user)
         serializer = self.get_serializer(profile)
+        data = serializer.data
+        # Merge user-level fields not in ProfileSerializer
+        data['is_superuser'] = request.user.is_superuser
+        data['role'] = request.user.role if hasattr(request.user, 'role') else 'user'
+        data['id'] = request.user.id
         return Response({
             "success": True,
             "message": "Data retrieved successfully",
-            "data": serializer.data
+            "data": data
             })
 
     @action(detail=False, methods=['put', 'patch'])

@@ -80,6 +80,8 @@ export interface UserProfile {
   about?: string | null;
   social_link?: string | null;
   cover_photo?: string | null;
+  is_superuser?: boolean;
+  role?: string;
   [key: string]: unknown;
 }
 
@@ -448,6 +450,14 @@ export const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["UserProfile"],
     }),
+    adminChangeRole: builder.mutation<{ success?: boolean; message?: string; error?: string }, { userId: number | string; role: string }>({
+      query: ({ userId, role }) => ({
+        url: `/auth/admin/users/${userId}/change-role/`,
+        method: "POST",
+        body: { role },
+      }),
+      invalidatesTags: ["UserProfile"],
+    }),
     getCommunities: builder.query<{ success?: boolean; message?: string; data?: unknown[] }, { visibility?: string; start_date?: string; end_date?: string; search?: string } | void>({
       query: (params) => {
         const searchParams = new URLSearchParams();
@@ -508,6 +518,7 @@ export const {
   useAdminBlockUserMutation,
   useAdminUnblockUserMutation,
   useAdminDeleteUserMutation,
+  useAdminChangeRoleMutation,
   useGetCommunitiesQuery,
   useDeleteCommunityMutation,
   useGetPublicStatsQuery,
