@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/users/<int:user_id>/block/', AdminBlockUserView.as_view(), name='admin-block-user'),
     path('admin/users/<int:user_id>/unblock/', AdminBlockUserView.as_view(), name='admin-unblock-user'),
     path('admin/users/<int:user_id>/delete/', AdminDeleteUserView.as_view(), name='admin-delete-user'),
+    path('admin/users/<int:user_id>/change-role/', AdminChangeRoleView.as_view(), name='admin-change-role'),
     path('admin/dashboard-analytics/', DashboardAnalyticsView.as_view(), name='dashboard-analytics'),
     path('admin/post-analytics/', PostAnalyticsView.as_view(), name='post-analytics'),
     path('admin/user-analytics/', UserAnalyticsView.as_view(), name='user-analytics'),

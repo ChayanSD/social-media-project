@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { IoArrowBack } from "react-icons/io5";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import {
   useLoginMutation,
   useSendPasswordResetOtpMutation,
@@ -37,6 +38,7 @@ type ResetStep3Form = {
 export default function AdminLoginPage() {
   const router = useRouter();
   const [currentMode, setCurrentMode] = useState<'login' | 'reset-step1' | 'reset-step2' | 'reset-step3'>('login');
+  const [showPassword, setShowPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetOtp, setResetOtp] = useState("");
   const [error, setError] = useState("");
@@ -322,17 +324,26 @@ export default function AdminLoginPage() {
                 <label className="block mb-2 text-base">
                   Password
                 </label>
-                <input
-                  {...loginForm.register("password", { required: "Password is required" })}
-                  type="password"
-                  className="w-full px-4 py-3 rounded-full bg-transparent border border-gray-400 text-white outline-none focus:ring-2 focus:ring-green-400"
-                  placeholder="Enter your password"
-                />
-                {loginForm.formState.errors.password && (
-                  <p className="text-red-400 text-sm mt-1">
-                    {loginForm.formState.errors.password.message}
-                  </p>
-                )}
+                <div className="relative">
+                  <input
+                    {...loginForm.register("password", { required: "Password is required" })}
+                    type={showPassword ? "text" : "password"}
+                    className="w-full px-4 pr-12 py-3 rounded-full bg-transparent border border-gray-400 text-white outline-none focus:ring-2 focus:ring-green-400"
+                    placeholder="Enter your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600 transition-colors cursor-pointer"
+                  >
+                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
+                  {loginForm.formState.errors.password && (
+                    <p className="text-red-400 text-sm mt-1">
+                      {loginForm.formState.errors.password.message}
+                    </p>
+                  )}
+                </div>
 
                 {/* Remember Me Checkbox */}
                 <div className="flex items-center gap-2 mt-2">
@@ -494,42 +505,60 @@ export default function AdminLoginPage() {
                 <label className="block mb-2 text-base">
                   New Password
                 </label>
-                <input
-                  {...resetStep3Form.register("newPassword", {
-                    required: "New password is required",
-                    minLength: {
-                      value: 8,
-                      message: "Password must be at least 8 characters",
-                    },
-                  })}
-                  type="password"
-                  className="w-full px-4 py-3 rounded-full bg-transparent border border-gray-400 text-white outline-none focus:ring-2 focus:ring-green-400"
-                  placeholder="Enter new password"
-                />
-                {resetStep3Form.formState.errors.newPassword && (
-                  <p className="text-red-400 text-sm mt-1">
-                    {resetStep3Form.formState.errors.newPassword.message}
-                  </p>
-                )}
+                <div className="relative">
+                  <input
+                    {...resetStep3Form.register("newPassword", {
+                      required: "New password is required",
+                      minLength: {
+                        value: 8,
+                        message: "Password must be at least 8 characters",
+                      },
+                    })}
+                    type={showPassword ? "text" : "password"}
+                    className="w-full px-4 pr-12 py-3 rounded-full bg-transparent border border-gray-400 text-white outline-none focus:ring-2 focus:ring-green-400"
+                    placeholder="Enter new password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                  >
+                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
+                  {resetStep3Form.formState.errors.newPassword && (
+                    <p className="text-red-400 text-sm mt-1">
+                      {resetStep3Form.formState.errors.newPassword.message}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div>
                 <label className="block mb-2 text-base">
                   Confirm Password
                 </label>
-                <input
-                  {...resetStep3Form.register("confirmPassword", {
-                    required: "Please confirm your password",
-                  })}
-                  type="password"
-                  className="w-full px-4 py-3 rounded-full bg-transparent border border-gray-400 text-white outline-none focus:ring-2 focus:ring-green-400"
-                  placeholder="Confirm new password"
-                />
-                {resetStep3Form.formState.errors.confirmPassword && (
-                  <p className="text-red-400 text-sm mt-1">
-                    {resetStep3Form.formState.errors.confirmPassword.message}
-                  </p>
-                )}
+                <div className="relative">
+                  <input
+                    {...resetStep3Form.register("confirmPassword", {
+                      required: "Please confirm your password",
+                    })}
+                    type={showPassword ? "text" : "password"}
+                    className="w-full px-4 pr-12 py-3 rounded-full bg-transparent border border-gray-400 text-white outline-none focus:ring-2 focus:ring-green-400"
+                    placeholder="Confirm new password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                  >
+                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
+                  {resetStep3Form.formState.errors.confirmPassword && (
+                    <p className="text-red-400 text-sm mt-1">
+                      {resetStep3Form.formState.errors.confirmPassword.message}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <p className="text-base text-gray-300 text-center">
