@@ -225,8 +225,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div
       style={{ backgroundImage: "url('/admin-bg.jpg')" }}
-      className="flex h-screen bg-cover bg-center text-white p-4 overflow-hidden"
+      className="flex h-screen bg-cover bg-center text-white p-4 overflow-hidden backdrop:blur-xl"
     >
+      <div className="absolute inset-0 bg-black/30 pointer-events-none" />
       {/* MOBILE SIDEBAR DRAWER */}
       {isSidebarOpen && (
         <div
