@@ -56,7 +56,6 @@ const CreatePost = ({
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"text" | "image" | "link">("text");
   const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState("");
   const [isDraft, setIsDraft] = useState(false);
   const [mediaPreviews, setMediaPreviews] = useState<MediaPreview[]>([]);
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
@@ -144,19 +143,6 @@ const CreatePost = ({
   const titleValue = watch("title");
   const contentValue = watch("content");
 
-  const addTag = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && tagInput.trim()) {
-      e.preventDefault();
-      const newTag = tagInput.trim();
-      if (!tags.includes(newTag) && tags.length < 5) {
-        const updatedTags = [...tags, newTag];
-        setTags(updatedTags);
-        setValue("tags", updatedTags);
-        setTagInput("");
-      }
-    }
-  };
-
   const removeTag = (tagToRemove: string) => {
     const updatedTags = tags.filter((tag) => tag !== tagToRemove);
     setTags(updatedTags);
@@ -164,11 +150,18 @@ const CreatePost = ({
   };
 
   const handleInterestClick = (interestName: string) => {
-    if (!tags.includes(interestName) && tags.length < 5) {
-      const updatedTags = [...tags, interestName];
-      setTags(updatedTags);
-      setValue("tags", updatedTags);
+    let updatedTags: string[];
+    if (tags.includes(interestName)) {
+      // Unselect if already selected
+      updatedTags = tags.filter((t) => t !== interestName);
+    } else if (tags.length < 5) {
+      // Select if under limit
+      updatedTags = [...tags, interestName];
+    } else {
+      return;
     }
+    setTags(updatedTags);
+    setValue("tags", updatedTags, { shouldValidate: true });
   };
 
   // Get user interests from profile
@@ -252,7 +245,6 @@ const CreatePost = ({
       setIsDraft(false); // Reset draft state
       reset();
       setTags([]);
-      setTagInput("");
       mediaPreviews.forEach((media) => URL.revokeObjectURL(media.url));
       setMediaPreviews([]);
       updateFormFiles([]);
@@ -372,65 +364,73 @@ const CreatePost = ({
               )}
             </div>
 
-            {/* Tags Section */}
+            {/* Tags / Interests Section */}
             <div className="space-y-3">
-              <label className="block text-white font-medium">Tags</label>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-base border border-purple-400/30"
+              <div className="flex items-center justify-between">
+                <label className="block text-white font-medium">
+                  Interests <span className="text-red-400">*</span>
+                </label>
+                <div className="flex items-center gap-3">
+                  {tags.length > 0 && (
+                    <span className="text-sm text-purple-300">
+                      {tags.length}/5 selected
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => router.push("/main/join-categories")}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 hover:text-purple-200 border border-purple-400/30 hover:border-purple-400/50 text-sm font-medium transition-all duration-200 cursor-pointer"
                   >
-                    #{tag}
-                    <button
-                      type="button"
-                      onClick={() => removeTag(tag)}
-                      className="ml-1 hover:text-red-400 transition-colors cursor-pointer"
-                    >
-                      <IoMdClose size={14} />
-                    </button>
-                  </span>
-                ))}
+                    + Join Categories
+                  </button>
+                </div>
               </div>
+
+              {/* Hidden field for react-hook-form validation */}
               <input
-                type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={addTag}
-                placeholder="Add tags (press Enter to add, max 5)"
-                className="w-full px-4 py-2 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300"
-                disabled={tags.length >= 5}
+                type="hidden"
+                {...register("tags", {
+                  validate: (value) =>
+                    (value && value.length > 0) || "Please select at least one interest",
+                })}
               />
-              {tags.length >= 5 && (
-                <p className="text-yellow-400 text-base">
-                  Maximum 5 tags allowed
+
+              {allInterests.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {allInterests.map((interest, index) => {
+                    const isSelected = tags.includes(interest.name);
+                    const isDisabled = tags.length >= 5 && !isSelected;
+                    return (
+                      <button
+                        key={`${interest.category}-${interest.name}-${index}`}
+                        type="button"
+                        onClick={() => handleInterestClick(interest.name)}
+                        disabled={isDisabled}
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${isDisabled ? "cursor-not-allowed" : "cursor-pointer"} ${isSelected
+                          ? " text-purple-400 border border-purple-400 shadow-lg shadow-purple-500/10"
+                          : isDisabled
+                            ? "bg-white/5 text-white/30 border border-white/10"
+                            : "bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 hover:text-white"
+                          }`}
+                      >
+                        {isSelected ? "✓ " : ""}{interest.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-gray-400 text-sm">
+                  No interests found. Please update your profile to add interests.
                 </p>
               )}
-              {allInterests.length > 0 && (
-                <div className=" mb-6 mx-1">
-                  <div className="flex flex-wrap gap-2">
-                    {allInterests.map((interest, index) => {
-                      const isSelected = tags.includes(interest.name);
-                      const isDisabled = tags.length >= 5 && !isSelected;
-                      return (
-                        <button
-                          key={`${interest.category}-${interest.name}-${index}`}
-                          type="button"
-                          onClick={() => handleInterestClick(interest.name)}
-                          disabled={isDisabled}
-                          className={`px-3 py-1 rounded-full text-sm transition-all ${isSelected
-                            ? "bg-purple-500/30 text-purple-300 border border-purple-400/50"
-                            : isDisabled
-                              ? "bg-white/5 text-white/30 border border-white/10 cursor-not-allowed"
-                              : "bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 hover:text-white cursor-pointer"
-                            }`}
-                        >
-                          {interest.name}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+
+              {errors.tags && (
+                <p className="text-red-400 text-sm">{errors.tags.message}</p>
+              )}
+              {tags.length >= 5 && (
+                <p className="text-yellow-400 text-sm">
+                  Maximum 5 interests selected. Tap a selected one to remove it.
+                </p>
               )}
             </div>
 

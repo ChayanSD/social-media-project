@@ -55,6 +55,8 @@ export interface PostItem {
   comments_count?: number;
   shared_from?: number | string | null;
   original_post?: PostItem | null;
+  status?: string;
+  rejection_reason?: string;
   [key: string]: unknown;
 }
 
@@ -441,6 +443,13 @@ export const postApi = baseApi.injectEndpoints({
       }),
       providesTags: ["UserProfile"],
     }),
+    getPendingPosts: builder.query<GetPostsResponse, void>({
+      query: () => ({
+        url: "/api/posts/?status=pending",
+        method: "GET",
+      }),
+      providesTags: ["UserProfile"],
+    }),
     getCommunityPosts: builder.query<GetPostsResponse, string>({
       query: (communityName) => ({
         url: `/api/posts/community_posts/?community=${communityName}`,
@@ -458,6 +467,14 @@ export const postApi = baseApi.injectEndpoints({
       query: ({ postId }) => ({
         url: `/api/posts/${postId}/approve/`,
         method: "POST",
+      }),
+      invalidatesTags: () => [{ type: 'UserProfile' }],
+    }),
+    rejectPost: builder.mutation<{ success?: boolean; message?: string; data?: PostItem }, { postId: number | string; reason?: string }>({
+      query: ({ postId, reason }) => ({
+        url: `/api/posts/${postId}/reject/`,
+        method: "POST",
+        body: { reason },
       }),
       invalidatesTags: () => [{ type: 'UserProfile' }],
     }),
@@ -976,6 +993,7 @@ export const {
   useToggleFollowMutation,
   useGetUserProfileQuery,
   useGetRejectedPostsQuery,
+  useGetPendingPostsQuery,
   useGetCommunityPostsQuery,
   useLikePostMutation,
   useGetCommentsQuery,
@@ -988,6 +1006,7 @@ export const {
   useGetFollowersQuery,
   useGetSuggestionsQuery,
   useReportPostMutation,
+  useRejectPostMutation,
   useGetPostReportsQuery,
   useReviewReportMutation,
   useGetUnifiedReportsQuery,

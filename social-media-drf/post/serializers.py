@@ -173,7 +173,7 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = [
             'id', 'user', 'user_name', 'avatar', 'title', 'post_type', 'content', 'media_file', 'media_files', 'link', 'video_url',
-            'tags', 'subcategories', 'status', 'created_at', 'updated_at',
+            'tags', 'subcategories', 'status', 'rejection_reason', 'created_at', 'updated_at',
             'likes_count', 'comments_count', 'shares_count', 'comments',
             'can_edit', 'can_delete', 'is_liked', 'community', 'shared_from', 'original_post',
         ]

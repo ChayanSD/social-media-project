@@ -1181,7 +1181,15 @@ const Post = ({ post, profile }: PostProps) => {
           )}
           <div className="flex flex-col sm:flex-row items-center md:gap-3.5 text-base text-white">
             <p>{post?.user_name || post?.username || "Author Name"}</p>
-            <p className="text-white/70 text-xs ml-1">{createdAt}</p>
+            <div className="flex items-center">
+              <p className="text-white/70 text-xs ml-1">{createdAt}</p>
+              {isCurrentUserPost && post.status !== "approved" && (
+                <span className={`text-[10px] px-2 py-0.5 rounded-full ml-2 font-medium ${post.status === "pending" ? "bg-yellow-500/20 text-yellow-300" : "bg-red-500/20 text-red-400"
+                  }`}>
+                  {post.status === "pending" ? "Under Review" : "Rejected"}
+                </span>
+              )}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -1235,6 +1243,16 @@ const Post = ({ post, profile }: PostProps) => {
           )}
         </div>
       </div>
+
+      {isCurrentUserPost && post.status === "rejected" && post.rejection_reason && (
+        <div className="mb-5 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-200">
+          <div className="flex items-center gap-2 mb-1">
+            <FiFlag className="text-red-400" size={14} />
+            <h4 className="text-sm font-semibold uppercase tracking-wider">Rejection Reason</h4>
+          </div>
+          <p className="text-sm italic opacity-90">&quot;{post.rejection_reason}&quot;</p>
+        </div>
+      )}
 
       <div>
         {/* Shared Post Indicator */}

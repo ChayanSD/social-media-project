@@ -54,12 +54,9 @@ class PostViewSet(viewsets.ModelViewSet):
                 ).order_by('-created_at')
         
         # Regular users see only approved posts or their own posts
-        if self.action == 'list':
-            return Post.objects.filter(status='approved').select_related('user', 'community', 'shared_from', 'shared_from__user').order_by('-created_at')
-        else:
-            return Post.objects.filter(
-                Q(status='approved') | Q(user=user)
-            ).select_related('user', 'community', 'shared_from', 'shared_from__user').order_by('-created_at')
+        return Post.objects.filter(
+            Q(status='approved') | Q(user=user)
+        ).select_related('user', 'community', 'shared_from', 'shared_from__user').order_by('-created_at')
 
     def perform_create(self, serializer):
         """Create post with community validation and content moderation"""
@@ -168,7 +165,7 @@ class PostViewSet(viewsets.ModelViewSet):
                     "content_moderation": rejection_reason
                 })
             else:
-                post = serializer.save(user=self.request.user)
+                post = serializer.save(user=self.request.user, status='pending')
 
 
     def create(self, request, *args, **kwargs):
@@ -309,6 +306,31 @@ class PostViewSet(viewsets.ModelViewSet):
         return Response({
             "success": True,
             "message": "Post approved and reposted successfully.",
+            "data": serializer.data
+        })
+
+    @action(detail=True, methods=['post'])
+    def reject(self, request, pk=None):
+        """Admin action to reject a pending post"""
+        if not (hasattr(request.user, 'role') and request.user.role == 'admin'):
+            raise PermissionDenied("Only admins can reject posts.")
+        
+        post = self.get_object()
+        
+        if post.status != 'pending':
+            return Response({
+                "success": False,
+                "message": f"Post is already {post.status}. Only pending posts can be rejected."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        post.status = 'rejected'
+        post.rejection_reason = request.data.get('reason', 'Violation of community guidelines')
+        post.save()
+        
+        serializer = self.get_serializer(post)
+        return Response({
+            "success": True,
+            "message": "Post rejected successfully.",
             "data": serializer.data
         })
     
@@ -1170,16 +1192,15 @@ class PostViewSet(viewsets.ModelViewSet):
             'likes', 'comments', 'shares'
         ).order_by('-created_at')
         
-        # Get draft posts, ordered by created_at descending
-        draft_posts = Post.objects.filter(
-            user=request.user,
-            status='draft'
-        ).select_related('community', 'shared_from', 'shared_from__user').prefetch_related(
+        # Get non-approved posts (pending, rejected, draft)
+        other_posts = Post.objects.filter(
+            user=request.user
+        ).exclude(status='approved').select_related('community', 'shared_from', 'shared_from__user').prefetch_related(
             'likes', 'comments', 'shares'
         ).order_by('-created_at')
         
-        # Combine: approved first, then drafts
-        all_posts = list(approved_posts) + list(draft_posts)
+        # Combine: approved first, then others
+        all_posts = list(approved_posts) + list(other_posts)
         
         # Set pagination page size to 20 for my_posts
         page_size = 20
@@ -1239,7 +1260,7 @@ class PostViewSet(viewsets.ModelViewSet):
         is_own_profile = request.user.is_authenticated and request.user.id == target_user_id
         
         if is_own_profile:
-            # For own profile: show approved posts first, then drafts
+            # For own profile: show approved posts first, then everything else (pending, rejected, drafts)
             approved_posts = Post.objects.filter(
                 user_id=target_user_id,
                 status='approved'
@@ -1247,14 +1268,13 @@ class PostViewSet(viewsets.ModelViewSet):
                 'likes', 'comments', 'shares'
             ).order_by('-created_at')
             
-            draft_posts = Post.objects.filter(
-                user_id=target_user_id,
-                status='draft'
-            ).select_related('user', 'community', 'shared_from', 'shared_from__user').prefetch_related(
+            other_posts = Post.objects.filter(
+                user_id=target_user_id
+            ).exclude(status='approved').select_related('user', 'community', 'shared_from', 'shared_from__user').prefetch_related(
                 'likes', 'comments', 'shares'
             ).order_by('-created_at')
             
-            all_posts = list(approved_posts) + list(draft_posts)
+            all_posts = list(approved_posts) + list(other_posts)
             
             # Set pagination page size to 20 for user_posts
             page_size = 20

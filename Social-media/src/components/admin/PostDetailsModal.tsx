@@ -182,11 +182,20 @@ export default function PostDetailsModal({
 
             <div className="p-4 rounded-lg bg-white/5 border border-white/10">
               <h3 className="text-base font-medium text-white/60 mb-1">Status</h3>
-              <span
-                className={`inline-block px-3 py-1 rounded-full text-base font-medium ${getStatusColor(status)}`}
-              >
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-              </span>
+              <div className="space-y-3">
+                <span
+                  className={`inline-block px-3 py-1 rounded-full text-base font-medium ${getStatusColor(status)}`}
+                >
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </span>
+
+                {status.toLowerCase() === 'rejected' && post.rejection_reason && (
+                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-200">
+                    <h4 className="text-sm font-semibold mb-1">Rejection Reason:</h4>
+                    <p className="text-base italic">&quot;{post.rejection_reason}&quot;</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
