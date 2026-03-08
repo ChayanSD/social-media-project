@@ -21,6 +21,7 @@ import {
   MessageSquare,
   CreditCard,
   RefreshCw,
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
 import { useGetCurrentUserProfileQuery } from "@/store/authApi";
@@ -33,6 +34,7 @@ const menu = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { name: "Users", icon: Users, path: "/dashboard/user-management" },
   { name: "All Posts", icon: FileText, path: "/dashboard/all-posts" },
+  { name: "Pending Posts", icon: Clock, path: "/dashboard/pending-posts" },
   { name: "Communities", icon: UsersRound, path: "/dashboard/communities" },
   { name: "Conversations", icon: MessageSquare, path: "/dashboard/conversations" },
   { name: "Reports", icon: Flag, path: "/dashboard/reported-posts" },

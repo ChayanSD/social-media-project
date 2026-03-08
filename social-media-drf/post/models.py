@@ -47,7 +47,8 @@ class Post(models.Model):
         help_text='Categories/subcategories this post belongs to'
     )
     is_pinned = models.BooleanField(default=False, help_text='Pinned posts appear at the top')
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='approved')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    rejection_reason = models.TextField(blank=True, null=True, help_text='Reason for rejection if the post status is "rejected"')
     shared_from = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,

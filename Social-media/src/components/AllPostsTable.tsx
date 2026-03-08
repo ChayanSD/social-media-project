@@ -1,13 +1,13 @@
 "use client";
 import { useMemo, useState } from "react";
-import { useGetAllPostsQuery, useDeletePostMutation, useApprovePostMutation, PostItem } from "@/store/postApi";
+import { useGetAllPostsQuery, useDeletePostMutation, useApprovePostMutation, useRejectPostMutation, PostItem } from "@/store/postApi";
 import { CustomTable, Column } from "@/components/admin/CustomTable";
 import { TableFilters } from "@/components/admin/TableFilters";
 import { DateFilter, DateRangePreset, DateRange } from "@/components/admin/DateFilter";
 import { SearchFilter } from "@/components/admin/SearchFilter";
 import { getApiBaseUrl } from "@/lib/utils";
 import Image from "next/image";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PostDetailsModal from "@/components/admin/PostDetailsModal";
@@ -30,8 +30,10 @@ export default function AllPostsTable() {
   });
   const [deletePost] = useDeletePostMutation();
   const [approvePost, { isLoading: isApproving }] = useApprovePostMutation();
+  const [rejectPost, { isLoading: isRejecting }] = useRejectPostMutation();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<{
     id: number | string;
     title: string;
@@ -40,6 +42,11 @@ export default function AllPostsTable() {
     id: number | string;
     title: string;
   } | null>(null);
+  const [postToReject, setPostToReject] = useState<{
+    id: number | string;
+    title: string;
+  } | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
   const [selectedPost, setSelectedPost] = useState<PostItem | null>(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
@@ -154,6 +161,36 @@ export default function AllPostsTable() {
         (error as { data?: { error?: string; message?: string } })?.data?.message ||
         "Failed to approve post";
       toast.error("Failed to approve post", { description: errorMessage });
+    }
+  };
+
+  const handleRejectClick = (post: PostItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!post.id) return;
+    const postTitle = post.title || "Post";
+    setPostToReject({ id: post.id, title: postTitle });
+    setRejectDialogOpen(true);
+  };
+
+  const handleRejectConfirm = async () => {
+    if (!postToReject) return;
+
+    try {
+      await rejectPost({
+        postId: postToReject.id,
+        reason: rejectionReason || "Violation of community guidelines"
+      }).unwrap();
+      toast.success("Post rejected successfully!");
+      setRejectDialogOpen(false);
+      setPostToReject(null);
+      setRejectionReason("");
+      refetch();
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as { data?: { error?: string; message?: string } })?.data?.error ||
+        (error as { data?: { error?: string; message?: string } })?.data?.message ||
+        "Failed to reject post";
+      toast.error("Failed to reject post", { description: errorMessage });
     }
   };
 
@@ -313,6 +350,16 @@ export default function AllPostsTable() {
                 <CheckCircle className="w-4 h-4 text-green-500" />
               </button>
             )}
+            {isPending && (
+              <button
+                onClick={(e) => handleRejectClick(row, e)}
+                disabled={isRejecting}
+                className="p-2 cursor-pointer rounded-lg bg-white/10 hover:bg-white/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Reject post"
+              >
+                <XCircle className="w-4 h-4 text-red-500" />
+              </button>
+            )}
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -439,6 +486,35 @@ export default function AllPostsTable() {
         onCancel={() => {
           setApproveDialogOpen(false);
           setPostToApprove(null);
+        }}
+      />
+
+      {/* Reject Confirmation Dialog */}
+      <ConfirmDialog
+        open={rejectDialogOpen}
+        title="Reject Post?"
+        description={
+          <div className="space-y-4">
+            <p>Are you sure you want to reject &quot;{postToReject?.title}&quot;?</p>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-200">Rejection Reason (Optional)</label>
+              <textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Violation of community guidelines..."
+                className="w-full h-24 bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
+              />
+            </div>
+          </div>
+        }
+        confirmLabel="Reject"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={handleRejectConfirm}
+        onCancel={() => {
+          setRejectDialogOpen(false);
+          setPostToReject(null);
+          setRejectionReason("");
         }}
       />
 
