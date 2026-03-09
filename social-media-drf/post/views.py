@@ -11,6 +11,7 @@ from datetime import timedelta
 from .models import *
 from .serializers import *
 from django.core.files.storage import default_storage
+from .notifications import notify_admins
 from rest_framework import parsers
 from community.models import *
 from community.serializers import *
@@ -1894,7 +1895,7 @@ class FollowViewSet(viewsets.ModelViewSet):
         }
         
         # Get counts for each user using optimized queries
-        from django.db.models import Count
+        from django.db.models import Count, Q
         followers_counts = dict(
             Follow.objects.filter(following_id__in=user_ids)
             .values('following_id')
@@ -1966,6 +1967,12 @@ class PostReportViewSet(viewsets.ModelViewSet):
     queryset = PostReport.objects.all()
     serializer_class = PostReportSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+    def perform_create(self, serializer):
+        report = serializer.save(reporter=self.request.user)
+        # Notify admins about new report
+        notify_admins(self.request.user, 'admin_new_report', post=report.post)
+
     http_method_names = ['get', 'post', 'head', 'options', 'patch', 'delete']
 
     def get_queryset(self):

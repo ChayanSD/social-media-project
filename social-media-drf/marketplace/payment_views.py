@@ -15,6 +15,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
 from accounts.permissions import IsAdmin
+from post.notifications import notify_admins
 from .models import SubscriptionPlan, UserSubscription, Payment, PostCredit
 from .payment_serializers import (
     SubscriptionPlanSerializer,
@@ -316,13 +317,18 @@ class UserSubscriptionViewSet(viewsets.ModelViewSet):
                         status.HTTP_402_PAYMENT_REQUIRED,
                     )
 
-                return success_response("Subscription created successfully.", {
+                resp = success_response("Subscription created successfully.", {
                     'subscription_id': local_subscription.id,
                     'stripe_subscription_id': stripe_subscription.get('id'),
                     'client_secret': client_secret,
                     'payment_status': payment_status,
                     'requires_action': requires_action,
                 })
+                
+                # Notify admins about new subscription
+                notify_admins(request.user, 'admin_new_subscription')
+                
+                return resp
         except stripe.error.StripeError as exc:
             logger.error("Stripe error creating subscription: %s", str(exc), exc_info=True)
             return error_response(f"Payment error: {str(exc)}")
