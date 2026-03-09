@@ -76,6 +76,18 @@ const NotificationDropdown = ({
     // Navigate based on notification type
     if (notification.notification_type === "community_invite" && notification.community_name) {
       router.push(`/main/communities/${encodeURIComponent(notification.community_name)}`);
+    } else if (notification.notification_type === "admin_new_user") {
+      router.push(`/dashboard/user-management`);
+    } else if (notification.notification_type === "admin_new_post") {
+      router.push(`/dashboard/pending-posts`);
+    } else if (notification.notification_type === "admin_new_community") {
+      router.push(`/dashboard/communities`);
+    } else if (notification.notification_type === "admin_new_report" || notification.notification_type === "admin_new_user_report") {
+      router.push(`/dashboard/reported-posts`);
+    } else if (notification.notification_type === "admin_new_subscription") {
+      router.push(`/dashboard/subscriptions`);
+    } else if (notification.notification_type === "admin_new_contact") {
+      router.push(`/dashboard/contacts`);
     } else if (notification.post) {
       router.push(`/main/post/${notification.post}`);
     }
@@ -104,6 +116,28 @@ const NotificationDropdown = ({
       return `${senderName} invited you to join`;
     }
 
+    if (notification.notification_type === "admin_new_user") {
+      return `New User: ${senderName} signed up`;
+    }
+    if (notification.notification_type === "admin_new_post") {
+      return `New Post: ${senderName} created a post`;
+    }
+    if (notification.notification_type === "admin_new_community") {
+      return `New Community: ${senderName} created a community`;
+    }
+    if (notification.notification_type === "admin_new_report") {
+      return `New Report: ${senderName} reported a post`;
+    }
+    if (notification.notification_type === "admin_new_user_report") {
+      return `New User Report: ${senderName} reported a user`;
+    }
+    if (notification.notification_type === "admin_new_subscription") {
+      return `New Subscription: ${senderName} purchased a plan`;
+    }
+    if (notification.notification_type === "admin_new_contact") {
+      return `New Message: ${senderName} sent a contact form`;
+    }
+
     return "New notification";
   };
 
@@ -118,6 +152,10 @@ const NotificationDropdown = ({
 
     if (notification.post_title) {
       return notification.post_title;
+    }
+
+    if (notification.community_name) {
+      return notification.community_name;
     }
 
     return "";
@@ -223,7 +261,7 @@ const NotificationDropdown = ({
                     </div>
                     <div className="flex-1 min-w-0">
                       <p
-                        className={`text-sm line-clamp-1 ${isUnread
+                        className={`text-sm line-clamp-2 ${isUnread
                           ? "font-semibold text-white"
                           : "font-normal text-gray-400"
                           }`}

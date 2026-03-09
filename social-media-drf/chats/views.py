@@ -16,6 +16,7 @@ from .serializers import (
 from accounts.serializers import UserSerializer
 from accounts.permissions import IsAdmin
 from post.models import Follow
+from post.notifications import notify_admins
 
 User = get_user_model()
 
@@ -1521,6 +1522,9 @@ class ReportUserView(APIView):
         if serializer.is_valid():
             report = serializer.save(reporter=request.user)
             report_serializer = UserReportSerializer(report, context={'request': request})
+            
+            # Notify admins about new user report
+            notify_admins(request.user, 'admin_new_user_report')
             
             return Response({
                 "success": True,

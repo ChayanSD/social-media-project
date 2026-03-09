@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import *
 from django.contrib.auth import get_user_model
 from utils.image_processing import compress_image
+from post.notifications import notify_admins
 
 User = get_user_model()
 
@@ -171,6 +172,9 @@ class CommunitySerializer(serializers.ModelSerializer):
             role='admin',
             is_approved=True
         )
+        
+        # Notify admins about new community
+        notify_admins(request.user, 'admin_new_community', community=community)
         
         return community
 

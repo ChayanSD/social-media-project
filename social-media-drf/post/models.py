@@ -174,6 +174,13 @@ class Notification(models.Model):
         ('community_join_approved', 'Join Approved'),
         ('community_post', 'New Community Post'),
         ('community_role_changed', 'Role Changed'),
+        ('admin_new_user', 'Admin: New User Signup'),
+        ('admin_new_post', 'Admin: New Post Created'),
+        ('admin_new_community', 'Admin: New Community Created'),
+        ('admin_new_report', 'Admin: New Post Report'),
+        ('admin_new_user_report', 'Admin: New User Report'),
+        ('admin_new_subscription', 'Admin: New Subscription'),
+        ('admin_new_contact', 'Admin: New Contact Message'),
     ]
 
     recipient = models.ForeignKey(

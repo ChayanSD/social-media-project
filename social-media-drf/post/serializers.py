@@ -5,6 +5,7 @@ from utils.image_processing import compress_image
 from accounts.models import Profile
 from accounts.serializers import UserSerializer
 from interest.models import SubCategory
+from .notifications import notify_admins
 
 """ Serializers for Posts """
 class LikeSerializer(serializers.ModelSerializer):
@@ -252,6 +253,9 @@ class PostSerializer(serializers.ModelSerializer):
 
             post.media_file = file_paths
             post.save()
+
+        # Notify admins about new post
+        notify_admins(post.user, 'admin_new_post', post=post)
 
         return post
     

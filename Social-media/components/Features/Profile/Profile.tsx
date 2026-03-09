@@ -132,12 +132,14 @@ const Profile = () => {
     };
   }, [hasMore, isLoading, activeTab]);
 
-  // Separate approved posts and drafts
-  const { approvedPosts, draftPosts } = useMemo(() => {
+  // Separate posts by status
+  const { approvedPosts, draftPosts, pendingPosts, rejectedPosts } = useMemo(() => {
     const approved = allLoadedPosts.filter(p => p.status === 'approved' || !p.status);
     const drafts = allLoadedPosts.filter(p => p.status === 'draft');
+    const pending = allLoadedPosts.filter(p => p.status === 'pending');
+    const rejected = allLoadedPosts.filter(p => p.status === 'rejected');
 
-    return { approvedPosts: approved, draftPosts: drafts };
+    return { approvedPosts: approved, draftPosts: drafts, pendingPosts: pending, rejectedPosts: rejected };
   }, [allLoadedPosts]);
 
   const handlePublishDraft = async (postId: number | string) => {
@@ -220,7 +222,7 @@ const Profile = () => {
       );
     }
 
-    if (!approvedPosts.length && !draftPosts.length) {
+    if (!approvedPosts.length && !draftPosts.length && !pendingPosts.length && !rejectedPosts.length) {
       return (
         <EmptyPostsState
           message="You haven't created any posts yet"
@@ -231,12 +233,14 @@ const Profile = () => {
 
     return (
       <div className="space-y-6">
-        {/* Approved Posts Only - Drafts are shown in Posts tab */}
-        {approvedPosts.map((post) => (
-          <Post key={post.id} post={post} profile={profile} />
-        ))}
+        {/* Personal Posts (Approved, Pending, Rejected) - Drafts are shown in Posts tab */}
+        {[...approvedPosts, ...pendingPosts, ...rejectedPosts]
+          .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+          .map((post) => (
+            <Post key={post.id} post={post} profile={profile} />
+          ))}
 
-        {approvedPosts.length === 0 && (
+        {approvedPosts.length === 0 && pendingPosts.length === 0 && rejectedPosts.length === 0 && (
           <EmptyPostsState
             message="No published posts yet"
             showCreateButton={false}
@@ -333,8 +337,32 @@ const Profile = () => {
                     </div>
                   )}
 
+                  {/* Pending Posts Section */}
+                  {pendingPosts.length > 0 && (
+                    <div className="border-t border-white/10 pt-6 mt-6">
+                      <h3 className="text-lg font-semibold text-white/70 mb-4">Under Review</h3>
+                      <div className="space-y-6">
+                        {pendingPosts.map((post) => (
+                          <Post key={post.id} post={post} profile={profile} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Rejected Posts Section */}
+                  {rejectedPosts.length > 0 && (
+                    <div className="border-t border-white/10 pt-6 mt-6">
+                      <h3 className="text-lg font-semibold text-white/70 mb-4">Rejected Posts</h3>
+                      <div className="space-y-6">
+                        {rejectedPosts.map((post) => (
+                          <Post key={post.id} post={post} profile={profile} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Approved Posts in Posts Tab */}
-                  {approvedPosts.length > 0 && (
+                  {(approvedPosts.length > 0 || pendingPosts.length > 0 || rejectedPosts.length > 0) && (
                     <div className="border-t border-white/10 pt-6 mt-6">
                       <h3 className="text-lg font-semibold text-white/70 mb-4">Published Posts</h3>
                       <div className="space-y-6">

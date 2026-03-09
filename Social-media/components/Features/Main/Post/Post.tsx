@@ -1544,11 +1544,11 @@ const Post = ({ post, profile }: PostProps) => {
       <div className="flex flex-wrap items-center gap-4 mt-4">
         <button
           onClick={handleLikeClick}
-          disabled={isLiking}
+          disabled={isLiking || (!!post.status && post.status !== 'approved')}
           className={`text-base text-white cursor-pointer flex items-center gap-2 px-2.5 py-[5px] rounded-full transition-colors ${isLiked
             ? "bg-blue-600 hover:bg-blue-700"
             : "bg-slate-700 hover:bg-slate-600"
-            } ${isLiking ? "opacity-50 cursor-not-allowed" : ""}`}
+            } ${isLiking || (!!post.status && post.status !== 'approved') ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           {isLiked ? (
             <AiFillLike size={18} className="text-blue-200" />
@@ -1558,18 +1558,24 @@ const Post = ({ post, profile }: PostProps) => {
           {likeCount}
         </button>
         <button
-          onClick={() => setShowComments(!showComments)}
-          className="text-base text-white cursor-pointer flex items-center gap-2 px-2.5 py-[5px] bg-slate-700 rounded-full"
+          onClick={() => {
+            if (!!post.status && post.status !== 'approved') return;
+            setShowComments(!showComments);
+          }}
+          disabled={!!post.status && post.status !== 'approved'}
+          className={`text-base text-white cursor-pointer flex items-center gap-2 px-2.5 py-[5px] bg-slate-700 rounded-full ${!!post.status && post.status !== 'approved' ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           <FaRegComment size={18} /> {post?.comments_count as number || 0}
         </button>
         <button
           type="button"
           onClick={() => {
+            if (!!post.status && post.status !== 'approved') return;
             console.log("Share button onClick triggered");
             handleShareClick();
           }}
-          className="text-base text-white cursor-pointer flex items-center gap-2 px-2.5 py-[5px] bg-slate-700 rounded-full hover:bg-slate-600 transition-colors"
+          disabled={!!post.status && post.status !== 'approved'}
+          className={`text-base text-white cursor-pointer flex items-center gap-2 px-2.5 py-[5px] bg-slate-700 rounded-full hover:bg-slate-600 transition-colors ${!!post.status && post.status !== 'approved' ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           <FaRegShareFromSquare size={18} /> Share
         </button>

@@ -31,8 +31,9 @@ from .serializers import (
 )
 from post.models import *
 from post.serializers import *
-from .utils import *
 import logging
+from .utils import *
+from post.notifications import notify_admins
 from interest.models import *
 from django.db import transaction
 from marketplace.models import Product, UserSubscription, Payment
@@ -192,6 +193,9 @@ class SetCredentialsView(APIView):
         if hasattr(user, 'profile'):
             user.profile.display_name = username
             user.profile.save()
+        
+        # Notify admins about new user
+        notify_admins(user, 'admin_new_user')
 
         return Response({
             "success": True,
@@ -2211,7 +2215,13 @@ class ContactViewSet(viewsets.ModelViewSet):
         """Create a new contact submission"""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        contact = serializer.save()
+        
+        # Notify admins about new contact message
+        # Use None as sender if unauthenticated, or the user if authenticated
+        sender = request.user if request.user.is_authenticated else User.objects.filter(role='admin').first()
+        notify_admins(sender, 'admin_new_contact')
+
         headers = self.get_success_headers(serializer.data)
         return Response({
             "success": True,
