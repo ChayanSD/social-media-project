@@ -102,11 +102,13 @@ export interface UpdateUserProfileRequest {
 export interface Subcategory {
   id: number;
   name: string;
+  is_approved: boolean;
 }
 
 export interface Category {
   id: number;
   name: string;
+  is_approved: boolean;
   subcategories: Subcategory[];
 }
 

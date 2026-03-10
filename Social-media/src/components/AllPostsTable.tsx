@@ -7,7 +7,8 @@ import { DateFilter, DateRangePreset, DateRange } from "@/components/admin/DateF
 import { SearchFilter } from "@/components/admin/SearchFilter";
 import { getApiBaseUrl } from "@/lib/utils";
 import Image from "next/image";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, Trash2 } from "lucide-react";
+import { Tooltip } from "@/components/admin/Tooltip";
 import { toast } from "sonner";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PostDetailsModal from "@/components/admin/PostDetailsModal";
@@ -338,45 +339,41 @@ export default function AllPostsTable() {
         const isRejected = postStatus === "rejected";
 
         return (
-          <div className="flex items-center justify-center space-x-3">
+          <div className="flex items-center justify-center space-x-2">
             {/* Show approve button for pending or rejected posts */}
             {(isPending || isRejected) && (
-              <button
-                onClick={(e) => handleApproveClick(row, e)}
-                disabled={isApproving}
-                className="p-2 cursor-pointer rounded-lg bg-white/10 hover:bg-white/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Approve and Repost"
-              >
-                <CheckCircle className="w-4 h-4 text-green-500" />
-              </button>
+              <Tooltip position="left" text="Approve & Repost">
+                <button
+                  onClick={(e) => handleApproveClick(row, e)}
+                  disabled={isApproving}
+                  className="p-2 cursor-pointer text-green-500 rounded-lg bg-white/10 hover:bg-white/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                </button>
+              </Tooltip>
             )}
             {isPending && (
-              <button
-                onClick={(e) => handleRejectClick(row, e)}
-                disabled={isRejecting}
-                className="p-2 cursor-pointer rounded-lg bg-white/10 hover:bg-white/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Reject post"
-              >
-                <XCircle className="w-4 h-4 text-red-500" />
-              </button>
+              <Tooltip position="left" text="Reject Post">
+                <button
+                  onClick={(e) => handleRejectClick(row, e)}
+                  disabled={isRejecting}
+                  className="p-2 cursor-pointer text-red-500 rounded-lg bg-white/10 hover:bg-white/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <XCircle className="w-4 h-4" />
+                </button>
+              </Tooltip>
             )}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteClick(row);
-              }}
-              className="p-2 cursor-pointer rounded-lg bg-white/10 hover:bg-white/20 transition"
-              title="Delete post"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-4 h-4"
+            <Tooltip position="left" text="Delete Post">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClick(row);
+                }}
+                className="p-2 cursor-pointer text-white/50 hover:text-red-500 rounded-lg bg-white/10 hover:bg-white/20 transition"
               >
-                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-              </svg>
-            </button>
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </Tooltip>
           </div>
         );
       },

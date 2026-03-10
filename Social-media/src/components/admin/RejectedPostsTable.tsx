@@ -5,6 +5,7 @@ import { CustomTable, Column } from "@/components/admin/CustomTable";
 import { getApiBaseUrl } from "@/lib/utils";
 import Image from "next/image";
 import { Trash2, CheckCircle } from "lucide-react";
+import { Tooltip } from "@/components/admin/Tooltip";
 import PostDetailsModal from "@/components/admin/PostDetailsModal";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { toast } from "sonner";
@@ -207,22 +208,24 @@ export default function RejectedPostsTable() {
     {
       header: "Actions",
       accessor: (row) => (
-        <div className="flex items-center justify-center space-x-3">
-          <button
-            onClick={(e) => handleApproveClick(row, e)}
-            disabled={isApproving}
-            className="p-2 cursor-pointer text-green-500 rounded-lg bg-white/10 hover:bg-white/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Approve and Repost"
-          >
-            <CheckCircle className="w-4 h-4" />
-          </button>
-          <button
-            onClick={(e) => handleDeleteClick(row, e)}
-            className="p-2 cursor-pointer text-red-500 rounded-lg bg-white/10 hover:bg-white/20 transition"
-            title="Delete post"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+        <div className="flex items-center justify-center space-x-2">
+          <Tooltip position="left" text="Approve & Repost">
+            <button
+              onClick={(e) => handleApproveClick(row, e)}
+              disabled={isApproving}
+              className="p-2 cursor-pointer text-green-500 rounded-lg bg-white/10 hover:bg-white/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <CheckCircle className="w-4 h-4" />
+            </button>
+          </Tooltip>
+          <Tooltip position="left" text="Delete Post">
+            <button
+              onClick={(e) => handleDeleteClick(row, e)}
+              className="p-2 cursor-pointer text-white/50 hover:text-red-500 rounded-lg bg-white/10 hover:bg-white/20 transition"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </Tooltip>
         </div>
       ),
       className: "text-center",

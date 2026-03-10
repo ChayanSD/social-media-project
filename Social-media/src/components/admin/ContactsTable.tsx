@@ -3,7 +3,8 @@ import { useMemo, useState } from "react";
 import { useGetContactsQuery, useMarkContactReadMutation, useDeleteContactMutation, ContactResponse } from "@/store/authApi";
 import { CustomTable, Column } from "@/components/admin/CustomTable";
 import { toast } from "sonner";
-import { CheckCircle, Mail, MailOpen } from "lucide-react";
+import { CheckCircle, Mail, MailOpen, Trash2 } from "lucide-react";
+import { Tooltip } from "@/components/admin/Tooltip";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
 export default function ContactsTable() {
@@ -166,30 +167,25 @@ export default function ContactsTable() {
     {
       header: "Actions",
       accessor: (row) => (
-        <div className="flex items-center justify-center space-x-3">
+        <div className="flex items-center justify-center space-x-2">
           {!row.is_read && row.id && (
-            <button
-              onClick={(e) => handleMarkAsRead(row.id!, e)}
-              className="p-2 cursor-pointer rounded-lg bg-white/10 hover:bg-white/20 transition"
-              title="Mark as read"
-            >
-              <CheckCircle className="w-4 h-4" />
-            </button>
+            <Tooltip position="left" text="Mark as Read">
+              <button
+                onClick={(e) => handleMarkAsRead(row.id!, e)}
+                className="p-2 cursor-pointer text-green-500 rounded-lg bg-white/10 hover:bg-white/20 transition"
+              >
+                <CheckCircle className="w-4 h-4" />
+              </button>
+            </Tooltip>
           )}
-          <button
-            onClick={(e) => handleDeleteClick(row, e)}
-            className="p-2 cursor-pointer rounded-lg bg-white/10 hover:bg-white/20 transition"
-            title="Delete contact"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-4 h-4"
+          <Tooltip position="left" text="Delete Contact">
+            <button
+              onClick={(e) => handleDeleteClick(row, e)}
+              className="p-2 cursor-pointer text-white/50 hover:text-red-500 rounded-lg bg-white/10 hover:bg-white/20 transition"
             >
-              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-            </svg>
-          </button>
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </Tooltip>
         </div>
       ),
       className: "text-center",

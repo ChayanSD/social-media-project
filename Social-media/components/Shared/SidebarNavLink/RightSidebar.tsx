@@ -46,8 +46,11 @@ const RightSidebar = () => {
   // Get interest categories
   const categories = useMemo(() => {
     if (!categoriesResponse) return [];
-    const data = categoriesResponse.data || [];
-    return Array.isArray(data) ? data.slice(0, 5) : [];
+    const data = (categoriesResponse.data || []) as any[];
+    // Filter to only show approved categories
+    return data
+      .filter((cat) => cat.is_approved === true)
+      .slice(0, 5);
   }, [categoriesResponse]);
 
   const formatMembers = (members: number) => {
@@ -186,8 +189,9 @@ const RightSidebar = () => {
         ) : categories.length === 0 ? (
           <p className="text-white/60 text-center py-4">No categories available</p>
         ) : (
-          categories.slice(0, 5).map((category) => {
-            const subcategoryCount = category.subcategories?.length || 0;
+          categories.map((category) => {
+            const approvedSubcategories = category.subcategories?.filter((sub: any) => sub.is_approved === true) || [];
+            const subcategoryCount = approvedSubcategories.length;
             return (
               <Link
                 key={category.id}

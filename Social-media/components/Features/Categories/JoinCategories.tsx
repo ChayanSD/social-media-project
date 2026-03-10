@@ -18,6 +18,8 @@ import {
 } from '@/store/authApi';
 import { toast } from 'sonner';
 import ErrorState from '../../Shared/ErrorState';
+import ProposeCategoryModal from './ProposeCategoryModal';
+import ProposeSubcategoryModal from './ProposeSubcategoryModal';
 
 const JoinCategories = () => {
   const { data: categoriesResponse, isLoading, isError, refetch: refetchCategories } = useGetCategoriesQuery();
@@ -27,7 +29,19 @@ const JoinCategories = () => {
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
 
-  const categories = categoriesResponse?.data || [];
+  const [isProposeCategoryOpen, setIsProposeCategoryOpen] = useState(false);
+  const [isProposeSubcategoryOpen, setIsProposeSubcategoryOpen] = useState(false);
+  const [selectedCategoryForPropose, setSelectedCategoryForPropose] = useState<string | null>(null);
+
+  const allCategories = categoriesResponse?.data || [];
+  const categories = useMemo(() => {
+    return allCategories
+      .filter(cat => cat.is_approved === true)
+      .map(cat => ({
+        ...cat,
+        subcategories: cat.subcategories.filter(sub => sub.is_approved === true)
+      }));
+  }, [allCategories]);
   const profile = profileResponse?.data;
 
   // Get user's current interests (subcategory IDs)
@@ -79,27 +93,20 @@ const JoinCategories = () => {
   };
 
   const handleToggleSubcategory = async (subcategoryId: number) => {
-    const currentIds = Array.from(userSubcategoryIds);
-    let newIds: number[];
-
     if (isSubcategoryJoined(subcategoryId)) {
-      // Remove subcategory
-      newIds = currentIds.filter(id => id !== subcategoryId);
-    } else {
-      // Add subcategory
-      newIds = [...currentIds, subcategoryId];
+      toast.info('This interest is already in your profile. To remove it, please go to the "Manage Categories" page.');
+      return;
     }
+
+    const currentIds = Array.from(userSubcategoryIds);
+    const newIds = [...currentIds, subcategoryId];
 
     try {
       await updateUserProfile({
         subcategory_ids: newIds,
       }).unwrap();
 
-      toast.success(
-        isSubcategoryJoined(subcategoryId)
-          ? 'Interest removed successfully!'
-          : 'Interest added successfully!'
-      );
+      toast.success('Interest added successfully!');
     } catch (error: unknown) {
       const errorMessage = (error as { data?: { error?: string; message?: string } })?.data?.error ||
         (error as { data?: { error?: string; message?: string } })?.data?.message ||
@@ -144,9 +151,9 @@ const JoinCategories = () => {
           description="Explore and join categories that interest you. Select subcategories to personalize your feed."
         />
 
-        {/* Search Bar */}
-        <div className="mb-8">
-          <div className="relative">
+        {/* Search Bar and Propose Button */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="relative flex-grow">
             <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5" />
             <input
               type="text"
@@ -156,6 +163,13 @@ const JoinCategories = () => {
               className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 text-white placeholder-white/40"
             />
           </div>
+          <button
+            onClick={() => setIsProposeCategoryOpen(true)}
+            className="flex items-center justify-center gap-2 px-6 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-purple-500/20 whitespace-nowrap"
+          >
+            <FiPlus className="w-5 h-5" />
+            Propose New Category
+          </button>
         </div>
 
         {/* Categories List */}
@@ -168,7 +182,7 @@ const JoinCategories = () => {
             filteredCategories.map((category) => (
               <div
                 key={category.id}
-                className="bg-white/5 h-full rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all"
+                className="bg-white/5 h-full rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all flex flex-col"
               >
                 <div className="flex items-center gap-3 mb-3">
                   <button
@@ -196,42 +210,71 @@ const JoinCategories = () => {
                     {category.subcategories.length === 0 ? (
                       <p className="text-white/40 text-base">No subcategories</p>
                     ) : (
-                      <div className="flex flex-wrap gap-3">
-                        {category.subcategories.map((subcategory) => {
-                          const isJoined = isSubcategoryJoined(subcategory.id);
-                          return (
-                            <button
-                              key={subcategory.id}
-                              onClick={() => handleToggleSubcategory(subcategory.id)}
-                              disabled={isUpdating}
-                              className={`px-4 py-2 rounded-full text-base border transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${isJoined
+                      <div className="flex flex-wrap gap-3 mb-4">
+                        {category.subcategories
+                          .map((subcategory) => {
+                            const isJoined = isSubcategoryJoined(subcategory.id);
+                            return (
+                              <button
+                                key={subcategory.id}
+                                onClick={() => handleToggleSubcategory(subcategory.id)}
+                                disabled={isUpdating}
+                                className={`px-4 py-2 rounded-full text-base border transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${isJoined
                                   ? "border-teal-400 bg-teal-400/20 text-teal-400"
                                   : "border-white/30 text-white hover:border-white/50 hover:bg-white/10"
-                                }`}
-                            >
-                              {isJoined ? (
-                                <>
-                                  <FiCheck className="w-4 h-4" />
-                                  {subcategory.name}
-                                </>
-                              ) : (
-                                <>
-                                  <FiPlus className="w-4 h-4" />
-                                  {subcategory.name}
-                                </>
-                              )}
-                            </button>
-                          );
-                        })}
+                                  }`}
+                              >
+                                {isJoined ? (
+                                  <>
+                                    <FiCheck className="w-4 h-4" />
+                                    {subcategory.name}
+                                  </>
+                                ) : (
+                                  <>
+                                    <FiPlus className="w-4 h-4" />
+                                    {subcategory.name}
+                                  </>
+                                )}
+                              </button>
+                            );
+                          })}
                       </div>
                     )}
                   </div>
                 )}
+
+                {/* Propose Subcategory Button at bottom of card */}
+                <div className="mt-auto pt-4">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedCategoryForPropose(category.name);
+                      setIsProposeSubcategoryOpen(true);
+                    }}
+                    className="w-full py-2.5 flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white/70 hover:text-white transition-all border border-white/5 hover:border-white/20"
+                  >
+                    <FiPlus className="w-4 h-4" />
+                    Propose Interest
+                  </button>
+                </div>
               </div>
             ))
           )}
         </div>
       </div>
+
+      <ProposeCategoryModal
+        open={isProposeCategoryOpen}
+        onOpenChange={setIsProposeCategoryOpen}
+      />
+
+      {selectedCategoryForPropose && (
+        <ProposeSubcategoryModal
+          open={isProposeSubcategoryOpen}
+          onOpenChange={setIsProposeSubcategoryOpen}
+          categoryName={selectedCategoryForPropose}
+        />
+      )}
     </div>
   );
 };

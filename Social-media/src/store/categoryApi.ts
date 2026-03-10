@@ -3,11 +3,19 @@ import { baseApi } from "./baseApi";
 export interface Subcategory {
   id: number;
   name: string;
+  is_approved: boolean;
+  created_by_username?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Category {
   id: number;
   name: string;
+  is_approved: boolean;
+  created_by_username?: string;
+  created_at: string;
+  updated_at: string;
   subcategories: Subcategory[];
 }
 
@@ -113,6 +121,20 @@ export const categoryApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Categories"],
     }),
+    approveCategory: builder.mutation<{ success: boolean; message: string }, number>({
+      query: (id) => ({
+        url: `/api/categories/${id}/approve/`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Categories"],
+    }),
+    approveSubcategory: builder.mutation<{ success: boolean; message: string }, number>({
+      query: (id) => ({
+        url: `/api/subcategories/${id}/approve/`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Categories"],
+    }),
   }),
 });
 
@@ -124,5 +146,7 @@ export const {
   useCreateSubcategoryMutation,
   useUpdateSubcategoryMutation,
   useDeleteSubcategoryMutation,
+  useApproveCategoryMutation,
+  useApproveSubcategoryMutation,
 } = categoryApi;
 
