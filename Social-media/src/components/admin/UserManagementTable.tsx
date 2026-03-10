@@ -418,11 +418,11 @@ export default function UserManagementTable() {
                 }}
                 disabled={isAdmin && !isSuperAdmin}
                 className={`p-2 rounded-lg bg-white/10 transition ${isAdmin && !isSuperAdmin
-                  ? "opacity-40 cursor-not-allowed"
-                  : "hover:bg-red-500/30 cursor-pointer"
+                  ? "opacity-40 cursor-not-allowed text-white/50"
+                  : "hover:bg-white/20 text-white/50 hover:text-red-500 cursor-pointer"
                   }`}
               >
-                <Trash2 className="w-4 h-4 text-red-400" />
+                <Trash2 className="w-4 h-4" />
               </button>
             </Tooltip>
           </div>

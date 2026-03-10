@@ -5,7 +5,8 @@ import Image from "next/image";
 import { CustomTable, Column } from "@/components/admin/CustomTable";
 import { useGetAdminAllConversationsQuery, useGetAdminConversationMessagesQuery, useDeleteAdminConversationMutation, useCleanupAdminConversationMutation, AdminConversation } from "@/store/chatApi";
 import { getApiBaseUrl } from "@/lib/utils";
-import { MessageSquare, Users, Eraser } from "lucide-react";
+import { MessageSquare, Users, Eraser, Trash2 } from "lucide-react";
+import { Tooltip } from "@/components/admin/Tooltip";
 import ConversationMessagesModal from "./ConversationMessagesModal";
 import { TableFilters } from "@/components/admin/TableFilters";
 import { SearchFilter } from "@/components/admin/SearchFilter";
@@ -392,37 +393,32 @@ export default function ConversationsManagementTable() {
     {
       header: "Actions",
       accessor: (row) => (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            onClick={(e) => handleCleanupClick(row, e)}
-            disabled={isCleaning}
-            className={`p-2 rounded-lg bg-white/10 hover:bg-white/20 transition ${isCleaning
-              ? "opacity-50 cursor-not-allowed"
-              : "cursor-pointer"
-              }`}
-            title="Cleanup messages older than 3 months"
-          >
-            <Eraser className="w-4 h-4 text-orange-400" />
-          </button>
-
-          <button
-            onClick={(e) => handleDeleteClick(row, e)}
-            disabled={isDeleting}
-            className={`p-2 rounded-lg bg-white/10 hover:bg-white/20 transition ${isDeleting
-              ? "opacity-50 cursor-not-allowed"
-              : "cursor-pointer"
-              }`}
-            title="Delete conversation"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-4 h-4 text-red-400"
+        <div className="flex items-center justify-center space-x-2">
+          <Tooltip position="left" text="Cleanup Old Messages">
+            <button
+              onClick={(e) => handleCleanupClick(row, e)}
+              disabled={isCleaning}
+              className={`p-2 rounded-lg bg-white/10 hover:bg-white/20 transition ${isCleaning
+                ? "opacity-50 cursor-not-allowed"
+                : "cursor-pointer text-white/50 hover:text-orange-400"
+                }`}
             >
-              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-            </svg>
-          </button>
+              <Eraser className="w-4 h-4" />
+            </button>
+          </Tooltip>
+
+          <Tooltip position="left" text="Delete Conversation">
+            <button
+              onClick={(e) => handleDeleteClick(row, e)}
+              disabled={isDeleting}
+              className={`p-2 rounded-lg bg-white/10 hover:bg-white/20 transition ${isDeleting
+                ? "opacity-50 cursor-not-allowed"
+                : "cursor-pointer text-white/50 hover:text-red-500"
+                }`}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </Tooltip>
         </div>
       ),
       className: "text-center",

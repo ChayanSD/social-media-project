@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { useGetProductsQuery, useDeleteProductMutation, MarketplaceItem } from "@/store/marketplaceApi";
 import { getApiBaseUrl } from "@/lib/utils";
 import { CustomTable, Column } from "@/components/admin/CustomTable";
+import { Tooltip } from "@/components/admin/Tooltip";
+import { Trash2, Edit } from "lucide-react";
 import { TableFilters } from "@/components/admin/TableFilters";
 import { DateFilter, DateRangePreset, DateRange } from "@/components/admin/DateFilter";
 import { SearchFilter } from "@/components/admin/SearchFilter";
@@ -191,43 +193,31 @@ export default function AllProductsTable() {
     {
       header: "Actions",
       accessor: (row) => (
-        <div className="flex items-center justify-center space-x-3">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setProductToEdit(row);
-              setIsEditModalOpen(true);
-            }}
-            className="p-2 cursor-pointer rounded-lg bg-white/10 hover:bg-white/20 transition"
-            title="Edit service"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-4 h-4"
+        <div className="flex items-center justify-center space-x-2">
+          <Tooltip position="left" text="Edit Service">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setProductToEdit(row);
+                setIsEditModalOpen(true);
+              }}
+              className="p-2 cursor-pointer text-white/50 hover:text-blue-400 rounded-lg bg-white/10 hover:bg-white/20 transition"
             >
-              <path d="M21.7 7.3l-5-5c-.4-.4-1-.4-1.4 0l-12 12c-.1.1-.2.3-.2.4l-1 6c-.1.5.4 1 .9.9l6-1c.1 0 .3-.1.4-.2l12-12c.4-.4.4-1 0-1.4zM7.6 19.2l-3.5.6.6-3.5L14 6l2.9 2.9-9.3 9.3z" />
-            </svg>
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              const productName = (row.name || row.title || "Service") as string;
-              handleDeleteClick(row.id, productName);
-            }}
-            className="p-2 cursor-pointer rounded-lg bg-white/10 hover:bg-white/20 transition"
-            title="Delete service"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-4 h-4"
+              <Edit className="w-4 h-4" />
+            </button>
+          </Tooltip>
+          <Tooltip position="left" text="Delete Service">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const productName = (row.name || row.title || "Service") as string;
+                handleDeleteClick(row.id, productName);
+              }}
+              className="p-2 cursor-pointer text-white/50 hover:text-red-500 rounded-lg bg-white/10 hover:bg-white/20 transition"
             >
-              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-            </svg>
-          </button>
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </Tooltip>
         </div>
       ),
       className: "text-center",

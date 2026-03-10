@@ -5,8 +5,8 @@ import { CustomTable, Column } from "@/components/admin/CustomTable";
 import { TableFilters } from "@/components/admin/TableFilters";
 import { DateFilter, DateRangePreset, DateRange } from "@/components/admin/DateFilter";
 import { SearchFilter } from "@/components/admin/SearchFilter";
-import { CheckCircle2, XCircle, Clock, FileText, User, ShieldAlert, UserX, UserMinus } from "lucide-react";
-import { X } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, FileText, User, ShieldAlert, UserX, UserMinus, X, Trash2 } from "lucide-react";
+import { Tooltip } from "@/components/admin/Tooltip";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -363,50 +363,49 @@ export default function ReportedPostsTable() {
         const isPending = row.status === 'pending';
         const reportType = row.report_type || 'post';
         return (
-          <div className="flex items-center justify-center space-x-3">
+          <div className="flex items-center justify-center space-x-2">
             {isPending && (
               <>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleReview(row.id!, reportType as 'post' | 'user', 'resolved');
-                  }}
-                  disabled={isReviewing}
-                  className="p-2 rounded-lg bg-green-500/10 hover:bg-green-500/20 text-green-400 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  title="Mark as Resolved"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleReview(row.id!, reportType as 'post' | 'user', 'dismissed');
-                  }}
-                  disabled={isReviewing}
-                  className="p-2 rounded-lg bg-gray-500/10 hover:bg-gray-500/20 text-gray-400 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  title="Dismiss"
-                >
-                  <XCircle className="w-4 h-4" />
-                </button>
+                <Tooltip position="left" text="Mark as Resolved">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleReview(row.id!, reportType as 'post' | 'user', 'resolved');
+                    }}
+                    disabled={isReviewing}
+                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-green-400 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                  </button>
+                </Tooltip>
+                <Tooltip position="left" text="Dismiss Report">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleReview(row.id!, reportType as 'post' | 'user', 'dismissed');
+                    }}
+                    disabled={isReviewing}
+                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-gray-400 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <XCircle className="w-4 h-4" />
+                  </button>
+                </Tooltip>
               </>
             )}
             {!isPending && (
               <span className="text-sm text-white/40">Handled</span>
             )}
-            <button
-              onClick={(e) => handleDeleteClick(row, e)}
-              className="p-2 cursor-pointer rounded-lg bg-white/10 hover:bg-white/20 transition"
-              title="Delete report"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-4 h-4"
+            <Tooltip position="left" text="Delete Report">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClick(row, e)
+                }}
+                className="p-2 cursor-pointer text-white/50 hover:text-red-500 rounded-lg bg-white/10 hover:bg-white/20 transition"
               >
-                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-              </svg>
-            </button>
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </Tooltip>
           </div>
         );
       },

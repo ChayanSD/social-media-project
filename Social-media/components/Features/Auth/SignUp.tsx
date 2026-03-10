@@ -496,26 +496,30 @@ const SignUp = () => {
             onRetry={() => refetchCategories()}
           />
         ) : (
-          categoriesData?.data?.map((category) => (
-            <div key={category.id}>
-              <h3 className="text-lg font-medium mb-4 text-left">{category.name}</h3>
-              <div className="flex flex-wrap gap-3">
-                {category.subcategories.map((subcategory) => (
-                  <button
-                    key={subcategory.id}
-                    type="button"
-                    onClick={() => handleInterestToggle(subcategory.id)}
-                    className={`px-4 py-2 rounded-full text-base border transition ${selectedInterests.includes(subcategory.id)
-                      ? "border-teal-400 bg-teal-400/20 text-teal-400"
-                      : "border-gray-300 text-white hover:border-gray-200"
-                      }`}
-                  >
-                    {subcategory.name}
-                  </button>
-                ))}
+          categoriesData?.data
+            ?.filter((category) => category.is_approved === true)
+            ?.map((category) => (
+              <div key={category.id}>
+                <h3 className="text-lg font-medium mb-4 text-left">{category.name}</h3>
+                <div className="flex flex-wrap gap-3">
+                  {category.subcategories
+                    ?.filter((subcategory) => subcategory.is_approved === true)
+                    ?.map((subcategory) => (
+                      <button
+                        key={subcategory.id}
+                        type="button"
+                        onClick={() => handleInterestToggle(subcategory.id)}
+                        className={`px-4 py-2 rounded-full text-base border transition ${selectedInterests.includes(subcategory.id)
+                          ? "border-teal-400 bg-teal-400/20 text-teal-400"
+                          : "border-gray-300 text-white hover:border-gray-200"
+                          }`}
+                      >
+                        {subcategory.name}
+                      </button>
+                    ))}
+                </div>
               </div>
-            </div>
-          ))
+            ))
         )}
       </div>
 

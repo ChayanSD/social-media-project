@@ -10,6 +10,7 @@ import { getApiBaseUrl } from "@/lib/utils";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
+import { Tooltip } from "@/components/admin/Tooltip";
 import { CommunityItem } from "@/store/communityApi";
 
 export default function CommunityManagementTable() {
@@ -177,25 +178,19 @@ export default function CommunityManagementTable() {
       header: "Actions",
       accessor: (row) => {
         return (
-          <div className="flex items-center justify-center space-x-3">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedCommunity(row);
-                setDeleteDialogOpen(true);
-              }}
-              className="p-2 cursor-pointer rounded-lg bg-white/10 hover:bg-white/20 transition"
-              title="Delete Community"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-4 h-4"
+          <div className="flex items-center justify-center space-x-2">
+            <Tooltip position="left" text="Delete Community">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedCommunity(row);
+                  setDeleteDialogOpen(true);
+                }}
+                className="p-2 cursor-pointer text-white/50 hover:text-red-500 rounded-lg bg-white/10 hover:bg-white/20 transition"
               >
-                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-              </svg>
-            </button>
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </Tooltip>
           </div>
         );
       },

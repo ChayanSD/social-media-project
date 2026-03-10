@@ -6,12 +6,15 @@ import {
   FiTrash2,
   FiSearch,
   FiChevronDown,
-  FiChevronRight
+  FiChevronRight,
+  FiPlus
 } from 'react-icons/fi';
 import PageHeader from '../../Shared/PageHeader/PageHeader';
 import {
   useGetCategoriesQuery,
 } from '@/store/categoryApi';
+import ProposeCategoryModal from './ProposeCategoryModal';
+import ProposeSubcategoryModal from './ProposeSubcategoryModal';
 import {
   useGetCurrentUserProfileQuery,
   useUpdateUserProfileMutation
@@ -28,6 +31,10 @@ const ManageCategories = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [subcategoryToRemove, setSubcategoryToRemove] = useState<{ id: number; name: string; categoryName: string } | null>(null);
+
+  const [isProposeCategoryOpen, setIsProposeCategoryOpen] = useState(false);
+  const [isProposeSubcategoryOpen, setIsProposeSubcategoryOpen] = useState(false);
+  const [selectedCategoryForPropose, setSelectedCategoryForPropose] = useState<string | null>(null);
 
   const categories = categoriesResponse?.data || [];
   const profile = profileResponse?.data;
@@ -62,9 +69,12 @@ const ManageCategories = () => {
   // Filter categories to only show those with joined subcategories
   const joinedCategories = useMemo(() => {
     return categories
+      .filter(category => category.is_approved === true)
       .map(category => ({
         ...category,
-        subcategories: category.subcategories.filter(sub => userSubcategoryIds.has(sub.id))
+        subcategories: category.subcategories.filter(sub =>
+          userSubcategoryIds.has(sub.id) && sub.is_approved === true
+        )
       }))
       .filter(category => category.subcategories.length > 0);
   }, [categories, userSubcategoryIds]);
@@ -138,15 +148,17 @@ const ManageCategories = () => {
     <div className="max-w-[1220px] mx-auto px-4 py-8 text-white">
       <div className="page-container">
         {/* Header Section */}
-        <PageHeader
-          icon={<FiTag className="w-8 h-8 text-white" />}
-          title="Manage Categories"
-          description="View and manage your joined categories and interests. Remove any interest you no longer want."
-        />
+        <div className="mb-6">
+          <PageHeader
+            icon={<FiTag className="w-8 h-8 text-white" />}
+            title="Manage Categories"
+            description="View and manage your joined categories and interests. Remove any interest you no longer want."
+          />
+        </div>
 
-        {/* Search Bar */}
-        <div className="mb-8">
-          <div className="relative">
+        {/* Search Bar and Propose Button */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="relative flex-grow">
             <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5" />
             <input
               type="text"
@@ -156,6 +168,13 @@ const ManageCategories = () => {
               className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 text-white placeholder-white/40"
             />
           </div>
+          <button
+            onClick={() => setIsProposeCategoryOpen(true)}
+            className="flex items-center justify-center gap-2 px-6 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-purple-500/20 whitespace-nowrap"
+          >
+            <FiPlus className="w-5 h-5" />
+            Propose New Category
+          </button>
         </div>
 
         {/* Categories List */}
@@ -177,7 +196,7 @@ const ManageCategories = () => {
             filteredCategories.map((category) => (
               <div
                 key={category.id}
-                className="bg-white/5 h-full rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all"
+                className="bg-white/5 h-full rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all flex flex-col"
               >
                 <div className="flex items-center gap-3 mb-3">
                   <button
@@ -200,7 +219,7 @@ const ManageCategories = () => {
 
                 {/* Subcategories */}
                 {expandedCategories.has(category.id) && (
-                  <div className="ml-8 mt-4 space-y-2">
+                  <div className="ml-8 mt-4 space-y-2 mb-4">
                     {category.subcategories.map((subcategory) => (
                       <div
                         key={subcategory.id}
@@ -219,6 +238,20 @@ const ManageCategories = () => {
                     ))}
                   </div>
                 )}
+
+                {/* Propose Subcategory Button at bottom of card */}
+                <div className="mt-auto pt-4">
+                  <button
+                    onClick={() => {
+                      setSelectedCategoryForPropose(category.name);
+                      setIsProposeSubcategoryOpen(true);
+                    }}
+                    className="w-full py-2.5 flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white/70 hover:text-white transition-all border border-white/5 hover:border-white/20"
+                  >
+                    <FiPlus className="w-4 h-4" />
+                    Propose Interest
+                  </button>
+                </div>
               </div>
             ))
           )}
@@ -235,9 +268,21 @@ const ManageCategories = () => {
         onConfirm={handleRemoveConfirm}
         onCancel={handleRemoveCancel}
       />
+
+      <ProposeCategoryModal
+        open={isProposeCategoryOpen}
+        onOpenChange={setIsProposeCategoryOpen}
+      />
+
+      {selectedCategoryForPropose && (
+        <ProposeSubcategoryModal
+          open={isProposeSubcategoryOpen}
+          onOpenChange={setIsProposeSubcategoryOpen}
+          categoryName={selectedCategoryForPropose}
+        />
+      )}
     </div>
   );
 };
 
 export default ManageCategories;
-

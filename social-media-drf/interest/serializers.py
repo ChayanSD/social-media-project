@@ -6,9 +6,12 @@ from .models import *
 class SubCategorySerializer(serializers.ModelSerializer):
     """ Serializer for SubCategory """
     category_name = serializers.CharField(write_only=True)
+    created_by_username = serializers.ReadOnlyField(source='created_by.username')
+
     class Meta:
         model = SubCategory
-        fields = ['id', 'category_name', 'name']
+        fields = ['id', 'category_name', 'name', 'is_approved', 'created_by', 'created_by_username', 'created_at']
+        read_only_fields = ['is_approved', 'created_by', 'created_at']
         ref_name = 'InterestSubCategory'
 
     def create(self, validated_data):
@@ -19,10 +22,23 @@ class SubCategorySerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     """ Serializer for Category """
-    subcategories = SubCategorySerializer(many=True, read_only=True)
+    subcategories = serializers.SerializerMethodField()
+    created_by_username = serializers.ReadOnlyField(source='created_by.username')
+
     class Meta:
         model = Category
-        fields = ['id', 'name', 'subcategories']
+        fields = ['id', 'name', 'subcategories', 'is_approved', 'created_by', 'created_by_username', 'created_at']
+        read_only_fields = ['is_approved', 'created_by', 'created_at']
         ref_name = 'InterestCategory'
+
+    def get_subcategories(self, obj):
+        # Only show approved subcategories in the general list
+        # Unless the requester is staff
+        user = self.context.get('request').user if self.context.get('request') else None
+        if user and user.is_staff:
+            subs = obj.subcategories.all()
+        else:
+            subs = obj.subcategories.filter(is_approved=True)
+        return SubCategorySerializer(subs, many=True, context=self.context).data
 
 """ End of Serializers for Interest """
