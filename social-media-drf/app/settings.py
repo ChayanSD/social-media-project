@@ -9,6 +9,13 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
+from app.redis_config import (
+    get_cache_settings,
+    get_channel_layer_settings,
+    get_redis_url,
+    use_redis_channels,
+)
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -142,26 +149,11 @@ else:
 # CHANNEL LAYERS (Redis for WebSockets)
 # =============================================================================
 
-# Upstash Redis configuration for channel layers
-UPSTASH_REDIS_URL = os.environ.get('UPSTASH_REDIS_REST_URL', '')
-UPSTASH_REDIS_TOKEN = os.environ.get('UPSTASH_REDIS_REST_TOKEN', '')
+REDIS_URL = get_redis_url()
+USE_REDIS_CHANNELS = use_redis_channels()
 
-if os.environ.get('USE_REDIS_CHANNELS', 'False').lower() == 'true':
-    CHANNEL_LAYERS = {
-        'default': {
-            'BACKEND': 'channels_redis.core.RedisChannelLayer',
-            'CONFIG': {
-                'hosts': [os.environ.get('REDIS_URL', 'redis://localhost:6379/0')],
-            },
-        },
-    }
-else:
-    # Use in-memory channel layer for development/simple deployments
-    CHANNEL_LAYERS = {
-        'default': {
-            'BACKEND': 'channels.layers.InMemoryChannelLayer',
-        },
-    }
+CACHES = get_cache_settings()
+CHANNEL_LAYERS = get_channel_layer_settings(USE_REDIS_CHANNELS)
 
 # =============================================================================
 # PASSWORD VALIDATION
@@ -200,7 +192,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'accounts.authentication.CookieJWTAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -211,6 +203,19 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=360),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
+
+# =============================================================================
+# JWT COOKIE SETTINGS
+# =============================================================================
+
+AUTH_COOKIE_ACCESS = 'access_token'
+AUTH_COOKIE_REFRESH = 'refresh_token'
+AUTH_COOKIE_HTTP_ONLY = True
+AUTH_COOKIE_SECURE = not DEBUG          # True in prod (HTTPS only), False in local dev
+AUTH_COOKIE_SAMESITE = 'Lax'           # Works for same-site (localhost ports count as same-site)
+AUTH_COOKIE_PATH = '/'
+AUTH_COOKIE_ACCESS_MAX_AGE = 60 * 360  # 6 hours (matches ACCESS_TOKEN_LIFETIME)
+AUTH_COOKIE_REFRESH_MAX_AGE = 60 * 60 * 24 * 7  # 7 days (matches REFRESH_TOKEN_LIFETIME)
 
 # =============================================================================
 # CORS CONFIGURATION

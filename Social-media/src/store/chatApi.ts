@@ -222,7 +222,7 @@ export interface ReportUserResponse {
   error?: string | Record<string, unknown>;
 }
 
-export const chatApi = baseApi.injectEndpoints({
+export const chatApi = baseApi.injectEndpoints({ overrideExisting: true,
   endpoints: (builder) => ({
     getChatRooms: builder.query<GetChatRoomsResponse, void>({
       query: () => ({

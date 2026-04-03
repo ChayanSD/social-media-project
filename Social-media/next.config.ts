@@ -42,8 +42,6 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
-    // Allow localhost and backend service name
-    domains: ["localhost", "backend"],
   },
 
   // Environment variables available at runtime

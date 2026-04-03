@@ -10,7 +10,6 @@ import { useGetCurrentUserProfileQuery } from "@/store/authApi";
 import { FiEdit3, FiImage, FiLink } from "react-icons/fi";
 import { Loader2 } from "lucide-react";
 import { useSearch } from "@/contexts/SearchContext";
-import { getStoredAccessToken } from "@/lib/auth";
 import EmptyPostsState from "../../../Shared/EmptyPostsState";
 import ErrorState from "../../../Shared/ErrorState";
 import { useNewsFeedInfinite } from "@/hooks/useNewsFeedInfinite";
@@ -31,7 +30,6 @@ const useSearchSafe = () => {
  */
 const ExploreHome = () => {
   const router = useRouter();
-  const token = getStoredAccessToken();
   const { searchQuery } = useSearchSafe();
 
   const {
@@ -44,10 +42,11 @@ const ExploreHome = () => {
     refetch,
   } = useNewsFeedInfinite();
 
-  const { data: profileResponse } = useGetCurrentUserProfileQuery(undefined, {
-    skip: !token, // Skip if no token
-  });
+  const { data: profileResponse } = useGetCurrentUserProfileQuery();
   const profile = profileResponse?.data;
+  // Cookie-based: isAuthenticated = profile exists (no 401)
+  const isAuthenticated = !!profile;
+
 
   // Get all posts from all pages
   const allPosts = useMemo((): PostItem[] => {
@@ -135,8 +134,8 @@ const ExploreHome = () => {
         <div className="min-h-[47.4vh] flex items-center justify-center">
           <EmptyPostsState
             message="No posts available yet"
-            showCreateButton={!!token}
-            onCreateClick={token ? handleCreatePostClick : undefined}
+            showCreateButton={isAuthenticated}
+            onCreateClick={isAuthenticated ? handleCreatePostClick : undefined}
           />
         </div>
       );
@@ -182,7 +181,7 @@ const ExploreHome = () => {
       {/* <Story /> */}
 
       {/* Create Post Section - Only show if authenticated */}
-      {token && (
+      {isAuthenticated && (
         <div className="my-2 top-14 z-10">
           <div
             onClick={handleCreatePostClick}

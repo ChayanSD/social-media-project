@@ -1,7 +1,8 @@
 "use client";
 import Image from "next/image";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
+
 import {
   ChevronDown,
   Home,
@@ -24,11 +25,11 @@ import {
   Clock,
 } from "lucide-react";
 import Link from "next/link";
-import { useGetCurrentUserProfileQuery } from "@/store/authApi";
-import { clearStoredTokens, getUsernameFromToken, getStoredAccessToken, getRoleFromToken } from "@/lib/auth";
+import { useGetCurrentUserProfileQuery, useLogoutMutation } from "@/store/authApi";
 import { store } from "@/store/store";
 import { baseApi } from "@/store/baseApi";
 import { toast } from "sonner";
+
 
 const menu = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
@@ -54,18 +55,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-
-  // Fetch current user profile - MUST be called before any conditional returns
-  const { data: profileResponse, refetch: refetchProfile } = useGetCurrentUserProfileQuery();
+  // Fetch current user profile
+  const { data: profileResponse, isLoading: isCheckingAuth, isError: isProfileError } = useGetCurrentUserProfileQuery();
+  const [logoutMutation] = useLogoutMutation();
   const profile = profileResponse?.data;
 
-  // Get username from token or profile
-  const username = profile?.display_name || profile?.username || getUsernameFromToken(getStoredAccessToken()) || "User";
 
-  // Check admin authentication
-  const token = getStoredAccessToken();
-  const role = useMemo(() => getRoleFromToken(token), [token]);
+  // Derive identity from profile (server-authoritative, cookie-based)
+  const role = profile?.role;
+  const username = profile?.display_name || profile?.username || "User";
+
 
   // Sync active state with current pathname - MUST be called before any conditional returns
   useEffect(() => {
@@ -100,41 +99,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     };
   }, [isDropdownOpen]);
 
-  // Authentication check - MUST be called before any conditional returns
+  // Authentication check
   useEffect(() => {
-    setIsCheckingAuth(false);
-
-    // Check if user is authenticated
-    if (!token) {
+    if (isCheckingAuth) return;
+    if (isProfileError || !profile || role !== "admin") {
       router.replace("/dashboard/auth");
-      return;
     }
+  }, [isCheckingAuth, isProfileError, profile, role, router]);
 
-    // Check if token is expired
-    try {
-      const [, payload] = token.split(".");
-      if (payload) {
-        const data = JSON.parse(
-          atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
-        );
-        if (typeof data.exp === "number" && data.exp * 1000 <= Date.now()) {
-          clearStoredTokens();
-          router.replace("/dashboard/auth");
-          return;
-        }
-      }
-    } catch {
-      clearStoredTokens();
-      router.replace("/dashboard/auth");
-      return;
-    }
-
-    // Check if user is admin
-    if (role !== "admin") {
-      router.replace("/dashboard/auth");
-      return;
-    }
-  }, [token, role, router]);
 
   // Show loading state while checking authentication
   if (isCheckingAuth) {
@@ -153,37 +125,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return null;
   }
 
+
   // Handle logout
-  const handleLogout = () => {
+  const handleLogout = async () => {
     try {
-      // Clear tokens
-      clearStoredTokens();
-
-      // Clear RTK Query cache
-      store.dispatch(baseApi.util.resetApiState());
-
-      // Clear user data from storage
-      if (typeof window !== "undefined") {
-        window.localStorage.removeItem("user");
-        window.sessionStorage.removeItem("user");
-        window.localStorage.removeItem("role");
-        window.sessionStorage.removeItem("role");
-      }
-
-      // Close dropdown if open
-      setIsDropdownOpen(false);
-
-      // Show success message
-      toast.success("Logged out successfully");
-
-      // Redirect to admin login page
-      router.push("/dashboard/auth");
-    } catch (error) {
-      console.error("Logout error:", error);
-      toast.error("Error during logout");
-      // Still redirect even if there's an error
-      router.push("/dashboard/auth");
+      await logoutMutation().unwrap();
+    } catch {
+      // Ignore backend errors — still clear client cache
     }
+    store.dispatch(baseApi.util.resetApiState());
+    setIsDropdownOpen(false);
+    toast.success("Logged out successfully");
+    router.push("/dashboard/auth");
   };
 
   // Handle home navigation

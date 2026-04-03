@@ -3,7 +3,8 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { store } from '@/store/store';
 import { chatApi, type ChatMessage, type ChatUser } from '@/store/chatApi';
-import { getStoredAccessToken } from '@/lib/auth';
+
+
 import { getApiBaseUrl } from '@/lib/utils';
 
 type WebSocketMessage = {
@@ -64,7 +65,6 @@ export const useChatWebSocket = (options: UseChatWebSocketOptions = {}) => {
       // Use ref to get current roomId without adding it to dependencies
       const currentRoomId = roomIdRef.current;
       const apiUrl = getApiBaseUrl();
-      const token = getStoredAccessToken();
       
       // Convert HTTP/HTTPS URL to WebSocket URL
       let wsUrl = apiUrl.replace(/^http/, 'ws').replace(/\/$/, '');
@@ -77,12 +77,7 @@ export const useChatWebSocket = (options: UseChatWebSocketOptions = {}) => {
         wsUrl += '/ws/chat/direct/';
       }
       
-      // Add token as query parameter if available
-      if (token) {
-        const separator = wsUrl.includes('?') ? '&' : '?';
-        wsUrl += `${separator}token=${encodeURIComponent(token)}`;
-      }
-      
+      // WebSocket handshake automatically sends cookies (including HttpOnly ones)
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {

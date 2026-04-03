@@ -15,31 +15,43 @@ User = get_user_model()
 
 
 class JWTAuthMiddleware(BaseMiddleware):
-    """Custom middleware to authenticate WebSocket connections using JWT"""
-    
+    """Authenticate WebSocket connections using the HttpOnly access_token cookie."""
+
     async def __call__(self, scope, receive, send):
         close_old_connections()
-        
-        # Get token from query string or headers
-        query_string = scope.get('query_string', b'').decode()
+
+        headers = dict(scope.get('headers', []))
         token = None
-        
-        # Try to get token from query string
-        if query_string:
-            params = dict(param.split('=') for param in query_string.split('&') if '=' in param)
-            token = params.get('token')
-        
-        # Try to get token from headers
+
+        # 1. Read from HttpOnly cookie (primary, production-safe method)
+        cookie_header = headers.get(b'cookie', b'').decode()
+        if cookie_header:
+            cookies = {}
+            for part in cookie_header.split(';'):
+                part = part.strip()
+                if '=' in part:
+                    key, val = part.split('=', 1)
+                    cookies[key.strip()] = val.strip()
+            token = cookies.get(settings.AUTH_COOKIE_ACCESS)
+
+        # 2. Fallback: query string token (for clients that can't set cookies)
         if not token:
-            headers = dict(scope.get('headers', []))
+            query_string = scope.get('query_string', b'').decode()
+            if query_string:
+                params = dict(
+                    param.split('=') for param in query_string.split('&') if '=' in param
+                )
+                token = params.get('token')
+
+        # 3. Fallback: Authorization header
+        if not token:
             auth_header = headers.get(b'authorization', b'').decode()
             if auth_header.startswith('Bearer '):
                 token = auth_header.split(' ')[1]
-        
+
         user = None
         if token:
             try:
-                # Validate token
                 UntypedToken(token)
                 decoded_data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
                 user_id = decoded_data.get('user_id')
@@ -47,10 +59,10 @@ class JWTAuthMiddleware(BaseMiddleware):
                     user = await self.get_user(user_id)
             except (InvalidToken, TokenError, Exception):
                 user = None
-        
+
         scope['user'] = user
         return await super().__call__(scope, receive, send)
-    
+
     @database_sync_to_async
     def get_user(self, user_id):
         try:

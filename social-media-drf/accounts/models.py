@@ -51,7 +51,36 @@ class Profile(models.Model):
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance, display_name=instance.username)
+        profile = Profile.objects.create(user=instance, display_name=instance.username)
+        # Add default interest
+        try:
+            from interest.models import Category, SubCategory
+            # Attempt to find 'General' or just pick the first available approved subcategory
+            general_interest = SubCategory.objects.filter(name__iexact='General', is_approved=True).first()
+            
+            if not general_interest:
+                # If 'General' doesn't exist, try to find any approved subcategory
+                general_interest = SubCategory.objects.filter(is_approved=True).first()
+            
+            if not general_interest:
+                # If literally NO subcategories exist, and admin hasn't set any, create one
+                if instance.is_superuser: # Let superuser be creator
+                    creator = instance
+                else:
+                    from django.contrib.auth import get_user_model
+                    creator = get_user_model().objects.filter(is_superuser=True).first()
+                
+                cat, _ = Category.objects.get_or_create(name='General', defaults={'is_approved': True, 'created_by': creator})
+                general_interest, _ = SubCategory.objects.get_or_create(
+                    name='General', 
+                    category=cat, 
+                    defaults={'is_approved': True, 'created_by': creator}
+                )
+
+            if general_interest:
+                profile.subcategories.add(general_interest)
+        except Exception:
+            pass
 
 @receiver(post_delete, sender=Profile)
 def delete_profile_images(sender, instance, **kwargs):

@@ -291,7 +291,7 @@ export interface AdminSubscriptionsResponse {
   };
 }
 
-export const dashboardApi = baseApi.injectEndpoints({
+export const dashboardApi = baseApi.injectEndpoints({ overrideExisting: true,
   endpoints: (builder) => ({
     getDashboardAnalytics: builder.query<DashboardAnalyticsResponse, void>({
       query: () => ({

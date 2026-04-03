@@ -13,13 +13,15 @@ import { useGetCategoriesQuery } from '@/store/categoryApi';
 import { FiUsers, FiTag } from 'react-icons/fi';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { getStoredAccessToken } from '@/lib/auth';
+import { useGetCurrentUserProfileQuery } from '@/store/authApi';
+
 
 const RightSidebar = () => {
   const router = useRouter();
-  const token = getStoredAccessToken();
+  const { data: profileResponse } = useGetCurrentUserProfileQuery();
+  const isAuthenticated = !!profileResponse?.data;
   const { data: communitiesResponse, isLoading } = useGetPopularCommunitiesQuery(undefined, {
-    skip: false, // Allow unauthenticated users to see communities
+    skip: false,
   });
   const { data: categoriesResponse, isLoading: isCategoriesLoading } = useGetCategoriesQuery();
   const [joinCommunity, { isLoading: isJoining }] = useJoinCommunityMutation();
@@ -33,15 +35,14 @@ const RightSidebar = () => {
 
   // Filter to only show public communities (and restricted for authenticated users)
   const communities = useMemo(() => {
-    if (!token) {
-      // For unauthenticated users, only show public communities
+    if (!isAuthenticated) {
       return allCommunities.filter((c: CommunityItem) => c.visibility === 'public').slice(0, 5);
     }
-    // For authenticated users, show public and restricted
     return allCommunities.filter((c: CommunityItem) =>
       c.visibility === 'public' || c.visibility === 'restricted'
     ).slice(0, 5);
-  }, [allCommunities, token]);
+  }, [allCommunities, isAuthenticated]);
+
 
   // Get interest categories
   const categories = useMemo(() => {
@@ -142,7 +143,7 @@ const RightSidebar = () => {
                     <p className='text-gray-400 text-sm'>{formatMembers(community.members_count || 0)} Members</p>
                   </div>
                 </div>
-                {token ? (
+                {isAuthenticated ? (
                   <button
                     onClick={(e) => {
                       if (community.is_member) {

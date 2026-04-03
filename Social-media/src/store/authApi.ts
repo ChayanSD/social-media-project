@@ -25,6 +25,7 @@ export interface SetCredentialsRequest {
   email: string;
   username: string;
   password: string;
+  remember_me?: boolean;
 }
 
 export interface SetCredentialsResponse {
@@ -47,6 +48,7 @@ export interface SetCredentialsResponse {
 export interface LoginRequest {
   email_or_username: string;
   password: string;
+  remember_me?: boolean;
 }
 
 export interface LoginResponse {
@@ -205,7 +207,7 @@ export interface GetContactsResponse {
   [key: string]: unknown;
 }
 
-export const authApi = baseApi.injectEndpoints({
+export const authApi = baseApi.injectEndpoints({ overrideExisting: true,
   endpoints: (builder) => ({
     sendOtp: builder.mutation<SendOtpResponse, SendOtpRequest>({
       query: (data) => {
@@ -238,6 +240,9 @@ export const authApi = baseApi.injectEndpoints({
         formData.append("email", data.email);
         formData.append("username", data.username);
         formData.append("password", data.password);
+        if (typeof data.remember_me === "boolean") {
+          formData.append("remember_me", String(data.remember_me));
+        }
 
         return {
           url: "/auth/set-credentials/",
@@ -251,6 +256,9 @@ export const authApi = baseApi.injectEndpoints({
         const formData = new FormData();
         formData.append("email_or_username", data.email_or_username);
         formData.append("password", data.password);
+        if (typeof data.remember_me === "boolean") {
+          formData.append("remember_me", String(data.remember_me));
+        }
 
         return {
           url: "/auth/login/",
@@ -498,6 +506,12 @@ export const authApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    logout: builder.mutation<{ success?: boolean; message?: string }, void>({
+      query: () => ({
+        url: "/auth/logout/",
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -506,6 +520,7 @@ export const {
   useVerifyOtpMutation,
   useSetCredentialsMutation,
   useLoginMutation,
+  useLogoutMutation,
   useSubmitContactMutation,
   useGetContactsQuery,
   useMarkContactReadMutation,
@@ -535,4 +550,3 @@ export const useGetUserProfileByIdQuery = (
   userId: number | string,
   options?: Parameters<typeof authApi.endpoints.getUserProfileById.useQuery>[1]
 ) => authApi.endpoints.getUserProfileById.useQuery(userId, options);
-

@@ -6,8 +6,8 @@ import Image from "next/image";
 import { FaUpload } from "react-icons/fa";
 import { useGetMarketplaceCategoriesQuery, useCreateProductMutation, useGetMarketplaceItemsQuery, usePatchProductStatusMutation, useDeleteProductMutation, MarketplaceItem } from "@/store/marketplaceApi";
 import { useGetCurrentUserProfileQuery } from "@/store/authApi";
-import { getUsernameFromToken, getStoredAccessToken } from "@/lib/auth";
 import { toast } from "sonner";
+
 import ProductCard from "../../../../../components/Cards/ProductCard";
 import EditProductModal from "@/components/admin/EditProductModal";
 import ProductDetailsModal from "@/components/admin/ProductDetailsModal";
@@ -89,10 +89,6 @@ export default function PromoteServicePage() {
 
   // Get current user's username
   const currentUsername = useMemo(() => {
-    const token = getStoredAccessToken();
-    if (token) {
-      return getUsernameFromToken(token) || userProfile?.data?.username || null;
-    }
     return userProfile?.data?.username || null;
   }, [userProfile]);
 

@@ -130,7 +130,7 @@ export interface UpdateMarketplaceSubcategoryRequest {
   category?: number;
 }
 
-export const marketplaceApi = baseApi.injectEndpoints({
+export const marketplaceApi = baseApi.injectEndpoints({ overrideExisting: true,
   endpoints: (builder) => ({
     getMarketplaceItems: builder.query<GetMarketplaceItemsResponse, { category?: string; subcategory?: string; page?: number } | void>({
       query: (params) => {

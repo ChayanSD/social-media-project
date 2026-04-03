@@ -1,6 +1,41 @@
+# Virtual Environments
+venv/
 env/
-*env/
 .env
 .env.local
-.env.*.local.env
-.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+media/
+static/
+!static/.keep
+staticfiles/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

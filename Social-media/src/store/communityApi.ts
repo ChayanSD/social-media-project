@@ -158,6 +158,7 @@ export interface InviteUserRequest {
 }
 
 export const communityApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     createCommunity: builder.mutation<CreateCommunityResponse, CreateCommunityRequest>({
       query: (data) => {

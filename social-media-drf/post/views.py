@@ -167,6 +167,33 @@ class PostViewSet(viewsets.ModelViewSet):
                 })
             else:
                 post = serializer.save(user=self.request.user, status='pending')
+        
+        # Ensure 'interests' (subcategories) are set correctly and provide a default
+        # Many-to-many fields derived from input are handled by the serializer natively.
+        # But we want to check if the result is empty and assign a default.
+        if post.subcategories.count() == 0:
+            try:
+                from interest.models import Category, SubCategory
+                general_interest = SubCategory.objects.filter(name__iexact='General', is_approved=True).first()
+                if not general_interest:
+                    general_interest = SubCategory.objects.filter(is_approved=True).first()
+                
+                if not general_interest:
+                    # Create if absolutely none exist
+                    from django.contrib.auth import get_user_model
+                    creator = get_user_model().objects.filter(is_superuser=True).first()
+                    cat, _ = Category.objects.get_or_create(name='General', defaults={'is_approved': True, 'created_by': creator})
+                    general_interest, _ = SubCategory.objects.get_or_create(
+                        name='General', 
+                        category=cat, 
+                        defaults={'is_approved': True, 'created_by': creator}
+                    )
+                
+                if general_interest:
+                    post.subcategories.add(general_interest)
+                    post.save()
+            except Exception:
+                pass
 
 
     def create(self, request, *args, **kwargs):
@@ -635,6 +662,18 @@ class PostViewSet(viewsets.ModelViewSet):
             len(joined_community_ids) == 0 and 
             len(user_subcategories) == 0
         )
+        
+        # Fallback to 'General' interests if user has none
+        if len(user_subcategories) == 0:
+            try:
+                from interest.models import SubCategory
+                general_subs = list(SubCategory.objects.filter(name__iexact='General', is_approved=True))
+                if general_subs:
+                    user_subcategories = general_subs
+                    user_interest_names = [sub.name.lower() for sub in general_subs]
+                    user_interest_names.extend([sub.category.name.lower() for sub in general_subs])
+            except Exception:
+                pass
         
         # Get recently viewed posts
         recent_views_date = timezone.now() - timedelta(hours=12)

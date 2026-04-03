@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   FiX,
   FiEdit3,
@@ -13,9 +13,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { IoPersonOutline, IoPieChartOutline } from "react-icons/io5";
-import { UserProfile } from "@/store/authApi";
+import { UserProfile, useLogoutMutation } from "@/store/authApi";
 import { useRouter } from "next/navigation";
-import { clearStoredTokens, getRoleFromToken, getStoredAccessToken } from "@/lib/auth";
 import { store } from "@/store/store";
 import { baseApi } from "@/store/baseApi";
 
@@ -25,27 +24,12 @@ interface ProfileSidebarProps {
   isLoadingProfile: boolean;
   isError?: boolean;
 }
+
 const profileItems = [
-  {
-    label: "Profile",
-    href: "/main/profile",
-    icon: FaRegCircleUser,
-  },
-  {
-    label: "Edit Profile",
-    href: "/main/edit-profile",
-    icon: FiEdit3,
-  },
-  {
-    label: "Privacy",
-    href: "/privacy",
-    icon: FiShield,
-  },
-  {
-    label: "Help & Support",
-    href: "/help-support",
-    icon: FiHelpCircle,
-  },
+  { label: "Profile", href: "/main/profile", icon: FaRegCircleUser },
+  { label: "Edit Profile", href: "/main/edit-profile", icon: FiEdit3 },
+  { label: "Privacy", href: "/privacy", icon: FiShield },
+  { label: "Help & Support", href: "/help-support", icon: FiHelpCircle },
 ];
 
 const ProfileSidebar = ({
@@ -56,143 +40,63 @@ const ProfileSidebar = ({
 }: ProfileSidebarProps) => {
   const [isClosing, setIsClosing] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [authToken, setAuthToken] = useState<string | null>(null);
   const router = useRouter();
+  const [logout] = useLogoutMutation();
 
-  const role = useMemo(() => {
-    const token = getStoredAccessToken();
-    return getRoleFromToken(token);
-  }, []);
-
-  const isAdmin = role === 'admin';
+  const isAdmin = profile?.role === "admin";
+  const isAuthenticated = Boolean(profile);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    setTimeout(() => {
-      setIsOpen(true);
-    }, 10);
+    setTimeout(() => setIsOpen(true), 10);
     return () => {
       document.body.style.overflow = "unset";
     };
   }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const syncToken = () => {
-      const token = getStoredAccessToken();
-      setAuthToken(token);
-    };
-
-    syncToken();
-
-    window.addEventListener("storage", syncToken);
-    return () => {
-      window.removeEventListener("storage", syncToken);
-    };
-  }, []);
-
-  const decodeTokenExpiry = useCallback((token: string): number | null => {
+  const handleLogout = useCallback(async () => {
     try {
-      const parts = token.split(".");
-      if (parts.length < 2) return null;
-      const payload = JSON.parse(
-        atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"))
-      );
-      if (typeof payload.exp === "number") {
-        return payload.exp * 1000;
-      }
-      return null;
-    } catch (error) {
-      console.error("Failed to decode token payload", error);
-      return null;
+      // Tell the backend to clear the HttpOnly cookies
+      await logout().unwrap();
+    } catch {
+      // Even if the backend call fails, reset the client state
     }
-  }, []);
-
-  const handleLogout = useCallback(() => {
-    clearStoredTokens();
-    setAuthToken(null);
-    // Clear RTK Query cache
+    // Reset RTK Query cache so all queries re-run (will get 401 → redirect)
     store.dispatch(baseApi.util.resetApiState());
-    // Clear user data from storage
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem("user");
-      window.sessionStorage.removeItem("user");
-      window.localStorage.removeItem("role");
-      window.sessionStorage.removeItem("role");
-    }
     onClose();
     router.push("/login");
-  }, [onClose, router]);
-
-  useEffect(() => {
-    if (!authToken) return;
-    const expiryTime = decodeTokenExpiry(authToken);
-
-    if (expiryTime && expiryTime <= Date.now()) {
-      handleLogout();
-      return;
-    }
-
-    const timeoutId =
-      expiryTime && expiryTime > Date.now()
-        ? window.setTimeout(() => {
-          handleLogout();
-        }, expiryTime - Date.now())
-        : null;
-
-    const intervalId = window.setInterval(() => {
-      const latestToken = getStoredAccessToken();
-      if (!latestToken) {
-        handleLogout();
-        return;
-      }
-      const latestExpiry = decodeTokenExpiry(latestToken);
-      if (latestExpiry && latestExpiry <= Date.now()) {
-        handleLogout();
-      }
-    }, 60 * 1000);
-
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      clearInterval(intervalId);
-    };
-  }, [authToken, decodeTokenExpiry, handleLogout]);
+  }, [logout, onClose, router]);
 
   const handleClose = () => {
     setIsClosing(true);
     setIsOpen(false);
-    setTimeout(() => {
-      onClose();
-    }, 300);
+    setTimeout(() => onClose(), 300);
   };
 
   const safeHref = (href: string) => (href.startsWith("/") ? href : `/${href}`);
 
   const profileImage =
-    (profile?.profile_image as string) ||
-    (profile?.avatar as string) ||
-    null;
+    (profile?.profile_image as string) || (profile?.avatar as string) || null;
+
   const profileName =
     profile?.display_name ||
     [profile?.first_name, profile?.last_name].filter(Boolean).join(" ").trim() ||
     profile?.username ||
     "";
-  const profileEmail = profile?.email || profile?.username || "";
 
-  const showSignOut = useMemo(() => Boolean(authToken && profile), [authToken, profile]);
+  const profileEmail = profile?.email || profile?.username || "";
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full w-full bg-black/50 z-50 duration-300 transition-all ${isClosing ? "opacity-0" : "opacity-100"
-        }`}
+      className={`fixed top-0 right-0 h-full w-full bg-black/50 z-50 duration-300 transition-all ${
+        isClosing ? "opacity-0" : "opacity-100"
+      }`}
       onClick={handleClose}
     >
       <div
-        className={`fixed top-0 right-0 w-full max-w-xs h-full bg-[#06133FBF]/80 backdrop-blur-[17.5px] transition-transform duration-300 ease-in-out ${isOpen && !isClosing ? "translate-x-0" : "translate-x-full"
-          }`}
+        className={`fixed top-0 right-0 w-full max-w-xs h-full bg-[#06133FBF]/80 backdrop-blur-[17.5px] transition-transform duration-300 ease-in-out ${
+          isOpen && !isClosing ? "translate-x-0" : "translate-x-full"
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="py-2.5 px-4 border-b border-gray-500">
@@ -256,6 +160,7 @@ const ProfileSidebar = ({
                 </Link>
               );
             })}
+
             {isAdmin && (
               <Link
                 href="/dashboard"
@@ -264,9 +169,9 @@ const ProfileSidebar = ({
                 <IoPieChartOutline size={20} className="text-white" />
                 <span className="text-white font-medium">Dashboard</span>
               </Link>
-            )
-            }
-            {showSignOut && (
+            )}
+
+            {isAuthenticated && (
               <button
                 onClick={handleLogout}
                 className="w-full text-base text-left p-3 hover:bg-red-700/60 rounded-lg transition-colors duration-200 flex items-center gap-3 cursor-pointer text-white font-medium mt-2 border border-white/10"

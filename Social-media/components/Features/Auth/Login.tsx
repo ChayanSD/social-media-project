@@ -6,22 +6,16 @@ import { FcGoogle } from "react-icons/fc";
 import { IoArrowBack } from "react-icons/io5";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import Link from "next/link";
-import {
-  useLoginMutation,
-  useSendPasswordResetOtpMutation,
-  useVerifyPasswordResetOtpMutation,
-  useResetPasswordMutation
-} from "@/store/authApi";
+import { useLoginMutation, useSendPasswordResetOtpMutation, useVerifyPasswordResetOtpMutation, useResetPasswordMutation } from "@/store/authApi";
 import { useRouter } from "next/navigation";
-import { getRoleFromToken, storeAuthTokens } from "@/lib/auth";
 import { toast } from "sonner";
 import { store } from "@/store/store";
 import { baseApi } from "@/store/baseApi";
 
+
 type LoginForm = {
   email: string;
   password: string;
-  keepMeLoggedIn: boolean;
   rememberMe: boolean;
 };
 
@@ -59,45 +53,14 @@ const Login = () => {
       const response = await login({
         email_or_username: data.email,
         password: data.password,
+        remember_me: data.rememberMe,
       }).unwrap();
 
-      const accessToken =
-        response.tokens?.access ||
-        (typeof response.token === "string" ? response.token : undefined);
-      const refreshToken = response.tokens?.refresh;
-      const persistSession = Boolean(data.rememberMe);
-
-      // Clear RTK Query cache before storing new tokens
+      // Cookies are now set by the backend — no localStorage writes needed.
+      // Reset RTK Query cache so all queries re-fetch with new cookie.
       store.dispatch(baseApi.util.resetApiState());
 
-      storeAuthTokens({
-        accessToken,
-        refreshToken: typeof refreshToken === "string" ? refreshToken : undefined,
-        persist: persistSession,
-      });
-      const role =
-        getRoleFromToken(accessToken || null) || response.user?.role || "user";
-
-      if (typeof window !== "undefined") {
-        const primaryStorage = persistSession
-          ? window.localStorage
-          : window.sessionStorage;
-        const secondaryStorage = persistSession
-          ? window.sessionStorage
-          : window.localStorage;
-
-        if (response.user) {
-          primaryStorage.setItem("user", JSON.stringify(response.user));
-          secondaryStorage.removeItem("user");
-        } else {
-          primaryStorage.removeItem("user");
-          secondaryStorage.removeItem("user");
-        }
-
-        primaryStorage.setItem("role", role);
-        secondaryStorage.removeItem("role");
-      }
-
+      const role = response.user?.role || "user";
       const redirectTarget = role === "admin" ? "/dashboard" : "/";
       router.push(redirectTarget);
     } catch (error: unknown) {
@@ -107,7 +70,6 @@ const Login = () => {
           (error as { data?: { error?: string; message?: string } })?.data?.message ||
           'An error occurred',
       });
-      // Error handling UI is shown below the form
     }
   };
 
