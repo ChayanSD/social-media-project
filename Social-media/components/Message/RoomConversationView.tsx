@@ -85,11 +85,26 @@ const RoomConversationView = ({ room, onBack }: RoomConversationViewProps) => {
       const messageObj = message as { room_id?: number | string; room?: number | string;[key: string]: unknown };
       const messageRoomId = messageObj.room_id || messageObj.room || (data as { room?: number | string }).room;
 
-      if (((data as { type?: string }).type === 'message' || (data as { type?: string }).type === 'message_reaction') && messageRoomId && String(messageRoomId) === String(roomId)) {
+      const eventType = (data as { type?: string }).type;
+      if ((eventType === 'message' || eventType === 'message_reaction' || eventType === 'message_updated' || eventType === 'message_deleted') && messageRoomId && String(messageRoomId) === String(roomId)) {
         console.log('RoomConversationView - Invalidating cache for room:', roomId);
         // Invalidate to trigger refetch
         store.dispatch(chatApi.util.invalidateTags([{ type: "Messages", id: roomId }]));
         store.dispatch(chatApi.util.invalidateTags(["ChatRooms"]));
+      }
+
+      if (
+        eventType === 'message_deleted' &&
+        (data as { moderated?: boolean }).moderated &&
+        String((data as { sender_id?: number | string }).sender_id) === String(currentUserId)
+      ) {
+        const reason = (data as { reason?: string }).reason || 'Your message was removed by moderation.';
+        const warningCount = (data as { warning_count?: number }).warning_count;
+        const warningSuffix = warningCount ? ` Warning ${warningCount}/5 issued.` : '';
+
+        toast.warning('Message removed by moderation', {
+          description: `${reason}${warningSuffix}`.trim(),
+        });
       }
     }
   });

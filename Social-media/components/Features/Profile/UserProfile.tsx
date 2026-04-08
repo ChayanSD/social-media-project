@@ -125,11 +125,26 @@ const UserProfile = () => {
 
   const handlePublishDraft = async (postId: number | string) => {
     try {
-      await updatePost({
+      const result = await updatePost({
         postId,
         data: { status: "approved" }
       }).unwrap();
-      toast.success("Post published successfully!");
+      const moderationReason =
+        (result as { rejection_reason?: string; status?: string })?.rejection_reason || "";
+      const postStatus = (result as { rejection_reason?: string; status?: string })?.status;
+      const warningIssued = /Warning\s+\d+\/\d+\s+issued\./i.test(moderationReason);
+
+      if (warningIssued) {
+        toast.warning("Warning issued", {
+          description: moderationReason,
+        });
+      } else if (postStatus === "pending" && moderationReason) {
+        toast.success("Post sent for review", {
+          description: moderationReason,
+        });
+      } else {
+        toast.success("Post published successfully!");
+      }
       refetchPosts();
     } catch (error: unknown) {
       const errorMessage =
@@ -497,4 +512,3 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
-

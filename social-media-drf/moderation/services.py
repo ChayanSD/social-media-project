@@ -24,6 +24,7 @@ CONTENT_TYPE_MAP = {
     "chat_message": "chat_message",
     "post": "post",
     "comment": "comment",
+    "marketplace_product": "marketplace_product",
     "category": "category_proposal",
     "category_proposal": "category_proposal",
 }
@@ -150,6 +151,32 @@ class ModerationService:
 
         ai_result = self.ai_adapter.moderate_text(content)
 
+        if not ai_result.is_available:
+            pending_reason = (
+                "Automated moderation could not verify this content yet. "
+                "It has been sent for manual review."
+            )
+
+            self._log_moderation_event(
+                user=user,
+                content_type=content_type,
+                content_id=content_id,
+                content_text=content,
+                decision="pending_review",
+                rejection_reason=ai_result.error or pending_reason,
+                ai_model=ai_result.model,
+                ai_flags=ai_result.categories,
+            )
+
+            return ModerationDecision(
+                is_approved=True,
+                decision="pending_review",
+                ai_flags=ai_result.categories,
+                ai_model=ai_result.model,
+                requires_review=True,
+                pending_reason=pending_reason,
+            )
+
         if ai_result.is_flagged:
             warning_issued = self.process_violation(user, "safety", moderation_status)
 
@@ -174,6 +201,117 @@ class ModerationService:
                 is_approved=False,
                 decision="rejected",
                 rejection_reason="Your content was flagged by our automated moderation system. Please ensure your content follows our community guidelines.",
+                violation_type="safety",
+                warning_issued=warning_issued,
+                auto_blocked=auto_blocked,
+                ai_flags=ai_result.categories,
+                ai_model=ai_result.model,
+            )
+
+        self._log_moderation_event(
+            user=user,
+            content_type=content_type,
+            content_id=content_id,
+            content_text=content,
+            decision="approved",
+            violation_type=None,
+            ai_model=ai_result.model,
+            ai_flags=ai_result.categories,
+        )
+
+        return ModerationDecision(is_approved=True, decision="approved")
+
+    def moderate_content_ai_only(
+        self,
+        user,
+        content: str,
+        content_type: str,
+        content_id: int = None,
+    ) -> ModerationDecision:
+        """
+        Run only the slower AI moderation step.
+
+        This is intended for latency-sensitive flows, such as chat, where a fast
+        local rules pass already happened inline and AI review can happen later.
+        """
+        if not user or not user.is_authenticated:
+            return ModerationDecision(
+                is_approved=False,
+                decision="rejected",
+                rejection_reason="Authentication required",
+            )
+
+        moderation_status = self._get_or_create_moderation_status(user)
+
+        if moderation_status.is_blocked:
+            self._log_moderation_event(
+                user=user,
+                content_type=content_type,
+                content_id=content_id,
+                content_text=content,
+                decision="rejected",
+                rejection_reason="User is blocked from posting",
+                violation_type="safety",
+            )
+            return ModerationDecision(
+                is_approved=False,
+                decision="rejected",
+                rejection_reason="Your account has been blocked. Please contact an administrator.",
+            )
+
+        if not content or not content.strip():
+            return ModerationDecision(is_approved=True, decision="approved")
+
+        ai_result = self.ai_adapter.moderate_text(content)
+
+        if not ai_result.is_available:
+            pending_reason = (
+                "Automated moderation could not verify this content yet. "
+                "It has been sent for manual review."
+            )
+
+            self._log_moderation_event(
+                user=user,
+                content_type=content_type,
+                content_id=content_id,
+                content_text=content,
+                decision="pending_review",
+                rejection_reason=ai_result.error or pending_reason,
+                ai_model=ai_result.model,
+                ai_flags=ai_result.categories,
+            )
+
+            return ModerationDecision(
+                is_approved=True,
+                decision="pending_review",
+                ai_flags=ai_result.categories,
+                ai_model=ai_result.model,
+                requires_review=True,
+                pending_reason=pending_reason,
+            )
+
+        if ai_result.is_flagged:
+            warning_issued = self.process_violation(user, "safety", moderation_status)
+            auto_blocked = moderation_status.warning_count >= WARNING_THRESHOLD
+
+            self._log_moderation_event(
+                user=user,
+                content_type=content_type,
+                content_id=content_id,
+                content_text=content,
+                decision="rejected",
+                rejection_reason=f"Content flagged by AI moderation: {ai_result.violation_type}",
+                violation_type="safety",
+                warning_issued=warning_issued,
+                auto_blocked=auto_blocked,
+                ai_model=ai_result.model,
+                ai_flags=ai_result.categories,
+            )
+
+            return ModerationDecision(
+                is_approved=False,
+                decision="rejected",
+                rejection_reason="Your message was removed by automated moderation. Please follow our community guidelines.",
                 violation_type="safety",
                 warning_issued=warning_issued,
                 auto_blocked=auto_blocked,

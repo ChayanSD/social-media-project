@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 from rest_framework import status
 from unittest.mock import patch, MagicMock
+import os
 
 from moderation.policy import KeywordFilter, _check_safe_word_overlap
 from moderation.openai_adapter import OpenAIModerationAdapter, ModerationResult
@@ -177,7 +178,7 @@ class OpenAIModerationAdapterTests(TestCase):
 
     @patch("moderation.openai_adapter.requests.post")
     def test_timeout_fallback(self, mock_post):
-        """Timeout should allow content (fail-open)"""
+        """Timeout should require manual review"""
         import requests
 
         mock_post.side_effect = requests.Timeout()
@@ -186,11 +187,12 @@ class OpenAIModerationAdapterTests(TestCase):
         result = adapter.moderate_text("Test content")
 
         self.assertFalse(result.is_flagged)
+        self.assertFalse(result.is_available)
         self.assertIsNotNone(result.error)
 
     @patch("moderation.openai_adapter.requests.post")
     def test_rate_limit_fallback(self, mock_post):
-        """Rate limit should allow content (fail-open)"""
+        """Rate limit should require manual review"""
         mock_response = MagicMock()
         mock_response.status_code = 429
         mock_post.return_value = mock_response
@@ -199,11 +201,12 @@ class OpenAIModerationAdapterTests(TestCase):
         result = adapter.moderate_text("Test content")
 
         self.assertFalse(result.is_flagged)
+        self.assertFalse(result.is_available)
         self.assertIsNotNone(result.error)
 
     @patch("moderation.openai_adapter.requests.post")
     def test_server_error_fallback(self, mock_post):
-        """Server error (5xx) should allow content (fail-open)"""
+        """Server error (5xx) should require manual review"""
         mock_response = MagicMock()
         mock_response.status_code = 500
         mock_post.return_value = mock_response
@@ -212,14 +215,17 @@ class OpenAIModerationAdapterTests(TestCase):
         result = adapter.moderate_text("Test content")
 
         self.assertFalse(result.is_flagged)
+        self.assertFalse(result.is_available)
         self.assertIsNotNone(result.error)
 
-    def test_no_api_key_allows_content(self):
-        """Missing API key should allow content"""
+    @patch.dict(os.environ, {}, clear=True)
+    def test_no_api_key_requires_review(self):
+        """Missing API key should require manual review"""
         adapter = OpenAIModerationAdapter(api_key=None)
         result = adapter.moderate_text("Any content")
 
         self.assertFalse(result.is_flagged)
+        self.assertFalse(result.is_available)
 
 
 class ModerationServiceTests(TestCase):
@@ -233,12 +239,34 @@ class ModerationServiceTests(TestCase):
 
     def test_moderate_content_safe(self):
         """Safe content should be approved"""
-        decision = self.service.moderate_content(
-            user=self.user, content="This is a friendly post", content_type="post"
-        )
+        with patch("moderation.services.openai_moderation.moderate_text") as mock_moderate_text:
+            mock_moderate_text.return_value = ModerationResult(
+                is_flagged=False,
+                is_available=True,
+                model="omni-moderation-latest",
+            )
+            decision = self.service.moderate_content(
+                user=self.user, content="This is a friendly post", content_type="post"
+            )
 
         self.assertTrue(decision.is_approved)
         self.assertEqual(decision.decision, "approved")
+
+    def test_moderate_content_requires_review_when_ai_unavailable(self):
+        """Safe content should be marked for review when AI is unavailable"""
+        with patch("moderation.services.openai_moderation.moderate_text") as mock_moderate_text:
+            mock_moderate_text.return_value = ModerationResult(
+                is_flagged=False,
+                is_available=False,
+                error="Moderation timeout",
+            )
+            decision = self.service.moderate_content(
+                user=self.user, content="This is a friendly post", content_type="post"
+            )
+
+        self.assertTrue(decision.is_approved)
+        self.assertTrue(decision.requires_review)
+        self.assertEqual(decision.decision, "pending_review")
 
     def test_moderate_content_keyword_block(self):
         """Content with keywords should be blocked"""

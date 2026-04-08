@@ -47,6 +47,18 @@ VIOLATION_KEYWORDS = {
         "no obligation",
         "act fast",
     ],
+    "profanity": [
+        "fuck",
+        "shit",
+        "bitch",
+        "cunt",
+        "asshole",
+        "motherfucker",
+        "dick",
+        "pussy",
+        "whore",
+        "slut"
+    ],
 }
 
 SAFE_WORDS_THAT_CONTAIN_BANNED: List[str] = [

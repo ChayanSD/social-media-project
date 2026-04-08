@@ -37,14 +37,39 @@ class Room(models.Model):
         """Check if user is an admin of this room"""
         return self.admins.filter(id=user.id).exists()
 
+
+class MessageQuerySet(models.QuerySet):
+    def visible_to_users(self):
+        return self.exclude(ai_moderation_status=Message.AI_MODERATION_REJECTED)
+
 class Message(models.Model):
     """ Message model for Chat - supports both room-based and direct messages """
+    AI_MODERATION_PENDING = "pending"
+    AI_MODERATION_APPROVED = "approved"
+    AI_MODERATION_REVIEW_REQUIRED = "review_required"
+    AI_MODERATION_REJECTED = "rejected"
+    AI_MODERATION_CHOICES = [
+        (AI_MODERATION_PENDING, "Pending"),
+        (AI_MODERATION_APPROVED, "Approved"),
+        (AI_MODERATION_REVIEW_REQUIRED, "Review Required"),
+        (AI_MODERATION_REJECTED, "Rejected"),
+    ]
+
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='messages', null=True, blank=True)
     sender = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='sent_messages')
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='received_messages')
     content = models.TextField(null=True, blank=True)
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    ai_moderation_status = models.CharField(
+        max_length=20,
+        choices=AI_MODERATION_CHOICES,
+        default=AI_MODERATION_APPROVED,
+    )
+    moderation_rejection_reason = models.TextField(blank=True)
+    ai_moderated_at = models.DateTimeField(null=True, blank=True)
+
+    objects = MessageQuerySet.as_manager()
 
     class Meta:
         ordering = ['created_at']

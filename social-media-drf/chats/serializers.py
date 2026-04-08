@@ -16,7 +16,7 @@ class MessageSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Message
-        fields = ['id', 'sender', 'sender_id', 'sender_username', 'receiver', 'receiver_id', 'room_id', 'content', 'is_read', 'created_at', 'reactions', 'user_reaction']
+        fields = ['id', 'sender', 'sender_id', 'sender_username', 'receiver', 'receiver_id', 'room_id', 'content', 'is_read', 'created_at', 'reactions', 'user_reaction', 'ai_moderation_status', 'moderation_rejection_reason']
         read_only_fields = ['sender', 'receiver', 'created_at']
 
     def get_reactions(self, obj):
@@ -48,7 +48,7 @@ class RoomSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'updated_at']
 
     def get_last_message(self, obj):
-        last_msg = obj.messages.last()
+        last_msg = obj.messages.exclude(ai_moderation_status='rejected').last()
         if last_msg:
             return MessageSerializer(last_msg).data
         return None
@@ -56,7 +56,7 @@ class RoomSerializer(serializers.ModelSerializer):
     def get_unread_count(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            return obj.messages.filter(is_read=False).exclude(sender=request.user).count()
+            return obj.messages.exclude(ai_moderation_status='rejected').filter(is_read=False).exclude(sender=request.user).count()
         return 0
 
     def get_other_participant(self, obj):

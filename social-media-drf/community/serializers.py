@@ -24,10 +24,10 @@ class CommunitySerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'title', 'description', 'profile_image', 'cover_image',
             'visibility', 'created_at', 'created_by', 'created_by_username',
-            'updated_at', 'members_count', 'posts_count', 'is_member', 
+            'updated_at', 'status', 'rejection_reason', 'members_count', 'posts_count', 'is_member', 
             'user_role', 'can_post', 'can_manage', 'user_has_pending_request', 'user_has_pending_invitation', 'can_view'
         ]
-        read_only_fields = ['created_by', 'created_at', 'updated_at']
+        read_only_fields = ['created_by', 'created_at', 'updated_at', 'status', 'rejection_reason']
     
     def get_is_member(self, obj):
         request = self.context.get('request')
@@ -54,6 +54,9 @@ class CommunitySerializer(serializers.ModelSerializer):
         """Check if user can post in the community"""
         request = self.context.get('request')
         if request and request.user.is_authenticated:
+            if obj.status != 'approved':
+                return obj.created_by == request.user
+
             # Creator can always post
             if obj.created_by == request.user:
                 return True
@@ -119,6 +122,12 @@ class CommunitySerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if not request or not request.user.is_authenticated:
             return False
+
+        if obj.created_by == request.user:
+            return True
+
+        if obj.status != 'approved':
+            return False
         
         # Public and restricted: everyone can view
         if obj.visibility in ['public', 'restricted']:
@@ -163,7 +172,8 @@ class CommunitySerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         request = self.context.get('request')
-        community = Community.objects.create(**validated_data, created_by=request.user)
+        created_by = validated_data.pop("created_by", request.user)
+        community = Community.objects.create(**validated_data, created_by=created_by)
         
         # Auto-add creator as admin member
         CommunityMember.objects.create(

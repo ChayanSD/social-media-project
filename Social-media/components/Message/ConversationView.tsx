@@ -158,6 +158,10 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
 
   const handleWebSocketMessage = useCallback((data: {
     type: string;
+    message_id?: number | string;
+    moderated?: boolean;
+    reason?: string;
+    warning_count?: number;
     room?: number | string;
     message?: {
       id: number | string;
@@ -175,17 +179,19 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
       sender_id?: number | string;
       receiver_id?: number | string;
     };
+    sender_id?: number | string;
+    receiver_id?: number | string;
     [key: string]: unknown;
   }) => {
     // Invalidate messages to refetch when new message or reaction arrives via WebSocket
-    if ((data.type === 'message' || data.type === 'message_reaction')) {
+    if ((data.type === 'message' || data.type === 'message_reaction' || data.type === 'message_updated' || data.type === 'message_deleted')) {
       // For reactions, we have data.reaction.message_id
       // Extract sender_id and receiver_id from message (could be in sender object or directly)
       const reaction = data.reaction as { message_id?: number | string; user_id?: number | string } | undefined;
       const message = data.message;
 
-      const senderId = message?.sender_id || message?.sender?.id || reaction?.user_id;
-      const receiverId = message?.receiver_id;
+      const senderId = message?.sender_id || message?.sender?.id || reaction?.user_id || data.sender_id;
+      const receiverId = message?.receiver_id || data.receiver_id;
       const currentUserIdValue = currentUserIdRef.current;
       const userIdValue = userIdRef.current;
 
@@ -205,6 +211,13 @@ const ConversationView = ({ user, onBack }: ConversationViewProps) => {
         store.dispatch(chatApi.util.invalidateTags([{ type: "Messages", id: userIdValue }]));
         store.dispatch(chatApi.util.invalidateTags(["Conversations"]));
       }
+    }
+
+    if (data.type === 'message_deleted' && data.moderated && String(data.sender_id) === String(currentUserIdRef.current)) {
+      const warningSuffix = data.warning_count ? ` Warning ${data.warning_count}/5 issued.` : '';
+      toast.warning('Message removed by moderation', {
+        description: `${data.reason || 'Your message was removed by moderation.'}${warningSuffix}`.trim(),
+      });
     }
   }, []); // Empty deps - using refs instead
 

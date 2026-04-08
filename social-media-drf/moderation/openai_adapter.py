@@ -15,6 +15,7 @@ MODERATION_TIMEOUT = 5
 @dataclass
 class ModerationResult:
     is_flagged: bool
+    is_available: bool = True
     violation_type: Optional[str] = None
     categories: Dict[str, bool] = None
     category_scores: Dict[str, float] = None
@@ -56,7 +57,9 @@ class OpenAIModerationAdapter:
         if not self.api_key:
             logger.warning("OpenAI API key not configured, skipping AI moderation")
             return ModerationResult(
-                is_flagged=False, error="Moderation service not configured"
+                is_flagged=False,
+                is_available=False,
+                error="Moderation service not configured",
             )
 
         start_time = time.time()
@@ -89,13 +92,16 @@ class OpenAIModerationAdapter:
             elif response.status_code == 429:
                 logger.warning(f"MODERATION: Rate limited by OpenAI - Duration: {duration:.2f}s")
                 return ModerationResult(
-                    is_flagged=False, error="Rate limited - allowing content"
+                    is_flagged=False,
+                    is_available=False,
+                    error="Rate limited - moderation review required",
                 )
             elif response.status_code >= 500:
                 logger.error(f"MODERATION: API Error {response.status_code} - Duration: {duration:.2f}s")
                 return ModerationResult(
                     is_flagged=False,
-                    error="Moderation service unavailable - allowing content",
+                    is_available=False,
+                    error="Moderation service unavailable",
                 )
             else:
                 logger.error(
@@ -103,6 +109,7 @@ class OpenAIModerationAdapter:
                 )
                 return ModerationResult(
                     is_flagged=False,
+                    is_available=False,
                     error=f"Moderation API error: {response.status_code}",
                 )
 
@@ -110,13 +117,17 @@ class OpenAIModerationAdapter:
             duration = time.time() - start_time
             logger.warning(f"MODERATION: Request timed out after {duration:.2f}s")
             return ModerationResult(
-                is_flagged=False, error="Moderation timeout - allowing content"
+                is_flagged=False,
+                is_available=False,
+                error="Moderation timeout",
             )
         except Exception as e:
             duration = time.time() - start_time
             logger.error(f"MODERATION: Unexpected error: {str(e)} - Duration: {duration:.2f}s")
             return ModerationResult(
-                is_flagged=False, error="Moderation service error - allowing content"
+                is_flagged=False,
+                is_available=False,
+                error="Moderation service error",
             )
 
 
@@ -220,4 +231,3 @@ class OpenAIModerationAdapter:
 
 
 openai_moderation = OpenAIModerationAdapter()
-

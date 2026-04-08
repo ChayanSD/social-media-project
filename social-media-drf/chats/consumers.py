@@ -10,6 +10,7 @@ import jwt
 from django.conf import settings
 from django.core.cache import cache
 from .models import Room, Message
+from .chat_moderation import schedule_message_ai_review
 
 User = get_user_model()
 
@@ -205,6 +206,14 @@ class DirectMessageConsumer(AsyncWebsocketConsumer):
             )
         )
 
+    async def message_updated(self, event):
+        await self.send(
+            text_data=json.dumps({"type": "message_updated", "message": event["message"]})
+        )
+
+    async def message_deleted(self, event):
+        await self.send(text_data=json.dumps(event))
+
 
 """ Room-based Chat Consumer (for group chats) """
 
@@ -312,35 +321,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # Check if user is blocked from posting
             from moderation.services import moderation_service
 
-            can_post, block_reason = moderation_service.check_user_can_post(self.user)
-            if not can_post:
-                await self.send(
-                    text_data=json.dumps(
-                        {"error": block_reason, "code": "USER_BLOCKED"}
-                    )
-                )
-                return
-
-            # Moderate the content
             moderation_decision = moderation_service.moderate_content(
-                user=self.user, content=message_content, content_type="chat"
+                user=self.user,
+                content=message_content,
+                content_type="chat",
+                skip_ai=True,
             )
 
             if not moderation_decision.is_approved:
-                warning_msg = ""
-                if moderation_decision.warning_issued:
-                    from moderation.models import UserModerationStatus
-
-                    status_obj = UserModerationStatus.objects.get(user=self.user)
-                    warning_msg = f" Warning {status_obj.warning_count}/5 issued."
                 await self.send(
                     text_data=json.dumps(
                         {
-                            "error": moderation_decision.rejection_reason + warning_msg,
-                            "code": "CONTENT_BLOCKED",
-                            "warning_count": getattr(status_obj, "warning_count", 0)
-                            if moderation_decision.warning_issued
-                            else 0,
+                            "error": moderation_decision.rejection_reason,
+                            "code": "USER_BLOCKED"
+                            if "blocked" in (moderation_decision.rejection_reason or "").lower()
+                            else "CONTENT_BLOCKED",
                         }
                     )
                 )
@@ -366,6 +361,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         },
                     },
                 )
+                schedule_message_ai_review(message.id)
         except json.JSONDecodeError:
             await self.send(text_data=json.dumps({"error": "Invalid JSON format"}))
         except Exception as e:
@@ -392,6 +388,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
         )
 
+    async def message_updated(self, event):
+        await self.send(
+            text_data=json.dumps({"type": "message_updated", "message": event["message"]})
+        )
+
+    async def message_deleted(self, event):
+        await self.send(text_data=json.dumps(event))
+
     @database_sync_to_async
     def check_room_access(self):
         """Check if user has access to this room"""
@@ -406,7 +410,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """Save message to database"""
         try:
             room = Room.objects.get(id=self.room_id)
-            message = Message.objects.create(room=room, sender=user, content=content)
+            message = Message.objects.create(
+                room=room,
+                sender=user,
+                content=content,
+                ai_moderation_status=Message.AI_MODERATION_PENDING,
+            )
             # Update room's updated_at
             room.save()
             return message

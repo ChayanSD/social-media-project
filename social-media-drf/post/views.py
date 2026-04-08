@@ -83,6 +83,63 @@ class PostViewSet(viewsets.ModelViewSet):
             .order_by("-created_at")
         )
 
+    def _build_warning_message(self, user):
+        status_obj = moderation_service.get_user_warning_status(user)
+        return f" Warning {status_obj['warning_count']}/{status_obj['max_warnings']} issued."
+
+    def _run_post_moderation(self, user, title="", content="", media_files=None):
+        from .moderation import check_image_content, check_text_content
+
+        media_files = media_files or []
+        combined_text = f"{title or ''}\n{content or ''}".strip()
+
+        is_text_safe, text_reason = check_text_content(combined_text)
+        if not is_text_safe:
+            warning_issued = moderation_service.report_violation(
+                user=user,
+                violation_type="safety",
+                content_type="post",
+                content_text=combined_text,
+                rejection_reason=text_reason,
+            )
+            warning_msg = self._build_warning_message(user) if warning_issued else ""
+            return False, text_reason + warning_msg
+
+        text_moderation = moderation_service.moderate_content(
+            user=user,
+            content=combined_text,
+            content_type="post",
+        )
+
+        if text_moderation.requires_review:
+            return False, text_moderation.pending_reason
+
+        if not text_moderation.is_approved:
+            warning_msg = ""
+            if text_moderation.warning_issued:
+                warning_msg = self._build_warning_message(user)
+            return False, (text_moderation.rejection_reason or "") + warning_msg
+
+        for media_file in media_files:
+            img_safe, img_reason = check_image_content(media_file)
+            if not img_safe:
+                warning_issued = moderation_service.report_violation(
+                    user=user,
+                    violation_type="safety",
+                    content_type="post",
+                    content_text=f"Image violation detected in post: {title}",
+                    rejection_reason=img_reason,
+                )
+                warning_msg = self._build_warning_message(user) if warning_issued else ""
+                return False, img_reason + warning_msg
+
+        return True, ""
+
+    def _get_post_approval_status(self, community):
+        if community and community.visibility == "private":
+            return "pending"
+        return "approved"
+
     def perform_create(self, serializer):
         """Create post with community validation and content moderation"""
         community = serializer.validated_data.get("community")
@@ -155,93 +212,60 @@ class PostViewSet(viewsets.ModelViewSet):
                     }
                 )
 
-        # 1. Moderate TEXT using AI and Strike system
-        text_moderation = moderation_service.moderate_content(
+        is_moderation_approved, moderation_reason = self._run_post_moderation(
             user=self.request.user,
-            content=f"{title}\n{content}",
-            content_type="post"
+            title=title,
+            content=content,
+            media_files=media_files,
         )
 
-        if not text_moderation.is_approved:
-            # Rejection message with warning count if applicable
-            warning_msg = ""
-            if text_moderation.warning_issued:
-                status_obj = moderation_service.get_user_warning_status(self.request.user)
-                warning_msg = f" Warning {status_obj['warning_count']}/{status_obj['max_warnings']} issued."
+        if not is_moderation_approved:
+            # If AI detects inappropriate content, post goes to pending instead of rejecting immediately
+            post = serializer.save(
+                user=self.request.user,
+                status="pending",
+                rejection_reason=moderation_reason,
+            )
+        else:
+            # Final approval for text and images passed - proceed to community logic
+            # If posting to a community, verify permissions based on visibility
+            if community:
+                membership = CommunityMember.objects.filter(
+                    user=self.request.user, community=community, is_approved=True
+                ).first()
 
-            # Save as rejected and raise error
-            serializer.save(user=self.request.user, status="rejected")
-            raise serializers.ValidationError({
-                "moderation": text_moderation.rejection_reason + warning_msg
-            })
+                # Check posting permissions based on community visibility
+                if community.visibility == "private":
+                    # Private: Only approved members can post
+                    if not membership:
+                        raise PermissionDenied(
+                            "You must be an approved member to post in this private community."
+                        )
+                elif community.visibility == "restricted":
+                    # Restricted: Everyone can view, but only approved members can post
+                    if not membership:
+                        raise PermissionDenied(
+                            "You must be an approved member to post in this restricted community. You can view posts but cannot create new ones."
+                        )
+                # Public: Everyone can post (no check needed)
 
-        # 2. Moderate IMAGES using local NSFW detection
-        if media_files:
-            from .moderation import check_image_content
-            for media_file in media_files:
-                img_safe, img_reason = check_image_content(media_file)
-                if not img_safe:
-                    # Report image violation to issue a strike
-                    warning_issued = moderation_service.report_violation(
-                        user=self.request.user,
-                        violation_type="safety",
-                        content_type="post",
-                        content_text=f"Image violation detected in post: {title}",
-                        rejection_reason=img_reason
-                    )
-
-                    warning_msg = ""
-                    if warning_issued:
-                        status_obj = moderation_service.get_user_warning_status(self.request.user)
-                        warning_msg = f" Warning {status_obj['warning_count']}/{status_obj['max_warnings']} issued."
-
-                    serializer.save(user=self.request.user, status="rejected")
-                    raise serializers.ValidationError({
-                        "moderation": img_reason + warning_msg
-                    })
-
-        # Final approval for text and images passed - proceed to community logic
-        is_approved = True
-
-
-        # If posting to a community, verify permissions based on visibility
-        if community:
-            membership = CommunityMember.objects.filter(
-                user=self.request.user, community=community, is_approved=True
-            ).first()
-
-            # Check posting permissions based on community visibility
-            if community.visibility == "private":
-                # Private: Only approved members can post
-                if not membership:
-                    raise PermissionDenied(
-                        "You must be an approved member to post in this private community."
-                    )
-            elif community.visibility == "restricted":
-                # Restricted: Everyone can view, but only approved members can post
-                if not membership:
-                    raise PermissionDenied(
-                        "You must be an approved member to post in this restricted community. You can view posts but cannot create new ones."
-                    )
-            # Public: Everyone can post (no check needed)
-
-            # Determine post status based on community/privacy
-            if community.visibility == "private":
-                post = serializer.save(user=self.request.user, status="pending")
-            else:
-                # Public/restricted: post is approved immediately
-                post = serializer.save(user=self.request.user, status="approved")
-                # Refresh post from database to ensure status is correct
+                post = serializer.save(
+                    user=self.request.user,
+                    status=self._get_post_approval_status(community),
+                    rejection_reason="",
+                )
                 post.refresh_from_db()
-                # Update posts_count for approved posts
-                if community and post.status == "approved":
+                if post.status == "approved":
                     Community.objects.filter(pk=community.pk).update(
                         posts_count=F("posts_count") + 1
                     )
-        else:
-            # Personal post - approved content moves to 'pending' state for final review if needed, 
-            # but for now we follow the existing pattern of setting personal posts to 'pending'.
-            post = serializer.save(user=self.request.user, status="pending")
+            else:
+                # Personal post - approved content is automatically posted now
+                post = serializer.save(
+                    user=self.request.user,
+                    status="approved",
+                    rejection_reason="",
+                )
 
 
         # Ensure 'interests' (subcategories) are set correctly and provide a default
@@ -502,36 +526,24 @@ class PostViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Apply content moderation before publishing
-        title = post.title or ""
-        content = post.content or ""
-        media_files = post.media_file or []
+        is_moderation_approved, moderation_reason = self._run_post_moderation(
+            user=request.user,
+            title=post.title,
+            content=post.content,
+            media_files=post.media_file,
+        )
 
-        is_approved, rejection_reason = moderate_post(title, content, media_files)
-
-        if not is_approved:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Post cannot be published due to content moderation",
-                    "error": rejection_reason,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        # Determine final status based on community settings
-        if post.community:
-            if post.community.visibility == "private":
-                post.status = "pending"
-            else:
-                post.status = "approved"
-                # Update posts_count for approved posts
+        if not is_moderation_approved:
+            post.status = "pending"
+            post.rejection_reason = moderation_reason
+        else:
+            # Determine final status based on community settings
+            post.status = self._get_post_approval_status(post.community)
+            post.rejection_reason = ""
+            if post.community and post.status == "approved":
                 Community.objects.filter(pk=post.community.pk).update(
                     posts_count=F("posts_count") + 1
                 )
-        else:
-            # Personal post - approve immediately
-            post.status = "approved"
 
         post.save()
 
@@ -612,26 +624,23 @@ class PostViewSet(viewsets.ModelViewSet):
             content = serializer.validated_data.get("content", instance.content) or ""
             media_files = instance.media_file or []
 
-            is_approved, rejection_reason = moderate_post(title, content, media_files)
+            is_moderation_approved, moderation_reason = self._run_post_moderation(
+                user=self.request.user,
+                title=title,
+                content=content,
+                media_files=media_files,
+            )
 
-            if not is_approved:
-                raise serializers.ValidationError(
-                    {
-                        "status": "Post cannot be published due to content moderation",
-                        "content_moderation": rejection_reason,
-                    }
-                )
-
-            # Determine final status based on community settings
-            community = serializer.validated_data.get("community", instance.community)
-            if community:
-                if community.visibility == "private":
-                    serializer.validated_data["status"] = "pending"
-                else:
-                    serializer.validated_data["status"] = "approved"
+            if not is_moderation_approved:
+                serializer.validated_data["status"] = "pending"
+                serializer.validated_data["rejection_reason"] = moderation_reason
             else:
-                # Personal post - approve immediately
-                serializer.validated_data["status"] = "approved"
+                # Determine final status based on community settings
+                community = serializer.validated_data.get("community", instance.community)
+                serializer.validated_data["status"] = self._get_post_approval_status(
+                    community
+                )
+                serializer.validated_data["rejection_reason"] = ""
 
         # Save the post
         super().perform_update(serializer)
@@ -649,7 +658,7 @@ class PostViewSet(viewsets.ModelViewSet):
                     posts_count=F("posts_count") - 1
                 )
             # Post was not approved, now it is
-            elif old_status != "approved" and new_status == "approved":
+            elif old_status != "approved" and final_status == "approved":
                 Community.objects.filter(pk=old_community.pk).update(
                     posts_count=F("posts_count") + 1
                 )
@@ -662,7 +671,7 @@ class PostViewSet(viewsets.ModelViewSet):
                     posts_count=F("posts_count") - 1
                 )
             # If new community exists and post is approved, increase count
-            if new_community and new_status == "approved":
+            if new_community and final_status == "approved":
                 Community.objects.filter(pk=new_community.pk).update(
                     posts_count=F("posts_count") + 1
                 )

@@ -9,6 +9,13 @@ import { getApiBaseUrl } from '@/lib/utils';
 
 type WebSocketMessage = {
   type: string;
+  message_id?: number | string;
+  room_id?: number | string;
+  sender_id?: number | string;
+  receiver_id?: number | string;
+  moderated?: boolean;
+  reason?: string;
+  warning_count?: number;
   room?: number | string;
   message?: {
     id: number | string;
@@ -105,6 +112,8 @@ export const useChatWebSocket = (options: UseChatWebSocketOptions = {}) => {
           
           // For room messages, check room_id in the message object
           const roomId = message.room_id || message.room || data.room;
+          const senderId = (message as { sender_id?: number | string; sender?: ChatUser }).sender_id || (message.sender as ChatUser | undefined)?.id || data.sender_id;
+          const receiverId = (message as { receiver_id?: number | string }).receiver_id || data.receiver_id;
 
           if (messageType === 'message' && roomId && message.id) {
             console.log('WebSocket room message received:', { roomId, messageId: message.id, content: message.content });
@@ -151,6 +160,17 @@ export const useChatWebSocket = (options: UseChatWebSocketOptions = {}) => {
             );
 
             // Invalidate chat rooms to update last message and unread count
+            store.dispatch(chatApi.util.invalidateTags(['ChatRooms']));
+          }
+
+          if (['message', 'message_updated', 'message_deleted'].includes(messageType) && senderId && receiverId) {
+            store.dispatch(chatApi.util.invalidateTags([{ type: 'Messages', id: senderId }]));
+            store.dispatch(chatApi.util.invalidateTags([{ type: 'Messages', id: receiverId }]));
+            store.dispatch(chatApi.util.invalidateTags(['Conversations']));
+          }
+
+          if (['message_updated', 'message_deleted'].includes(messageType) && roomId) {
+            store.dispatch(chatApi.util.invalidateTags([{ type: 'Messages', id: roomId }]));
             store.dispatch(chatApi.util.invalidateTags(['ChatRooms']));
           }
 
@@ -292,4 +312,3 @@ export const useChatWebSocket = (options: UseChatWebSocketOptions = {}) => {
     disconnect,
   };
 };
-

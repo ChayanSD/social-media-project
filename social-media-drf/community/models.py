@@ -17,6 +17,11 @@ class Community(models.Model):
         ('restricted', 'Restricted'),
         ('private', 'Private'),
     ]
+    STATUS_CHOICES = [
+        ('approved', 'Approved'),
+        ('pending', 'Pending'),
+        ('rejected', 'Rejected'),
+    ]
     
     name = models.CharField(
         max_length=50, 
@@ -35,6 +40,8 @@ class Community(models.Model):
     profile_image = models.ImageField(upload_to='communities/profiles/', blank=True, null=True)
     cover_image = models.ImageField(upload_to='communities/covers/', blank=True, null=True)
     visibility = models.CharField(max_length=10, choices=PRIVACY_CHOICES, default='public')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='approved')
+    rejection_reason = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_communities')
     updated_at = models.DateTimeField(auto_now=True)
@@ -46,6 +53,7 @@ class Community(models.Model):
         indexes = [
             models.Index(fields=['name']),
             models.Index(fields=['visibility']),
+            models.Index(fields=['status']),
             models.Index(fields=['-members_count']),
             models.Index(fields=['-created_at']),
         ]

@@ -30,6 +30,7 @@ from accounts.permissions import IsAdmin
 from post.models import Follow
 from post.notifications import notify_admins
 from moderation.services import moderation_service
+from .chat_moderation import schedule_message_ai_review
 
 User = get_user_model()
 
@@ -52,7 +53,12 @@ class RoomViewSet(viewsets.ModelViewSet):
         # Get rooms where current user is a participant
         rooms = (
             Room.objects.filter(participants=self.request.user)
-            .annotate(last_message_time=Max("messages__created_at"))
+            .annotate(
+                last_message_time=Max(
+                    "messages__created_at",
+                    filter=~Q(messages__ai_moderation_status=Message.AI_MODERATION_REJECTED),
+                )
+            )
             .order_by("-last_message_time", "-updated_at")
             .distinct()
         )
@@ -182,7 +188,7 @@ class RoomViewSet(viewsets.ModelViewSet):
 
         # Get messages for this room, ordered by created_at
         messages = (
-            Message.objects.filter(room=room)
+            Message.objects.visible_to_users().filter(room=room)
             .select_related("sender", "room")
             .order_by("created_at")[:100]
         )  # Get last 100 messages
@@ -214,28 +220,18 @@ class RoomViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        can_post, block_reason = moderation_service.check_user_can_post(request.user)
-        if not can_post:
-            return Response(
-                {"success": False, "error": block_reason},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
         moderation_decision = moderation_service.moderate_content(
-            user=request.user, content=content, content_type="chat"
+            user=request.user,
+            content=content,
+            content_type="chat",
+            skip_ai=True,
         )
 
         if not moderation_decision.is_approved:
-            warning_msg = ""
-            if moderation_decision.warning_issued:
-                from moderation.models import UserModerationStatus
-
-                status_obj = UserModerationStatus.objects.get(user=request.user)
-                warning_msg = f" Warning {status_obj.warning_count}/5 issued."
             return Response(
                 {
                     "success": False,
-                    "error": moderation_decision.rejection_reason + warning_msg,
+                    "error": moderation_decision.rejection_reason,
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -263,7 +259,10 @@ class RoomViewSet(viewsets.ModelViewSet):
                     )
 
         message = Message.objects.create(
-            room=room, sender=request.user, content=content
+            room=room,
+            sender=request.user,
+            content=content,
+            ai_moderation_status=Message.AI_MODERATION_PENDING,
         )
 
         # Broadcast via WebSocket to all room participants
@@ -289,6 +288,7 @@ class RoomViewSet(viewsets.ModelViewSet):
                 },
             )
 
+        schedule_message_ai_review(message.id)
         serializer = MessageSerializer(message, context={"request": request})
         return Response(
             {
@@ -335,13 +335,6 @@ class RoomViewSet(viewsets.ModelViewSet):
         if message.sender != request.user:
             return Response(
                 {"success": False, "error": "You can only edit your own messages"},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
-        can_post, block_reason = moderation_service.check_user_can_post(request.user)
-        if not can_post:
-            return Response(
-                {"success": False, "error": block_reason},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -855,28 +848,18 @@ class SendDirectMessageView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        can_post, block_reason = moderation_service.check_user_can_post(request.user)
-        if not can_post:
-            return Response(
-                {"success": False, "error": block_reason},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
         moderation_decision = moderation_service.moderate_content(
-            user=request.user, content=content, content_type="chat"
+            user=request.user,
+            content=content,
+            content_type="chat",
+            skip_ai=True,
         )
 
         if not moderation_decision.is_approved:
-            warning_msg = ""
-            if moderation_decision.warning_issued:
-                from moderation.models import UserModerationStatus
-
-                status_obj = UserModerationStatus.objects.get(user=request.user)
-                warning_msg = f" Warning {status_obj.warning_count}/5 issued."
             return Response(
                 {
                     "success": False,
-                    "error": moderation_decision.rejection_reason + warning_msg,
+                    "error": moderation_decision.rejection_reason,
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -905,6 +888,23 @@ class SendDirectMessageView(APIView):
 
         # If they can't message and haven't messaged before, create a message request
         if not can_message and not has_previous_messages:
+            request_ai_decision = moderation_service.moderate_content_ai_only(
+                user=request.user,
+                content=content,
+                content_type="chat",
+            )
+
+            if not request_ai_decision.is_approved:
+                return Response(
+                    {
+                        "success": False,
+                        "error": request_ai_decision.rejection_reason
+                        or request_ai_decision.pending_reason
+                        or "This message request could not be sent.",
+                    },
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
             # Check if there's already a pending request
             existing_request = MessageRequest.objects.filter(
                 sender=request.user, receiver=receiver, status="pending"
@@ -979,7 +979,10 @@ class SendDirectMessageView(APIView):
         # Create direct message (users can message each other)
         try:
             message = Message.objects.create(
-                sender=request.user, receiver=receiver, content=content
+                sender=request.user,
+                receiver=receiver,
+                content=content,
+                ai_moderation_status=Message.AI_MODERATION_PENDING,
             )
         except Exception as e:
             logger.error(f"Error creating message: {str(e)}", exc_info=True)
@@ -1035,6 +1038,8 @@ class SendDirectMessageView(APIView):
                 f"Error broadcasting message via WebSocket: {str(e)}", exc_info=True
             )
             # Continue even if WebSocket fails - message is already created
+
+        schedule_message_ai_review(message.id)
 
         try:
             serializer = MessageSerializer(message, context={"request": request})
@@ -1508,7 +1513,7 @@ class GetConversationView(APIView):
 
         # Get all messages between current user and other user (even if blocked)
         messages = (
-            Message.objects.filter(
+            Message.objects.visible_to_users().filter(
                 Q(sender=request.user, receiver=other_user)
                 | Q(sender=other_user, receiver=request.user)
             )
@@ -1590,12 +1595,12 @@ class GetConversationsListView(APIView):
 
         # Get all users the current user has sent or received messages from
         sent_to = (
-            Message.objects.filter(sender=request.user)
+            Message.objects.visible_to_users().filter(sender=request.user)
             .values_list("receiver_id", flat=True)
             .distinct()
         )
         received_from = (
-            Message.objects.filter(receiver=request.user)
+            Message.objects.visible_to_users().filter(receiver=request.user)
             .values_list("sender_id", flat=True)
             .distinct()
         )
@@ -1628,7 +1633,7 @@ class GetConversationsListView(APIView):
             try:
                 other_user = User.objects.get(id=user_id)
                 last_message = (
-                    Message.objects.filter(
+                    Message.objects.visible_to_users().filter(
                         Q(sender=request.user, receiver=other_user)
                         | Q(sender=other_user, receiver=request.user)
                     )
@@ -1639,6 +1644,8 @@ class GetConversationsListView(APIView):
 
                 unread_count = Message.objects.filter(
                     sender=other_user, receiver=request.user, is_read=False
+                ).exclude(
+                    ai_moderation_status=Message.AI_MODERATION_REJECTED
                 ).count()
 
                 # Check for pending message requests

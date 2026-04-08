@@ -77,6 +77,7 @@ class ModerationEvent(models.Model):
         ("chat_message", "Chat Message"),
         ("post", "Post"),
         ("comment", "Comment"),
+        ("marketplace_product", "Marketplace Product"),
         ("category_proposal", "Category Proposal"),
     ]
 
