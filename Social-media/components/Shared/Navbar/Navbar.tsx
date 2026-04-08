@@ -18,9 +18,9 @@ import { useGetUnreadNotificationCountQuery } from "@/store/notificationApi";
 import { useGetConversationsListQuery, useGetChatRoomsQuery, useGetMessageRequestsQuery } from "@/store/chatApi";
 import { useSearch } from "@/contexts/SearchContext";
 import { useMessage } from "@/contexts/MessageContext";
-import { getStoredAccessToken } from "@/lib/auth";
 import bg from "../../../public/banner.webp";
 import navTitle from "../../../public/navTitle.png";
+
 // Fallback hook for when SearchContext is not available
 const useSearchSafe = () => {
   try {
@@ -42,16 +42,15 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
   const { isOpen: isMessagePopupOpen, openMessagePopup, closeMessagePopup } = useMessage();
 
   const router = useRouter();
-  const token = getStoredAccessToken();
-  const isAuthenticated = !!token;
 
   const {
     data: profileData,
     isLoading: isProfileLoading,
     isError: isProfileError,
-  } = useGetCurrentUserProfileQuery(undefined, {
-    skip: !isAuthenticated,
-  });
+  } = useGetCurrentUserProfileQuery();
+
+  // Cookie-based auth: authenticated if the /me call returned a profile
+  const isAuthenticated = !isProfileLoading && !isProfileError && !!profileData?.data;
 
   const { data: conversationsData } = useGetConversationsListQuery(undefined, {
     skip: !isAuthenticated,
@@ -67,6 +66,7 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
   });
 
   const profile = profileData?.data;
+
 
   // Get total unread notification count from API (not paginated)
   const unreadNotificationCount = unreadCountData?.data?.unread_count ?? 0;

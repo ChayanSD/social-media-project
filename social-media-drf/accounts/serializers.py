@@ -154,6 +154,12 @@ class VerifyOTPSerializer(serializers.Serializer):
 class SetCredentialsSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
+    subcategory_ids = serializers.ListField(
+        child=serializers.IntegerField(), 
+        required=False, 
+        default=list,
+        help_text="Optional list of subcategory IDs the user is interested in."
+    )
 
     def validate_username(self, value):
         """

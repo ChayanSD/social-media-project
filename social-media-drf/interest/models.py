@@ -17,7 +17,9 @@ class Category(models.Model):
         blank=True,
         related_name='proposed_categories'
     )
+    description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -39,7 +41,9 @@ class SubCategory(models.Model):
         blank=True,
         related_name='proposed_subcategories'
     )
+    description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self):
         return f"{self.name} ({self.category.name})"

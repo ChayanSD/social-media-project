@@ -6,8 +6,8 @@ import Image from "next/image";
 import { FaUpload } from "react-icons/fa";
 import { useGetMarketplaceCategoriesQuery, useCreateProductMutation, useGetMarketplaceItemsQuery, usePatchProductStatusMutation, useDeleteProductMutation, MarketplaceItem } from "@/store/marketplaceApi";
 import { useGetCurrentUserProfileQuery } from "@/store/authApi";
-import { getUsernameFromToken, getStoredAccessToken } from "@/lib/auth";
 import { toast } from "sonner";
+
 import ProductCard from "../../../../../components/Cards/ProductCard";
 import EditProductModal from "@/components/admin/EditProductModal";
 import ProductDetailsModal from "@/components/admin/ProductDetailsModal";
@@ -31,6 +31,22 @@ interface ServiceFormData {
   link: string;
   image: File | null;
 }
+
+const WARNING_PATTERN = /Warning\s+\d+\/\d+\s+issued\./i;
+
+const getServiceResult = (result: unknown) => {
+  if (
+    result &&
+    typeof result === "object" &&
+    "data" in result &&
+    result.data &&
+    typeof result.data === "object"
+  ) {
+    return result.data as { status?: string; rejection_reason?: string };
+  }
+
+  return result as { status?: string; rejection_reason?: string } | undefined;
+};
 
 const inputClass =
   "w-full px-3 sm:px-4 py-2 sm:py-3 bg-black/30 border border-white/20 rounded-lg sm:rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300 text-base sm:text-base";
@@ -89,10 +105,6 @@ export default function PromoteServicePage() {
 
   // Get current user's username
   const currentUsername = useMemo(() => {
-    const token = getStoredAccessToken();
-    if (token) {
-      return getUsernameFromToken(token) || userProfile?.data?.username || null;
-    }
     return userProfile?.data?.username || null;
   }, [userProfile]);
 
@@ -131,17 +143,30 @@ export default function PromoteServicePage() {
     }
 
     try {
-      await createProduct({
+      const result = await createProduct({
         name: data.name,
         image: data.image,
-        status: "published",
+        status: "approved",
         sub_category: selectedSubcategoryId,
         description: data.description,
         location: data.location,
         link: data.link,
       }).unwrap();
 
-      toast.success("Service created successfully!");
+      const createdService = getServiceResult(result);
+      const moderationReason = createdService?.rejection_reason ?? "";
+
+      if (WARNING_PATTERN.test(moderationReason)) {
+        toast.warning("Warning issued", {
+          description: moderationReason,
+        });
+      } else if (createdService?.status === "pending" && moderationReason) {
+        toast.success("Service sent for review", {
+          description: moderationReason,
+        });
+      } else {
+        toast.success("Service created successfully!");
+      }
       reset();
       setImagePreviews([]);
       setSelectedCategoryId(null);
@@ -166,7 +191,7 @@ export default function PromoteServicePage() {
     }
 
     try {
-      await createProduct({
+      const result = await createProduct({
         name: data.name,
         image: data.image,
         status: "draft",
@@ -176,7 +201,12 @@ export default function PromoteServicePage() {
         link: data.link,
       }).unwrap();
 
-      toast.success("Draft saved successfully!");
+      const createdService = getServiceResult(result);
+      if (createdService?.status === "draft") {
+        toast.success("Draft saved successfully!");
+      } else {
+        toast.success("Service updated successfully!");
+      }
       reset();
       setImagePreviews([]);
       setSelectedCategoryId(null);
@@ -192,7 +222,7 @@ export default function PromoteServicePage() {
     try {
       await patchProductStatus({
         id: item.id,
-        status: "published",
+        status: "approved",
       }).unwrap();
       toast.success("Service published successfully!");
       refetchItems();
@@ -605,4 +635,3 @@ export default function PromoteServicePage() {
     </div>
   );
 }
-

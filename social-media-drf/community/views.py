@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, serializers
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -10,8 +10,49 @@ from datetime import timedelta
 from .models import *
 from .serializers import *
 from post.models import Notification
+from moderation.services import moderation_service
+from post.moderation import check_text_content
 
 User = get_user_model()
+
+
+def moderate_community_message(user, message):
+    message = (message or "").strip()
+    if not message:
+        return True, ""
+
+    is_text_safe, text_reason = check_text_content(message)
+    if not is_text_safe:
+        warning_issued = moderation_service.report_violation(
+            user=user,
+            violation_type="safety",
+            content_type="post",
+            content_text=message,
+            rejection_reason=text_reason,
+        )
+        warning_msg = ""
+        if warning_issued:
+            status_obj = moderation_service.get_user_warning_status(user)
+            warning_msg = f" Warning {status_obj['warning_count']}/{status_obj['max_warnings']} issued."
+        return False, text_reason + warning_msg
+
+    moderation_decision = moderation_service.moderate_content(
+        user=user,
+        content=message,
+        content_type="post",
+    )
+
+    if moderation_decision.requires_review:
+        return False, moderation_decision.pending_reason or "Message could not be verified."
+
+    if not moderation_decision.is_approved:
+        warning_msg = ""
+        if moderation_decision.warning_issued:
+            status_obj = moderation_service.get_user_warning_status(user)
+            warning_msg = f" Warning {status_obj['warning_count']}/{status_obj['max_warnings']} issued."
+        return False, (moderation_decision.rejection_reason or "") + warning_msg
+
+    return True, ""
 
 
 class CommunityViewSet(viewsets.ModelViewSet):
@@ -32,20 +73,47 @@ class CommunityViewSet(viewsets.ModelViewSet):
             return Community.objects.none()
         
         user = self.request.user
+        is_authenticated = bool(user and user.is_authenticated)
+        is_admin = bool(
+            is_authenticated and (
+                getattr(user, "role", None) == "admin" or getattr(user, "is_superuser", False)
+            )
+        )
+
+        if is_admin:
+            queryset = Community.objects.all()
+            if self.action == "list":
+                status_filter = self.request.query_params.get("status")
+                if status_filter:
+                    queryset = queryset.filter(status=status_filter)
+            return queryset
         
         if self.action in ['list', 'retrieve']:
+            if not is_authenticated:
+                return Community.objects.filter(
+                    status='approved',
+                    visibility__in=['public', 'restricted'],
+                ).distinct().order_by('-members_count', '-created_at')
+
+            approved_visibility = Q(status='approved') & (
+                Q(visibility='public') |
+                Q(visibility='restricted')
+            )
+            creator_visibility = Q(created_by=user) if is_authenticated else Q(pk__in=[])
+            private_visibility = (
+                Q(status='approved', visibility='private', members__user=user, members__is_approved=True) |
+                Q(status='approved', visibility='private', invitations__invitee=user, invitations__status='pending')
+            ) if is_authenticated else Q(pk__in=[])
+
             # Show:
             # - Public communities (everyone can see)
             # - Restricted communities (everyone can see, but only approved members can post)
             # - Private communities (only if user is approved member OR has pending invitation)
             # Exclude private communities where user has declined invitation
             queryset = Community.objects.filter(
-                Q(visibility='public') | 
-                Q(visibility='restricted') |
-                Q(visibility='private', members__user=user, members__is_approved=True) |
-                Q(visibility='private', invitations__invitee=user, invitations__status='pending')
+                approved_visibility | creator_visibility | private_visibility
             ).exclude(
-                Q(visibility='private') & 
+                Q(visibility='private') &
                 Q(invitations__invitee=user, invitations__status='declined')
             ).distinct()
             
@@ -78,15 +146,80 @@ class CommunityViewSet(viewsets.ModelViewSet):
             return queryset
         
         return Community.objects.all()
+
+    def _is_admin(self, user):
+        return bool(
+            user
+            and user.is_authenticated
+            and (getattr(user, "role", None) == "admin" or getattr(user, "is_superuser", False))
+        )
+
+    def _run_community_moderation(self, user, name="", title="", description=""):
+        combined_text = "\n".join(
+            part.strip() for part in [name or "", title or "", description or ""] if part and part.strip()
+        ).strip()
+
+        if not combined_text:
+            return True, ""
+
+        is_text_safe, text_reason = check_text_content(combined_text)
+        if not is_text_safe:
+            warning_issued = moderation_service.report_violation(
+                user=user,
+                violation_type="safety",
+                content_type="post",
+                content_text=combined_text,
+                rejection_reason=text_reason,
+            )
+            warning_msg = ""
+            if warning_issued:
+                status_obj = moderation_service.get_user_warning_status(user)
+                warning_msg = f" Warning {status_obj['warning_count']}/{status_obj['max_warnings']} issued."
+            return False, text_reason + warning_msg
+
+        moderation_decision = moderation_service.moderate_content(
+            user=user,
+            content=combined_text,
+            content_type="post",
+        )
+
+        if moderation_decision.requires_review:
+            return False, moderation_decision.pending_reason or "Community sent for review."
+
+        if not moderation_decision.is_approved:
+            warning_msg = ""
+            if moderation_decision.warning_issued:
+                status_obj = moderation_service.get_user_warning_status(user)
+                warning_msg = f" Warning {status_obj['warning_count']}/{status_obj['max_warnings']} issued."
+            return False, (moderation_decision.rejection_reason or "") + warning_msg
+
+        return True, ""
+
+    def _moderate_optional_message(self, user, message):
+        return moderate_community_message(user, message)
     
     def create(self, request, *args, **kwargs):
+        can_post, block_reason = moderation_service.check_user_can_post(request.user)
+        if not can_post:
+            raise serializers.ValidationError({"moderation": block_reason})
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        is_approved, moderation_reason = self._run_community_moderation(
+            user=request.user,
+            name=serializer.validated_data.get("name", ""),
+            title=serializer.validated_data.get("title", ""),
+            description=serializer.validated_data.get("description", ""),
+        )
+        serializer.save(
+            created_by=request.user,
+            status="approved" if is_approved else "pending",
+            rejection_reason="" if is_approved else moderation_reason,
+        )
         headers = self.get_success_headers(serializer.data)
         return Response({
             "success": True,
-            "message": "Community created successfully",
+            "message": "Community created successfully" if is_approved else "Community sent for review",
             "data": serializer.data
         }, status=status.HTTP_201_CREATED, headers=headers)
     
@@ -146,15 +279,28 @@ class CommunityViewSet(viewsets.ModelViewSet):
         # Check permissions
         if not self._can_manage_community(request.user, community):
             raise PermissionDenied("You do not have permission to edit this community.")
+
+        can_post, block_reason = moderation_service.check_user_can_post(request.user)
+        if not can_post:
+            raise serializers.ValidationError({"moderation": block_reason})
         
         partial = kwargs.pop('partial', False)
         serializer = self.get_serializer(community, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        is_approved, moderation_reason = self._run_community_moderation(
+            user=request.user,
+            name=serializer.validated_data.get("name", community.name),
+            title=serializer.validated_data.get("title", community.title),
+            description=serializer.validated_data.get("description", community.description),
+        )
+        serializer.save(
+            status="approved" if is_approved else "pending",
+            rejection_reason="" if is_approved else moderation_reason,
+        )
         
         return Response({
             "success": True,
-            "message": "Community updated successfully",
+            "message": "Community updated successfully" if is_approved else "Community update sent for review",
             "data": serializer.data
         })
     
@@ -180,15 +326,17 @@ class CommunityViewSet(viewsets.ModelViewSet):
         # For unauthenticated users, only show public communities
         if not user.is_authenticated:
             communities = Community.objects.filter(
-                visibility='public'
+                visibility='public',
+                status='approved',
             ).distinct().order_by('-members_count', '-posts_count')[:20]
         else:
             # For authenticated users, show public, restricted, and private communities user is member of OR has pending invitation
             communities = Community.objects.filter(
-                Q(visibility='public') | 
-                Q(visibility='restricted') |
-                Q(visibility='private', members__user=user, members__is_approved=True) |
-                Q(visibility='private', invitations__invitee=user, invitations__status='pending')
+                Q(status='approved', visibility='public') |
+                Q(status='approved', visibility='restricted') |
+                Q(status='approved', visibility='private', members__user=user, members__is_approved=True) |
+                Q(status='approved', visibility='private', invitations__invitee=user, invitations__status='pending') |
+                Q(created_by=user)
             ).exclude(
                 Q(visibility='private') & 
                 Q(invitations__invitee=user, invitations__status='declined')
@@ -214,8 +362,8 @@ class CommunityViewSet(viewsets.ModelViewSet):
     def my_communities(self, request):
         """Get communities the user is a member of"""
         communities = Community.objects.filter(
-            members__user=request.user,
-            members__is_approved=True
+            Q(created_by=request.user) |
+            Q(members__user=request.user, members__is_approved=True, status='approved')
         ).distinct().order_by('-created_at')
         
         page = self.paginate_queryset(communities)
@@ -292,6 +440,12 @@ class CommunityViewSet(viewsets.ModelViewSet):
         """Join a community or request to join"""
         community = self.get_object()
         user = request.user
+
+        if community.status != 'approved':
+            return Response({
+                "success": False,
+                "error": "This community is not available yet."
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         # Check if already a member
         existing_member = CommunityMember.objects.filter(
@@ -327,6 +481,17 @@ class CommunityViewSet(viewsets.ModelViewSet):
         
         # Restricted/Private: create join request
         else:
+            can_post, block_reason = moderation_service.check_user_can_post(user)
+            if not can_post:
+                raise serializers.ValidationError({"moderation": block_reason})
+
+            is_message_approved, moderation_reason = self._moderate_optional_message(
+                user=user,
+                message=request.data.get('message', ''),
+            )
+            if not is_message_approved:
+                raise serializers.ValidationError({"moderation": moderation_reason})
+
             join_request = CommunityJoinRequest.objects.create(
                 user=user,
                 community=community,
@@ -483,6 +648,9 @@ class CommunityViewSet(viewsets.ModelViewSet):
     
     def _can_manage_community(self, user, community):
         """Check if user can manage the community"""
+        if self._is_admin(user):
+            return True
+
         if community.created_by == user:
             return True
         
@@ -493,6 +661,64 @@ class CommunityViewSet(viewsets.ModelViewSet):
         ).first()
         
         return membership and membership.role in ['admin', 'moderator']
+
+    @action(detail=True, methods=['post'])
+    def approve(self, request, name=None):
+        """Admin action to approve a pending or rejected community."""
+        if not self._is_admin(request.user):
+            raise PermissionDenied("Only admins can approve communities.")
+
+        community = self.get_object()
+        if community.status not in ["pending", "rejected"]:
+            return Response(
+                {
+                    "success": False,
+                    "message": f"Community is already {community.status}.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        community.status = "approved"
+        community.rejection_reason = ""
+        community.save(update_fields=["status", "rejection_reason", "updated_at"])
+
+        return Response(
+            {
+                "success": True,
+                "message": "Community approved successfully.",
+                "data": self.get_serializer(community).data,
+            }
+        )
+
+    @action(detail=True, methods=['post'])
+    def reject(self, request, name=None):
+        """Admin action to reject a pending community."""
+        if not self._is_admin(request.user):
+            raise PermissionDenied("Only admins can reject communities.")
+
+        community = self.get_object()
+        if community.status != "pending":
+            return Response(
+                {
+                    "success": False,
+                    "message": f"Community is already {community.status}. Only pending communities can be rejected.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        community.status = "rejected"
+        community.rejection_reason = request.data.get(
+            "reason", "Violation of community guidelines"
+        )
+        community.save(update_fields=["status", "rejection_reason", "updated_at"])
+
+        return Response(
+            {
+                "success": True,
+                "message": "Community rejected successfully.",
+                "data": self.get_serializer(community).data,
+            }
+        )
 
 
 class CommunityJoinRequestViewSet(viewsets.ModelViewSet):
@@ -535,6 +761,9 @@ class CommunityJoinRequestViewSet(viewsets.ModelViewSet):
     
     def _can_manage_community(self, user, community):
         """Check if user can manage the community"""
+        if getattr(user, "role", None) == "admin" or getattr(user, "is_superuser", False):
+            return True
+
         if community.created_by == user:
             return True
         
@@ -796,6 +1025,12 @@ class InviteUserToCommunityView(APIView):
                 "success": False,
                 "error": "Only private communities can have invitations"
             }, status=status.HTTP_400_BAD_REQUEST)
+
+        if community.status != 'approved':
+            return Response({
+                "success": False,
+                "error": "Only approved communities can send invitations"
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         try:
             invitee = User.objects.get(id=user_id)
@@ -824,6 +1059,17 @@ class InviteUserToCommunityView(APIView):
                 "success": False,
                 "error": "User already has a pending invitation"
             }, status=status.HTTP_400_BAD_REQUEST)
+
+        can_post, block_reason = moderation_service.check_user_can_post(request.user)
+        if not can_post:
+            raise serializers.ValidationError({"moderation": block_reason})
+
+        is_message_approved, moderation_reason = moderate_community_message(
+            user=request.user,
+            message=message,
+        )
+        if not is_message_approved:
+            raise serializers.ValidationError({"moderation": moderation_reason})
         
         # Create invitation
         invitation = CommunityInvitation.objects.create(

@@ -10,6 +10,7 @@ from django.core.files.storage import default_storage
 
 User = get_user_model()
 
+
 class Category(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True, null=True)
@@ -17,58 +18,72 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     class Meta:
-        verbose_name_plural = 'Categories'
-        ordering = ['name']
+        verbose_name_plural = "Categories"
+        ordering = ["name"]
 
     def save(self, *args, **kwargs):
         if self.slug is None:
             self.slug = slugify(self.name)
         return super(Category, self).save(*args, **kwargs)
 
-    
+
 class SubCategory(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True, null=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='subcategories')
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="subcategories"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return (self.category.name + ' - ' + self.name)
+        return self.category.name + " - " + self.name
+
     class Meta:
-        verbose_name_plural = 'Sub Categories'
-        ordering = ['name']
+        verbose_name_plural = "Sub Categories"
+        ordering = ["name"]
 
     def save(self, *args, **kwargs):
         if self.slug is None:
             self.slug = slugify(self.name)
         return super(SubCategory, self).save(*args, **kwargs)
 
+
 class Product(models.Model):
     STATUS_CHOICES = (
-        ('draft', 'Draft'),
-        ('published', 'Published'),
-        ('sold', 'Sold'),
-        ('unpublished', 'Unpublished'),
+        ("draft", "Draft"),
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+        ("sold", "Sold"),
+        ("unpublished", "Unpublished"),
     )
-    
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products')
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="products")
     name = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='products')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
-    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name='products')
+    image = models.ImageField(upload_to="products")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="draft")
+    sub_category = models.ForeignKey(
+        SubCategory, on_delete=models.CASCADE, related_name="products"
+    )
     description = models.TextField(null=True, blank=True)
     location = models.CharField(max_length=255, null=True, blank=True)
     link = models.URLField(max_length=500, help_text="Link to the service platform")
+    rejection_reason = models.TextField(
+        blank=True,
+        null=True,
+        help_text='Reason for rejection if the product status is "rejected"',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
-    
+
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
+
 
 @receiver(post_delete, sender=Product)
 def delete_product_image(sender, instance, **kwargs):
@@ -81,50 +96,81 @@ def delete_product_image(sender, instance, **kwargs):
 # Payment Models
 class SubscriptionPlan(models.Model):
     """Subscription plans for promotion posts"""
+
     BILLING_CYCLE_CHOICES = (
-        ('month', 'Monthly'),
-        ('year', 'Yearly'),
+        ("month", "Monthly"),
+        ("year", "Yearly"),
     )
-    
-    name = models.CharField(max_length=50, unique=True, help_text="Unique identifier for the plan (e.g., 'premium', 'starter')")
+
+    name = models.CharField(
+        max_length=50,
+        unique=True,
+        help_text="Unique identifier for the plan (e.g., 'premium', 'starter')",
+    )
     display_name = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    billing_cycle = models.CharField(max_length=10, choices=BILLING_CYCLE_CHOICES, default='month')
-    billing_interval_count = models.PositiveIntegerField(default=1, help_text="Number of billing cycle units between renewals (e.g. 12 for annual when cycle is month)")
+    billing_cycle = models.CharField(
+        max_length=10, choices=BILLING_CYCLE_CHOICES, default="month"
+    )
+    billing_interval_count = models.PositiveIntegerField(
+        default=1,
+        help_text="Number of billing cycle units between renewals (e.g. 12 for annual when cycle is month)",
+    )
     posts_per_month = models.IntegerField(default=0)  # 0 means unlimited
-    stripe_price_id = models.CharField(max_length=255, blank=True, null=True, help_text="Stripe Price ID for subscription")
-    stripe_product_id = models.CharField(max_length=255, blank=True, null=True, help_text="Stripe Product ID")
+    stripe_price_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="Stripe Price ID for subscription",
+    )
+    stripe_product_id = models.CharField(
+        max_length=255, blank=True, null=True, help_text="Stripe Product ID"
+    )
     is_active = models.BooleanField(default=True)
-    is_recommended = models.BooleanField(default=False, help_text="Mark this plan as recommended")
-    features = models.JSONField(default=list, help_text="List of features for this plan")
+    is_recommended = models.BooleanField(
+        default=False, help_text="Mark this plan as recommended"
+    )
+    features = models.JSONField(
+        default=list, help_text="List of features for this plan"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     def __str__(self):
         cycle = "month" if self.billing_cycle == "month" else "year"
         interval = f"{self.billing_interval_count} {cycle}{'s' if self.billing_interval_count != 1 else ''}"
         return f"{self.display_name} - ${self.price}/{interval}"
-    
+
     class Meta:
-        ordering = ['price']
+        ordering = ["price"]
 
 
 class UserSubscription(models.Model):
     """User subscription tracking"""
+
     STATUS_CHOICES = (
-        ('active', 'Active'),
-        ('canceled', 'Canceled'),
-        ('past_due', 'Past Due'),
-        ('trialing', 'Trialing'),
-        ('incomplete', 'Incomplete'),
-        ('incomplete_expired', 'Incomplete Expired'),
-        ('unpaid', 'Unpaid'),
+        ("active", "Active"),
+        ("canceled", "Canceled"),
+        ("past_due", "Past Due"),
+        ("trialing", "Trialing"),
+        ("incomplete", "Incomplete"),
+        ("incomplete_expired", "Incomplete Expired"),
+        ("unpaid", "Unpaid"),
     )
-    
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
-    plan = models.ForeignKey(SubscriptionPlan, on_delete=models.SET_NULL, null=True, related_name='subscriptions')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
-    stripe_subscription_id = models.CharField(max_length=255, unique=True, blank=True, null=True)
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="subscriptions"
+    )
+    plan = models.ForeignKey(
+        SubscriptionPlan,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="subscriptions",
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="active")
+    stripe_subscription_id = models.CharField(
+        max_length=255, unique=True, blank=True, null=True
+    )
     stripe_customer_id = models.CharField(max_length=255, blank=True, null=True)
     current_period_start = models.DateTimeField(null=True, blank=True)
     current_period_end = models.DateTimeField(null=True, blank=True)
@@ -133,108 +179,127 @@ class UserSubscription(models.Model):
     last_reset_date = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     def __str__(self):
         return f"{self.user.username} - {self.plan.display_name if self.plan else 'No Plan'}"
-    
+
     def reset_monthly_usage(self):
         """Reset monthly post count"""
         from django.utils import timezone
+
         now = timezone.now()
-        if self.last_reset_date.month != now.month or self.last_reset_date.year != now.year:
+        if (
+            self.last_reset_date.month != now.month
+            or self.last_reset_date.year != now.year
+        ):
             self.posts_used_this_month = 0
             self.last_reset_date = now
             self.save()
-    
+
     def can_post(self):
         """Check if user can post based on their subscription"""
         self.reset_monthly_usage()
-        active_statuses = {'active', 'trialing'}
+        active_statuses = {"active", "trialing"}
         if self.status not in active_statuses:
             return False
-        
+
         if not self.plan:
             # Free tier quota from settings
-            return self.posts_used_this_month < getattr(settings, 'FREE_TIER_POSTS', 1)
-        
+            return self.posts_used_this_month < getattr(settings, "FREE_TIER_POSTS", 1)
+
         if self.plan.posts_per_month == 0:
             # Unlimited plan
             return True
-        
+
         return self.posts_used_this_month < self.plan.posts_per_month
-    
+
     def get_remaining_posts(self):
         """Get remaining posts for current month"""
         self.reset_monthly_usage()
-        active_statuses = {'active', 'trialing'}
+        active_statuses = {"active", "trialing"}
         if self.status not in active_statuses:
             return 0
-        
+
         if not self.plan:
-            return max(0, getattr(settings, 'FREE_TIER_POSTS', 1) - self.posts_used_this_month)
-        
+            return max(
+                0, getattr(settings, "FREE_TIER_POSTS", 1) - self.posts_used_this_month
+            )
+
         if self.plan.posts_per_month == 0:
             return -1  # Unlimited
-        
+
         return max(0, self.plan.posts_per_month - self.posts_used_this_month)
-    
+
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
 
 class Payment(models.Model):
     """Payment history tracking"""
+
     PAYMENT_TYPES = (
-        ('subscription', 'Subscription'),
-        ('one_time', 'One Time Post'),
+        ("subscription", "Subscription"),
+        ("one_time", "One Time Post"),
     )
-    
+
     STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('succeeded', 'Succeeded'),
-        ('failed', 'Failed'),
-        ('refunded', 'Refunded'),
+        ("pending", "Pending"),
+        ("succeeded", "Succeeded"),
+        ("failed", "Failed"),
+        ("refunded", "Refunded"),
     )
-    
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
-    subscription = models.ForeignKey(UserSubscription, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="payments")
+    subscription = models.ForeignKey(
+        UserSubscription,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="payments",
+    )
     payment_type = models.CharField(max_length=20, choices=PAYMENT_TYPES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    currency = models.CharField(max_length=3, default='usd')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    currency = models.CharField(max_length=3, default="usd")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     stripe_payment_intent_id = models.CharField(max_length=255, blank=True, null=True)
     stripe_charge_id = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True)
     metadata = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     def __str__(self):
         return f"{self.user.username} - ${self.amount} - {self.status}"
-    
+
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
 
 class PostCredit(models.Model):
     """One-time post purchase credits"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='post_credits')
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="post_credits"
+    )
     amount = models.IntegerField(default=1, help_text="Number of posts purchased")
     used = models.IntegerField(default=0)
-    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, related_name='credits')
+    payment = models.ForeignKey(
+        Payment, on_delete=models.CASCADE, related_name="credits"
+    )
     expires_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
         return f"{self.user.username} - {self.amount - self.used} credits remaining"
-    
+
     def has_credits(self):
         """Check if user has available credits"""
         from django.utils import timezone
+
         if self.expires_at and timezone.now() > self.expires_at:
             return False
         return (self.amount - self.used) > 0
-    
+
     def use_credit(self):
         """Use one credit"""
         if self.has_credits():
@@ -242,13 +307,14 @@ class PostCredit(models.Model):
             self.save()
             return True
         return False
-    
+
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
 
 class StripeWebhookEvent(models.Model):
     """Tracks processed Stripe webhook events for idempotency."""
+
     event_id = models.CharField(max_length=255, unique=True)
     event_type = models.CharField(max_length=100)
     processed_at = models.DateTimeField(auto_now_add=True)
@@ -257,4 +323,4 @@ class StripeWebhookEvent(models.Model):
         return f"{self.event_type} ({self.event_id})"
 
     class Meta:
-        ordering = ['-processed_at']
+        ordering = ["-processed_at"]

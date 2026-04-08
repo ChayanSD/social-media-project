@@ -10,8 +10,9 @@ class SubCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SubCategory
-        fields = ['id', 'category_name', 'name', 'is_approved', 'created_by', 'created_by_username', 'created_at']
+        fields = ['id', 'category_name', 'name', 'description', 'is_approved', 'created_by', 'created_by_username', 'created_at']
         read_only_fields = ['is_approved', 'created_by', 'created_at']
+
         ref_name = 'InterestSubCategory'
 
     def create(self, validated_data):
@@ -27,8 +28,9 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'name', 'subcategories', 'is_approved', 'created_by', 'created_by_username', 'created_at']
+        fields = ['id', 'name', 'description', 'subcategories', 'is_approved', 'created_by', 'created_by_username', 'created_at']
         read_only_fields = ['is_approved', 'created_by', 'created_at']
+
         ref_name = 'InterestCategory'
 
     def get_subcategories(self, obj):

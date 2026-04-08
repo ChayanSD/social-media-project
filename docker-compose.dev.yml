@@ -30,6 +30,27 @@ services:
       - social_network_dev
 
   # ===========================================================================
+  # Redis (Local Cache + Channels)
+  # ===========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: social_media_redis_dev
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data_dev:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - social_network_dev
+
+  # ===========================================================================
   # Django Backend (Direct Exposure)
   # ===========================================================================
   backend:
@@ -41,6 +62,11 @@ services:
       - ./.env
     environment:
       # Override production settings for local dev
+      DB_HOST: "db"
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:-social_media}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
       DEBUG: "True"
       ALLOWED_HOSTS: "localhost,127.0.0.1,backend"
       FRONTEND_URL: "http://localhost:3000"
@@ -50,6 +76,8 @@ services:
       SECURE_SSL_REDIRECT: "False"
       SESSION_COOKIE_SECURE: "False"
       CSRF_COOKIE_SECURE: "False"
+      REDIS_URL: "redis://redis:6379/1"
+      USE_REDIS_CHANNELS: "True"
     volumes:
       - ./social-media-drf:/app
       - media_files_dev:/app/media
@@ -60,6 +88,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/swagger/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - social_network_dev
 
@@ -82,6 +118,12 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "const http=require('http');const req=http.get('http://127.0.0.1:3000/',res=>process.exit(res.statusCode>=200&&res.statusCode<400?0:1));req.on('error',()=>process.exit(1));req.setTimeout(5000,()=>{req.destroy();process.exit(1);});"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
     networks:
       - social_network_dev
 
@@ -94,6 +136,8 @@ volumes:
   media_files_dev:
     driver: local
   static_files_dev:
+    driver: local
+  redis_data_dev:
     driver: local
 
 # =============================================================================

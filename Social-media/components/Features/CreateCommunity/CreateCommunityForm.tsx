@@ -10,6 +10,8 @@ import { useCreateCommunityMutation } from "@/store/communityApi";
 import { toast } from "sonner";
 import PageHeader from '../../Shared/PageHeader/PageHeader';
 
+const WARNING_PATTERN = /Warning\s+\d+\/\d+\s+issued\./i;
+
 type FormValues = {
   name: string;
   description: string;
@@ -42,7 +44,7 @@ const CreateCommunityForm = () => {
         cover_image: coverImageFile ? { name: coverImageFile.name, size: coverImageFile.size } : undefined,
       });
 
-      await createCommunity({
+      const result = await createCommunity({
         name: nameAsSingleWord,
         description: data.description,
         visibility: data.visibility,
@@ -55,9 +57,25 @@ const CreateCommunityForm = () => {
         tags: [],
       }).unwrap();
 
-      toast.success("Community created successfully!", {
-        description: `Your community "${data.name}" has been created.`,
-      });
+      const community =
+        result && typeof result === "object" && "data" in result
+          ? (result.data as { status?: string; rejection_reason?: string } | undefined)
+          : (result as { status?: string; rejection_reason?: string } | undefined);
+      const moderationReason = community?.rejection_reason ?? "";
+
+      if (WARNING_PATTERN.test(moderationReason)) {
+        toast.warning("Warning issued", {
+          description: moderationReason,
+        });
+      } else if (community?.status === "pending" && moderationReason) {
+        toast.success("Community sent for review", {
+          description: moderationReason,
+        });
+      } else {
+        toast.success("Community created successfully!", {
+          description: `Your community "${data.name}" has been created.`,
+        });
+      }
 
       // Navigate to home or community page
       router.push("/");

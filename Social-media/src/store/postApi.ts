@@ -1,5 +1,6 @@
 import { getApiBaseUrl } from "@/lib/utils";
 import { baseApi } from "./baseApi";
+import { getCsrfToken } from "@/lib/auth";
 
 export interface CreatePostRequest {
   title: string;
@@ -172,7 +173,7 @@ export interface GetSuggestionsResponse {
   [key: string]: unknown;
 }
 
-export const postApi = baseApi.injectEndpoints({
+export const postApi = baseApi.injectEndpoints({ overrideExisting: true,
   endpoints: (builder) => ({
     createPost: builder.mutation<CreatePostResponse, CreatePostRequest>({
       query: (data) => {
@@ -580,14 +581,15 @@ export const postApi = baseApi.injectEndpoints({
             const likeId = responseData?.data?.id || responseData?.data?.like_id || responseData.id || responseData.like_id;
 
             if (likeId) {
-              const { getStoredAccessToken } = await import("@/lib/auth");
-
               const baseUrl = getApiBaseUrl();
+              // Cookies are sent automatically — no Authorization header needed
               await fetch(`${baseUrl}api/likes/${likeId}/`, {
                 method: "DELETE",
+                credentials: "include",
                 headers: {
-                  Authorization: `Bearer ${getStoredAccessToken() || ""}`,
                   "Content-Type": "application/json",
+                  ...(getCsrfToken() ? { "X-CSRFToken": getCsrfToken() as string } : {}),
+                  "X-Requested-With": "XMLHttpRequest",
                 },
               }).catch((error) => console.error("Failed to delete like:", error));
             }

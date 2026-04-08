@@ -42,7 +42,8 @@ export interface MarketplaceItem {
   updated_at?: string;
   location?: string;
   link?: string;
-  status?: "draft" | "published" | "sold" | "unpublished";
+  status?: "draft" | "pending" | "approved" | "rejected" | "sold" | "unpublished";
+  rejection_reason?: string;
   [key: string]: unknown;
 }
 
@@ -71,7 +72,7 @@ export interface GetProductsResponse {
 export interface CreateProductRequest {
   name: string;
   image: File;
-  status: "draft" | "published";
+  status: "draft" | "approved";
   sub_category: number;
   description?: string;
   location?: string;
@@ -82,7 +83,7 @@ export interface UpdateProductRequest {
   id: number | string;
   name?: string;
   image?: File;
-  status?: "draft" | "published";
+  status?: "draft" | "approved";
   sub_category?: number;
   description?: string;
   location?: string;
@@ -130,7 +131,7 @@ export interface UpdateMarketplaceSubcategoryRequest {
   category?: number;
 }
 
-export const marketplaceApi = baseApi.injectEndpoints({
+export const marketplaceApi = baseApi.injectEndpoints({ overrideExisting: true,
   endpoints: (builder) => ({
     getMarketplaceItems: builder.query<GetMarketplaceItemsResponse, { category?: string; subcategory?: string; page?: number } | void>({
       query: (params) => {
@@ -293,7 +294,7 @@ export const marketplaceApi = baseApi.injectEndpoints({
       },
       invalidatesTags: ["MarketplaceItems"],
     }),
-    patchProductStatus: builder.mutation<CreateProductResponse, { id: number | string; status: "draft" | "published" }>({
+    patchProductStatus: builder.mutation<CreateProductResponse, { id: number | string; status: "draft" | "approved" }>({
       query: (data) => {
         const formData = new FormData();
         formData.append("status", data.status);
@@ -450,4 +451,3 @@ export const {
   useGetPaymentsQuery,
   useGetCreditsQuery,
 } = marketplaceApi;
-

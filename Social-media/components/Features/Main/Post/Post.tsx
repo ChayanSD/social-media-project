@@ -18,8 +18,8 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import { FiEdit2, FiTrash2, FiFlag } from "react-icons/fi";
 import EditPost from "../../EditPost/EditPost";
 import ReportPostModal from "./ReportPostModal";
-import { getStoredAccessToken } from "@/lib/auth";
 import { toast } from "sonner";
+
 
 interface Profile {
   id: string | number;
@@ -38,7 +38,9 @@ interface PostProps {
 const Post = ({ post, profile }: PostProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const token = getStoredAccessToken();
+  // Auth state derives from the profile prop — no localStorage needed
+  const isAuthenticated = !!profile?.id;
+
   const [showComments, setShowComments] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -308,7 +310,7 @@ const Post = ({ post, profile }: PostProps) => {
     if (!postIdToLike || isLiking) return;
 
     // Redirect to login if not authenticated
-    if (!token) {
+    if (!isAuthenticated) {
       router.push('/login');
       return;
     }
@@ -415,7 +417,7 @@ const Post = ({ post, profile }: PostProps) => {
 
   const handleShareClick = () => {
     // Redirect to login if not authenticated
-    if (!token) {
+    if (!isAuthenticated) {
       router.push('/login');
       return;
     }
@@ -451,7 +453,7 @@ const Post = ({ post, profile }: PostProps) => {
     if (!commentText.trim() || !postIdForComment || isCreatingComment) return;
 
     // Redirect to login if not authenticated
-    if (!token) {
+    if (!isAuthenticated) {
       router.push('/login');
       return;
     }
@@ -562,7 +564,7 @@ const Post = ({ post, profile }: PostProps) => {
 
   const handleFollowClick = async () => {
     // Redirect to login if not authenticated
-    if (!token) {
+    if (!isAuthenticated) {
       router.push('/login');
       return;
     }
@@ -1215,7 +1217,7 @@ const Post = ({ post, profile }: PostProps) => {
           {!isCurrentUserPost && (
             <button
               onClick={() => {
-                if (!token) {
+                if (!isAuthenticated) {
                   router.push("/login");
                   return;
                 }

@@ -42,6 +42,22 @@ interface SharedPostData {
   mediaUrls?: string[];
 }
 
+const WARNING_PATTERN = /Warning\s+\d+\/\d+\s+issued\./i;
+
+const getPostResult = (result: unknown) => {
+  if (
+    result &&
+    typeof result === "object" &&
+    "data" in result &&
+    result.data &&
+    typeof result.data === "object"
+  ) {
+    return result.data as { status?: string; rejection_reason?: string };
+  }
+
+  return result as { status?: string; rejection_reason?: string } | undefined;
+};
+
 const CreatePost = ({
   isProfile = false,
   communityId,
@@ -225,7 +241,7 @@ const CreatePost = ({
 
   const onSubmit = async (data: FormData) => {
     try {
-      await createPost({
+      const result = await createPost({
         title: data.title,
         content: data.content ?? "",
         link: data.linkUrl ?? "",
@@ -238,9 +254,24 @@ const CreatePost = ({
         ...(isDraft && { status: "draft" }),
       }).unwrap();
 
-      toast.success(
-        isDraft ? "Draft saved successfully!" : "Post published successfully!"
-      );
+      const createdPost = getPostResult(result);
+      const moderationReason = createdPost?.rejection_reason ?? "";
+      const warningIssued = WARNING_PATTERN.test(moderationReason);
+
+      if (warningIssued) {
+        toast.warning("Warning issued", {
+          description: moderationReason,
+        });
+      } else if (createdPost?.status === "pending" && moderationReason) {
+        toast.success("Post sent for review", {
+          description: moderationReason,
+        });
+      } else {
+        toast.success(
+          isDraft ? "Draft saved successfully!" : "Post published successfully!"
+        );
+      }
+
       setIsMediaModalOpen(false);
       setIsDraft(false); // Reset draft state
       reset();

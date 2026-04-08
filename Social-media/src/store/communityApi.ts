@@ -35,6 +35,8 @@ export interface CommunityItem {
   name?: string;
   title?: string;
   description?: string;
+  status?: "approved" | "pending" | "rejected";
+  rejection_reason?: string;
   profile_image?: string | null;
   cover_image?: string | null;
   icon?: string;
@@ -158,6 +160,7 @@ export interface InviteUserRequest {
 }
 
 export const communityApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     createCommunity: builder.mutation<CreateCommunityResponse, CreateCommunityRequest>({
       query: (data) => {

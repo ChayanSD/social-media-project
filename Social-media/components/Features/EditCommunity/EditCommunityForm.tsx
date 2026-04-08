@@ -8,6 +8,8 @@ import { FaGlobe, FaEyeSlash, FaLock } from "react-icons/fa";
 import { useUpdateCommunityMutation, useGetMyCommunitiesQuery, type CommunityItem } from "@/store/communityApi";
 import { toast } from "sonner";
 
+const WARNING_PATTERN = /Warning\s+\d+\/\d+\s+issued\./i;
+
 type FormValues = {
   title: string;
   description: string;
@@ -97,7 +99,7 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
         cover_image: coverImageFile ? { name: coverImageFile.name, size: coverImageFile.size } : undefined,
       });
 
-      await updateCommunity({
+      const result = await updateCommunity({
         communityName: communityName,
         data: {
           title: data.title as string,
@@ -108,9 +110,25 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
         },
       }).unwrap();
 
-      toast.success("Community updated successfully!", {
-        description: `Your community "${data.title as string}" has been updated.`,
-      });
+      const community =
+        result && typeof result === "object" && "data" in result
+          ? (result.data as { status?: string; rejection_reason?: string } | undefined)
+          : (result as { status?: string; rejection_reason?: string } | undefined);
+      const moderationReason = community?.rejection_reason ?? "";
+
+      if (WARNING_PATTERN.test(moderationReason)) {
+        toast.warning("Warning issued", {
+          description: moderationReason,
+        });
+      } else if (community?.status === "pending" && moderationReason) {
+        toast.success("Community update sent for review", {
+          description: moderationReason,
+        });
+      } else {
+        toast.success("Community updated successfully!", {
+          description: `Your community "${data.title as string}" has been updated.`,
+        });
+      }
 
       router.push("/main/manage-communities");
     } catch (error: unknown) {
@@ -557,4 +575,3 @@ const EditCommunityForm = ({ communityName }: EditCommunityFormProps) => {
 };
 
 export default EditCommunityForm;
-

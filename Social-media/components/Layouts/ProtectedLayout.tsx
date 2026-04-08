@@ -1,13 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  clearStoredTokens,
-  getRoleFromToken,
-  getStoredAccessToken,
-  UserRole,
-} from "@/lib/auth";
+import { useGetCurrentUserProfileQuery } from "@/store/authApi";
+import type { UserRole } from "@/lib/auth";
 
 type ProtectedLayoutProps = {
   children: React.ReactNode;
@@ -16,6 +12,13 @@ type ProtectedLayoutProps = {
   unauthenticatedRedirect?: string;
 };
 
+/**
+ * ProtectedLayout — cookie-based auth guard.
+ *
+ * Calls /auth/user-profiles/me/ (with cookies) to determine identity.
+ * If the request returns 401/error, user is not authenticated → redirect to login.
+ * Role checks use the profile.role field from the server response.
+ */
 export default function ProtectedLayout({
   children,
   allowedRoles,
@@ -23,64 +26,38 @@ export default function ProtectedLayout({
   unauthenticatedRedirect,
 }: ProtectedLayoutProps) {
   const router = useRouter();
-  const [token, setToken] = useState<string | null>(null);
-  const [isBootstrapping, setIsBootstrapping] = useState(true);
+
+  const {
+    data: profileResponse,
+    isLoading,
+    isError,
+  } = useGetCurrentUserProfileQuery();
+
+  const profile = profileResponse?.data;
+  const role = profile?.role || "user";
 
   useEffect(() => {
-    setToken(getStoredAccessToken());
-    setIsBootstrapping(false);
-  }, []);
+    if (isLoading) return;
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const handleStorage = () => {
-      setToken(getStoredAccessToken());
-    };
-
-    window.addEventListener("storage", handleStorage);
-
-    return () => window.removeEventListener("storage", handleStorage);
-  }, []);
-
-  const isExpired = useMemo(() => {
-    if (!token) return false;
-    try {
-      const [, payload] = token.split(".");
-      if (!payload) return false;
-      const data = JSON.parse(
-        atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
-      );
-      return typeof data.exp === "number" && data.exp * 1000 <= Date.now();
-    } catch {
-      return false;
-    }
-  }, [token]);
-
-  useEffect(() => {
-    if (isBootstrapping) return;
-
-    if (!token || isExpired) {
-      clearStoredTokens();
-      const redirectTarget = unauthenticatedRedirect || "/login";
-      router.replace(redirectTarget);
+    // Not authenticated — backend returned 401/error
+    if (isError || !profile) {
+      router.replace(unauthenticatedRedirect || "/login");
       return;
     }
 
-    const role = getRoleFromToken(token) || "user";
+    // Authenticated but wrong role
     const hasRoleAccess =
       !allowedRoles ||
       allowedRoles.length === 0 ||
       allowedRoles.includes(role);
 
     if (!hasRoleAccess) {
-      const redirectTarget =
-        fallbackRedirect || (role === "admin" ? "/dashboard" : "/");
-      router.replace(redirectTarget);
+      router.replace(fallbackRedirect || (role === "admin" ? "/dashboard" : "/"));
     }
-  }, [allowedRoles, fallbackRedirect, unauthenticatedRedirect, isBootstrapping, isExpired, router, token]);
+  }, [isLoading, isError, profile, role, allowedRoles, fallbackRedirect, unauthenticatedRedirect, router]);
 
-  if (isBootstrapping) {
+  // Show spinner while the /me call is in flight
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white">
         Checking authentication...
@@ -88,10 +65,18 @@ export default function ProtectedLayout({
     );
   }
 
-  if (!token || isExpired) {
+  // Not authenticated — render nothing while redirect fires
+  if (isError || !profile) {
+    return null;
+  }
+
+  // Wrong role — render nothing while redirect fires
+  const hasRoleAccess =
+    !allowedRoles || allowedRoles.length === 0 || allowedRoles.includes(role);
+
+  if (!hasRoleAccess) {
     return null;
   }
 
   return <>{children}</>;
 }
-

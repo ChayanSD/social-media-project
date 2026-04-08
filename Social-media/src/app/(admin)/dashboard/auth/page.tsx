@@ -11,7 +11,8 @@ import {
   useVerifyPasswordResetOtpMutation,
   useResetPasswordMutation
 } from "@/store/authApi";
-import { storeAuthTokens, getRoleFromToken } from "@/lib/auth";
+
+
 import { store } from "@/store/store";
 import { baseApi } from "@/store/baseApi";
 import { toast } from "sonner";
@@ -62,6 +63,7 @@ export default function AdminLoginPage() {
       const response = await login({
         email_or_username: data.email.trim(),
         password: data.password,
+        remember_me: data.rememberMe,
       }).unwrap();
 
       console.log("Login response:", response);
@@ -77,21 +79,8 @@ export default function AdminLoginPage() {
         return;
       }
 
-      const accessToken =
-        response.tokens?.access ||
-        (typeof response.token === "string" ? response.token : undefined);
-      const refreshToken = response.tokens?.refresh;
-
-      if (!accessToken) {
-        console.error("No access token in response:", response);
-        setError("Login failed: No access token received");
-        setIsLoading(false);
-        return;
-      }
-
-      // Get role from token or response
-      const role =
-        getRoleFromToken(accessToken) || response.user?.role || "user";
+      // Get role from response
+      const role = response.user?.role || "user";
 
       // Check if user is admin
       if (role !== "admin") {
@@ -100,31 +89,9 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // Clear RTK Query cache before storing new tokens
+      // Clear RTK Query cache before proceeding
       store.dispatch(baseApi.util.resetApiState());
 
-      // Store tokens
-      const persistSession = Boolean(data.rememberMe);
-      storeAuthTokens({
-        accessToken,
-        refreshToken: typeof refreshToken === "string" ? refreshToken : undefined,
-        persist: persistSession,
-      });
-
-      // Store user data
-      if (typeof window !== "undefined" && response.user) {
-        const primaryStorage = persistSession
-          ? window.localStorage
-          : window.sessionStorage;
-        const secondaryStorage = persistSession
-          ? window.sessionStorage
-          : window.localStorage;
-
-        primaryStorage.setItem("user", JSON.stringify(response.user));
-        secondaryStorage.removeItem("user");
-        primaryStorage.setItem("role", role);
-        secondaryStorage.removeItem("role");
-      }
 
       toast.success("Admin login successful");
       router.push("/dashboard");

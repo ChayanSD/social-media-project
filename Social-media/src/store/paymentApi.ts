@@ -99,7 +99,7 @@ export interface PostCreditsResponse {
   data: PostCredit[];
 }
 
-export const paymentApi = baseApi.injectEndpoints({
+export const paymentApi = baseApi.injectEndpoints({ overrideExisting: true,
   endpoints: (builder) => ({
     // Get subscription plans
     getSubscriptionPlans: builder.query<SubscriptionPlansResponse, void>({

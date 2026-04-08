@@ -2,8 +2,9 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getStoredAccessToken } from "@/lib/auth";
+import { useGetCurrentUserProfileQuery } from "@/store/authApi";
 import Home from "../../../components/Features/Main/Home/Home";
+
 
 /**
  * Root page - Shows main home for authenticated users
@@ -11,17 +12,18 @@ import Home from "../../../components/Features/Main/Home/Home";
  */
 export default function HomePage() {
   const router = useRouter();
-  const token = getStoredAccessToken();
+  const { data: profileResponse, isLoading: isProfileLoading } = useGetCurrentUserProfileQuery();
+  const isAuthenticated = !!profileResponse?.data;
 
   useEffect(() => {
-    if (!token) {
+    if (!isProfileLoading && !isAuthenticated) {
       // User is not authenticated, redirect to public explore page
       router.replace("/explore");
     }
-  }, [token, router]);
+  }, [isAuthenticated, isProfileLoading, router]);
 
-  // If not authenticated, show loading while redirecting
-  if (!token) {
+  // Show loading while determining auth status
+  if (isProfileLoading || !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#06133F]">
         <div className="text-center">

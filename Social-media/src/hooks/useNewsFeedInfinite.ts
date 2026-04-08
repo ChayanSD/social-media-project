@@ -1,5 +1,4 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { getStoredAccessToken } from "@/lib/auth";
 import { PostItem } from "@/store/postApi";
 
 const baseUrl =
@@ -17,13 +16,10 @@ interface NewsFeedResponse {
 }
 
 const fetchNewsFeed = async ({ pageParam = 1 }): Promise<NewsFeedResponse> => {
-  const token = getStoredAccessToken();
   const url = `${baseUrl}api/posts/news_feed/?page=${pageParam}`;
   
   const response = await fetch(url, {
-    headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
+    credentials: 'include',
   });
 
   if (!response.ok) {

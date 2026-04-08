@@ -37,6 +37,8 @@ export interface ChatMessage {
   content?: string;
   created_at?: string;
   is_read?: boolean;
+  ai_moderation_status?: 'pending' | 'approved' | 'review_required' | 'rejected';
+  moderation_rejection_reason?: string;
   reactions?: Record<string, number>;
   user_reaction?: string | null;
   [key: string]: unknown;
@@ -222,7 +224,7 @@ export interface ReportUserResponse {
   error?: string | Record<string, unknown>;
 }
 
-export const chatApi = baseApi.injectEndpoints({
+export const chatApi = baseApi.injectEndpoints({ overrideExisting: true,
   endpoints: (builder) => ({
     getChatRooms: builder.query<GetChatRoomsResponse, void>({
       query: () => ({

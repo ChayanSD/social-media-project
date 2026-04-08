@@ -4,7 +4,8 @@ import React, { useMemo, useState, useEffect, useRef } from 'react';
 import ProductCard from '../../../Cards/ProductCard';
 import { useGetMarketplaceItemsQuery, useDeleteProductMutation, MarketplaceItem } from '@/store/marketplaceApi';
 import { useGetCurrentUserProfileQuery } from '@/store/authApi';
-import { getUsernameFromToken, getStoredAccessToken } from '@/lib/auth';
+
+
 import { toast } from 'sonner';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import EditProductModal from '@/components/admin/EditProductModal';
@@ -41,10 +42,6 @@ const Marketplace = () => {
 
     // Get current user's username
     const currentUsername = useMemo(() => {
-        const token = getStoredAccessToken();
-        if (token) {
-            return getUsernameFromToken(token) || userProfile?.data?.username || null;
-        }
         return userProfile?.data?.username || null;
     }, [userProfile]);
 

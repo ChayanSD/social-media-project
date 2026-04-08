@@ -5,6 +5,7 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.conf import settings
 import random
 from django.contrib.auth import authenticate, get_user_model
+from django.middleware.csrf import get_token
 from rest_framework_simplejwt.tokens import RefreshToken
 from .permissions import IsOwnerOrReadOnly, IsAdmin
 from .email_templates import get_otp_verification_email_template, get_password_reset_email_template
@@ -51,19 +52,64 @@ from .utils import (
 )
 
 
+def should_persist_auth(request):
+    """Return True when auth cookies should survive browser restarts."""
+    raw_value = request.data.get('remember_me')
+    if raw_value is None:
+        raw_value = request.data.get('rememberMe')
+
+    if raw_value is None:
+        return True
+
+    if isinstance(raw_value, bool):
+        return raw_value
+
+    return str(raw_value).strip().lower() in {'1', 'true', 'yes', 'on'}
+
+
 """Generate JWT tokens"""
-def tokens_for_user(user):
+def tokens_for_user(user, persist_auth=True):
     refresh = RefreshToken.for_user(user)
 
     refresh['username'] = user.username
     refresh['email'] = user.email
     refresh['role'] = user.role if hasattr(user, 'role') else None
     refresh['username_set'] = user.username_set if hasattr(user, 'username_set') else None
+    refresh['remember_me'] = persist_auth
 
     return {
         'refresh': str(refresh),
         'access': str(refresh.access_token)
     }
+
+
+def set_auth_cookies(request, response, access_token, refresh_token=None, persist_auth=True):
+    """Attach JWT tokens as HttpOnly cookies. Reads settings from AUTH_COOKIE_* config."""
+    get_token(request)
+
+    access_max_age = settings.AUTH_COOKIE_ACCESS_MAX_AGE if persist_auth else None
+    refresh_max_age = settings.AUTH_COOKIE_REFRESH_MAX_AGE if persist_auth else None
+
+    response.set_cookie(
+        key=settings.AUTH_COOKIE_ACCESS,
+        value=access_token,
+        max_age=access_max_age,
+        secure=settings.AUTH_COOKIE_SECURE,
+        httponly=settings.AUTH_COOKIE_HTTP_ONLY,
+        samesite=settings.AUTH_COOKIE_SAMESITE,
+        path=settings.AUTH_COOKIE_PATH,
+    )
+    if refresh_token:
+        response.set_cookie(
+            key=settings.AUTH_COOKIE_REFRESH,
+            value=refresh_token,
+            max_age=refresh_max_age,
+            secure=settings.AUTH_COOKIE_SECURE,
+            httponly=settings.AUTH_COOKIE_HTTP_ONLY,
+            samesite=settings.AUTH_COOKIE_SAMESITE,
+            path=settings.AUTH_COOKIE_PATH,
+        )
+    return response
 
 
 """Email OTP Registration Flow"""
@@ -189,18 +235,26 @@ class SetCredentialsView(APIView):
         user.username_set = True
         user.save()
 
-        # Update display_name in profile to match the new username
+        # Update display_name and interests in profile
         if hasattr(user, 'profile'):
             user.profile.display_name = username
+            
+            # Use provided interests if any, else let the model signal handle default (or set it here)
+            subcategory_ids = ser.validated_data.get('subcategory_ids', [])
+            if subcategory_ids:
+                user.profile.subcategories.set(subcategory_ids)
+            # If still no subcategories, the model's post_save handler I added will ensure 'General' is picked
+            
             user.profile.save()
         
         # Notify admins about new user
         notify_admins(user, 'admin_new_user')
 
-        return Response({
+        persist_auth = should_persist_auth(request)
+        tokens = tokens_for_user(user, persist_auth=persist_auth)
+        response = Response({
             "success": True,
             "message": "Credentials set successfully. You are now logged in.",
-            "tokens": tokens_for_user(user),
             "user": {
                 "id": user.id,
                 "email": user.email,
@@ -209,7 +263,15 @@ class SetCredentialsView(APIView):
                 "is_superuser": user.is_superuser
             }
         }, status=201)
-        
+        return set_auth_cookies(
+            request,
+            response,
+            tokens['access'],
+            tokens['refresh'],
+            persist_auth=persist_auth,
+        )
+
+
 """Login View"""
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -246,11 +308,12 @@ class LoginView(APIView):
                 "success": False,
                 "error": "Email not verified"
                 }, status=403)
-        
-        return Response({
+
+        persist_auth = should_persist_auth(request)
+        tokens = tokens_for_user(user, persist_auth=persist_auth)
+        response = Response({
             "success": True,
             "message": "Login successful",
-            "tokens": tokens_for_user(user),
             "user": {
                 "id": user.id,
                 "email": user.email,
@@ -258,7 +321,88 @@ class LoginView(APIView):
                 "role": user.role,
                 "is_superuser": user.is_superuser
             }
-            }, status=200)
+        }, status=200)
+        return set_auth_cookies(
+            request,
+            response,
+            tokens['access'],
+            tokens['refresh'],
+            persist_auth=persist_auth,
+        )
+
+
+"""Logout View"""
+class LogoutView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        """Clear auth cookies and blacklist the refresh token."""
+        logger.info(f"Logout initiated for user: {request.user}")
+        
+        response = Response({
+            "success": True, 
+            "message": "Logged out successfully"
+        }, status=status.HTTP_200_OK)
+
+        # Ensure we match all flags from set_cookie for reliable deletion
+        deletion_kwargs = {
+            'path': settings.AUTH_COOKIE_PATH,
+            'domain': getattr(settings, 'AUTH_COOKIE_DOMAIN', None),
+            'samesite': settings.AUTH_COOKIE_SAMESITE,
+        }
+
+        response.delete_cookie(settings.AUTH_COOKIE_ACCESS, **deletion_kwargs)
+        response.delete_cookie(settings.AUTH_COOKIE_REFRESH, **deletion_kwargs)
+        
+        # Blacklisting refresh token if possible
+        refresh_token = request.COOKIES.get(settings.AUTH_COOKIE_REFRESH)
+        if refresh_token:
+            try:
+                from rest_framework_simplejwt.tokens import RefreshToken
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+                logger.info("Blacklisted refresh token successfully")
+            except Exception as e:
+                logger.warning(f"Could not blacklist refresh token: {str(e)}")
+
+        return response
+
+
+"""Cookie Token Refresh View"""
+class CookieTokenRefreshView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        """Read refresh token from HttpOnly cookie and issue a new access cookie."""
+        refresh_token = request.COOKIES.get(settings.AUTH_COOKIE_REFRESH)
+
+        if not refresh_token:
+            return Response(
+                {"success": False, "error": "No refresh token found in cookies"},
+                status=401
+            )
+
+        try:
+            refresh = RefreshToken(refresh_token)
+            access_token = str(refresh.access_token)
+            persist_auth = bool(refresh.get('remember_me', True))
+
+            response = Response({"success": True, "message": "Token refreshed"}, status=200)
+            return set_auth_cookies(
+                request,
+                response,
+                access_token,
+                persist_auth=persist_auth,
+            )
+        except Exception:
+            response = Response(
+                {"success": False, "error": "Invalid or expired refresh token"},
+                status=401
+            )
+            # Clear stale cookies
+            response.delete_cookie(settings.AUTH_COOKIE_ACCESS, path=settings.AUTH_COOKIE_PATH)
+            response.delete_cookie(settings.AUTH_COOKIE_REFRESH, path=settings.AUTH_COOKIE_PATH)
+            return response
 
 
 """ Admin Users List View """
@@ -2045,22 +2189,28 @@ class OAuthLoginView(APIView):
                 )
 
             # Generate tokens
-            tokens = tokens_for_user(user)
+            persist_auth = should_persist_auth(request)
+            tokens = tokens_for_user(user, persist_auth=persist_auth)
 
             logger.info(f"User logged in successfully: {email}")
 
-            return Response(
-                {
-                    "message": f"Logged in successfully via {provider.title()}.",
-                    "tokens": tokens,
-                    "user": {
-                        "id": user.id,
-                        "email": user.email,
-                        "username": user.username,
-                        "provider": provider
-                    }
-                }, 
-                status=status.HTTP_200_OK
+            response = Response({
+                "success": True,
+                "message": f"Logged in successfully via {provider.title()}.",
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                    "username": user.username,
+                    "role": user.role if hasattr(user, 'role') else 'user',
+                    "is_superuser": user.is_superuser
+                }
+            }, status=200)
+            return set_auth_cookies(
+                request,
+                response,
+                tokens['access'],
+                tokens['refresh'],
+                persist_auth=persist_auth,
             )
 
         except Exception as e:

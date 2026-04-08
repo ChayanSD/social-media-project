@@ -32,7 +32,7 @@ export interface GetNotificationsResponse {
   [key: string]: unknown;
 }
 
-export const notificationApi = baseApi.injectEndpoints({
+export const notificationApi = baseApi.injectEndpoints({ overrideExisting: true,
   endpoints: (builder) => ({
     getNotifications: builder.query<GetNotificationsResponse, { page?: number }>({
       query: ({ page = 1 }) => ({

@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { getStoredAccessToken } from "@/lib/auth";
+
 import { PostItem } from "@/store/postApi";
 
 const baseUrl =
@@ -23,13 +23,10 @@ const fetchUserPosts = async ({
   pageParam?: number; 
   userId: string | number;
 }): Promise<UserPostsResponse> => {
-  const token = getStoredAccessToken();
   const url = `${baseUrl}api/posts/user_posts/?user_id=${userId}&page=${pageParam}`;
   
   const response = await fetch(url, {
-    headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
+    credentials: 'include',
   });
 
   if (!response.ok) {

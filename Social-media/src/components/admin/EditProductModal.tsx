@@ -30,11 +30,12 @@ export default function EditProductModal({
   product,
   onSuccess,
 }: EditProductModalProps) {
+  const WARNING_PATTERN = /Warning\s+\d+\/\d+\s+issued\./i;
   const [updateProduct, { isLoading }] = useUpdateProductMutation();
   const { data: categoriesResponse } = useGetMarketplaceCategoriesQuery();
 
   const [name, setName] = useState("");
-  const [status, setStatus] = useState<"draft" | "published">("published");
+  const [status, setStatus] = useState<"draft" | "approved">("approved");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [link, setLink] = useState("");
@@ -60,7 +61,7 @@ export default function EditProductModal({
   useEffect(() => {
     if (product && isOpen) {
       setName((product.name || product.title || "") as string);
-      setStatus((product.status as "draft" | "published") || "published");
+      setStatus((product.status as "draft" | "approved") || "approved");
       setDescription((product.description as string) || "");
       setLocation((product.location as string) || "");
       setLink((product.link as string) || "");
@@ -149,7 +150,7 @@ export default function EditProductModal({
       const updateData: {
         id: number | string;
         name: string;
-        status: "draft" | "published";
+        status: "draft" | "approved";
         sub_category: number;
         description?: string;
         location?: string;
@@ -176,8 +177,24 @@ export default function EditProductModal({
         updateData.link = link.trim();
       }
 
-      await updateProduct(updateData).unwrap();
-      toast.success("Service updated successfully!");
+      const result = await updateProduct(updateData).unwrap();
+      const updatedService =
+        result && typeof result === "object" && "data" in result
+          ? (result.data as { status?: string; rejection_reason?: string } | undefined)
+          : (result as { status?: string; rejection_reason?: string } | undefined);
+      const moderationReason = updatedService?.rejection_reason ?? "";
+
+      if (WARNING_PATTERN.test(moderationReason)) {
+        toast.warning("Warning issued", {
+          description: moderationReason,
+        });
+      } else if (updatedService?.status === "pending" && moderationReason) {
+        toast.success("Service sent for review", {
+          description: moderationReason,
+        });
+      } else {
+        toast.success("Service updated successfully!");
+      }
       onSuccess?.();
       onClose();
     } catch (error: unknown) {
@@ -191,7 +208,7 @@ export default function EditProductModal({
 
   const handleClose = () => {
     setName("");
-    setStatus("published");
+    setStatus("approved");
     setDescription("");
     setLocation("");
     setLink("");
@@ -273,11 +290,11 @@ export default function EditProductModal({
               </label>
               <select
                 value={status}
-                onChange={(e) => setStatus(e.target.value as "draft" | "published")}
+                onChange={(e) => setStatus(e.target.value as "draft" | "approved")}
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6B83FA] text-white"
               >
                 <option value="draft">Draft</option>
-                <option value="published">Published</option>
+                <option value="approved">Published</option>
               </select>
             </div>
 
@@ -368,4 +385,3 @@ export default function EditProductModal({
     </CustomDialog>
   );
 }
-
