@@ -20,47 +20,51 @@ class JWTAuthMiddleware(BaseMiddleware):
     async def __call__(self, scope, receive, send):
         close_old_connections()
 
-        headers = dict(scope.get('headers', []))
+        headers = dict(scope.get("headers", []))
         token = None
 
         # 1. Read from HttpOnly cookie (primary, production-safe method)
-        cookie_header = headers.get(b'cookie', b'').decode()
+        cookie_header = headers.get(b"cookie", b"").decode()
         if cookie_header:
             cookies = {}
-            for part in cookie_header.split(';'):
+            for part in cookie_header.split(";"):
                 part = part.strip()
-                if '=' in part:
-                    key, val = part.split('=', 1)
+                if "=" in part:
+                    key, val = part.split("=", 1)
                     cookies[key.strip()] = val.strip()
             token = cookies.get(settings.AUTH_COOKIE_ACCESS)
 
         # 2. Fallback: query string token (for clients that can't set cookies)
         if not token:
-            query_string = scope.get('query_string', b'').decode()
+            query_string = scope.get("query_string", b"").decode()
             if query_string:
                 params = dict(
-                    param.split('=') for param in query_string.split('&') if '=' in param
+                    param.split("=")
+                    for param in query_string.split("&")
+                    if "=" in param
                 )
-                token = params.get('token')
+                token = params.get("token")
 
         # 3. Fallback: Authorization header
         if not token:
-            auth_header = headers.get(b'authorization', b'').decode()
-            if auth_header.startswith('Bearer '):
-                token = auth_header.split(' ')[1]
+            auth_header = headers.get(b"authorization", b"").decode()
+            if auth_header.startswith("Bearer "):
+                token = auth_header.split(" ")[1]
 
         user = None
         if token:
             try:
                 UntypedToken(token)
-                decoded_data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-                user_id = decoded_data.get('user_id')
+                decoded_data = jwt.decode(
+                    token, settings.SECRET_KEY, algorithms=["HS256"]
+                )
+                user_id = decoded_data.get("user_id")
                 if user_id:
                     user = await self.get_user(user_id)
             except (InvalidToken, TokenError, Exception):
                 user = None
 
-        scope['user'] = user
+        scope["user"] = user
         return await super().__call__(scope, receive, send)
 
     @database_sync_to_async
@@ -72,11 +76,13 @@ class JWTAuthMiddleware(BaseMiddleware):
 
 
 """ Direct Message Consumer """
+
+
 class DirectMessageConsumer(AsyncWebsocketConsumer):
-    """ Consumer for Direct Messages with JWT authentication """
-    
+    """Consumer for Direct Messages with JWT authentication"""
+
     async def connect(self):
-        self.user = self.scope.get('user')
+        self.user = self.scope.get("user")
 
         # Check authentication
         if not self.user or not self.user.is_authenticated:
@@ -85,120 +91,131 @@ class DirectMessageConsumer(AsyncWebsocketConsumer):
 
         # Mark user as online
         await self.mark_user_online()
-        
+
         # Join online status channel to receive updates
-        await self.channel_layer.group_add('online_status', self.channel_name)
-        
+        await self.channel_layer.group_add("online_status", self.channel_name)
+
         # Broadcast online status to all users
         await self.broadcast_online_status(True)
 
         # Join user's personal channel for direct messages
-        self.user_group = f'user_{self.user.id}'
+        self.user_group = f"user_{self.user.id}"
         await self.channel_layer.group_add(self.user_group, self.channel_name)
         await self.accept()
-    
+
     async def online_status_change(self, event):
         """Handle online status change broadcasts"""
-        await self.send(text_data=json.dumps({
-            'type': 'online_status',
-            'user_id': event['user_id'],
-            'username': event['username'],
-            'is_online': event['is_online'],
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "online_status",
+                    "user_id": event["user_id"],
+                    "username": event["username"],
+                    "is_online": event["is_online"],
+                }
+            )
+        )
 
     async def disconnect(self, code):
         # Mark user as offline
         await self.mark_user_offline()
-        
+
         # Broadcast offline status to all users
         await self.broadcast_online_status(False)
-        
+
         # Leave online status channel
-        await self.channel_layer.group_discard('online_status', self.channel_name)
-        
+        await self.channel_layer.group_discard("online_status", self.channel_name)
+
         # Leave user's personal channel
-        if hasattr(self, 'user_group'):
+        if hasattr(self, "user_group"):
             await self.channel_layer.group_discard(self.user_group, self.channel_name)
-    
+
     @database_sync_to_async
     def mark_user_online(self):
         """Mark user as online in cache"""
-        cache.set(f'user_online_{self.user.id}', True, timeout=300)  # 5 minutes timeout
-    
+        cache.set(f"user_online_{self.user.id}", True, timeout=300)  # 5 minutes timeout
+
     @database_sync_to_async
     def mark_user_offline(self):
         """Mark user as offline in cache"""
-        cache.delete(f'user_online_{self.user.id}')
-    
+        cache.delete(f"user_online_{self.user.id}")
+
     async def broadcast_online_status(self, is_online):
         """Broadcast online status change to all connected users"""
         # Get all connected users and notify them
         from channels.layers import get_channel_layer
+
         channel_layer = get_channel_layer()
-        
+
         if channel_layer:
             # Broadcast to a general online status channel
             await channel_layer.group_send(
-                'online_status',
+                "online_status",
                 {
-                    'type': 'online_status_change',
-                    'user_id': self.user.id,
-                    'username': self.user.username,
-                    'is_online': is_online,
-                }
+                    "type": "online_status_change",
+                    "user_id": self.user.id,
+                    "username": self.user.username,
+                    "is_online": is_online,
+                },
             )
 
     async def direct_message(self, event):
         """Send direct message to WebSocket"""
-        await self.send(text_data=json.dumps({
-            'type': 'message',
-            'message': event['message']
-        }))
-    
+        await self.send(
+            text_data=json.dumps({"type": "message", "message": event["message"]})
+        )
+
     async def message_reaction(self, event):
         """Send message reaction to WebSocket"""
-        await self.send(text_data=json.dumps({
-            'type': 'message_reaction',
-            'reaction': event['reaction']
-        }))
-    
+        await self.send(
+            text_data=json.dumps(
+                {"type": "message_reaction", "reaction": event["reaction"]}
+            )
+        )
+
     async def message_request(self, event):
         """Send message request notification to WebSocket"""
-        await self.send(text_data=json.dumps({
-            'type': 'message_request',
-            'request': event['request']
-        }))
-    
+        await self.send(
+            text_data=json.dumps(
+                {"type": "message_request", "request": event["request"]}
+            )
+        )
+
     async def message_request_accepted(self, event):
         """Notify sender that message request was accepted"""
-        await self.send(text_data=json.dumps({
-            'type': 'message_request_accepted',
-            'request': event['request']
-        }))
-    
+        await self.send(
+            text_data=json.dumps(
+                {"type": "message_request_accepted", "request": event["request"]}
+            )
+        )
+
     async def message_request_rejected(self, event):
         """Notify sender that message request was rejected"""
-        await self.send(text_data=json.dumps({
-            'type': 'message_request_rejected',
-            'request': event['request']
-        }))
-    
+        await self.send(
+            text_data=json.dumps(
+                {"type": "message_request_rejected", "request": event["request"]}
+            )
+        )
+
     async def message_request_cancelled(self, event):
         """Notify receiver that message request was cancelled"""
-        await self.send(text_data=json.dumps({
-            'type': 'message_request_cancelled',
-            'request': event['request']
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {"type": "message_request_cancelled", "request": event["request"]}
+            )
+        )
 
 
 """ Room-based Chat Consumer (for group chats) """
+
+
 class ChatConsumer(AsyncWebsocketConsumer):
-    """ Consumer for Chat with JWT authentication """
-    
+    """Consumer for Chat with JWT authentication"""
+
     async def connect(self):
-        self.room_id = self.scope['url_route']['kwargs']['room_id']
-        self.room_group = f'chat_{self.room_id}'
-        self.user = self.scope.get('user')
+        self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
+        self.room_group = f"chat_{self.room_id}"
+        self.user = self.scope.get("user")
 
         # Check authentication
         if not self.user or not self.user.is_authenticated:
@@ -207,10 +224,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # Mark user as online
         await self.mark_user_online()
-        
+
         # Join online status channel to receive updates
-        await self.channel_layer.group_add('online_status', self.channel_name)
-        
+        await self.channel_layer.group_add("online_status", self.channel_name)
+
         # Broadcast online status to all users
         await self.broadcast_online_status(True)
 
@@ -223,112 +240,157 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Join room
         await self.channel_layer.group_add(self.room_group, self.channel_name)
         await self.accept()
-    
+
     async def online_status_change(self, event):
         """Handle online status change broadcasts"""
-        await self.send(text_data=json.dumps({
-            'type': 'online_status',
-            'user_id': event['user_id'],
-            'username': event['username'],
-            'is_online': event['is_online'],
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "online_status",
+                    "user_id": event["user_id"],
+                    "username": event["username"],
+                    "is_online": event["is_online"],
+                }
+            )
+        )
 
     async def disconnect(self, code):
         # Mark user as offline (only if no other connections)
         await self.mark_user_offline()
-        
+
         # Broadcast offline status to all users
         await self.broadcast_online_status(False)
-        
+
         # Leave online status channel
-        await self.channel_layer.group_discard('online_status', self.channel_name)
-        
+        await self.channel_layer.group_discard("online_status", self.channel_name)
+
         # Leave room
-        if hasattr(self, 'room_group'):
+        if hasattr(self, "room_group"):
             await self.channel_layer.group_discard(self.room_group, self.channel_name)
-    
+
     @database_sync_to_async
     def mark_user_online(self):
         """Mark user as online in cache"""
-        cache.set(f'user_online_{self.user.id}', True, timeout=300)  # 5 minutes timeout
-    
+        cache.set(f"user_online_{self.user.id}", True, timeout=300)  # 5 minutes timeout
+
     @database_sync_to_async
     def mark_user_offline(self):
         """Mark user as offline in cache"""
-        cache.delete(f'user_online_{self.user.id}')
-    
+        cache.delete(f"user_online_{self.user.id}")
+
     async def broadcast_online_status(self, is_online):
         """Broadcast online status change to all connected users"""
         from channels.layers import get_channel_layer
+
         channel_layer = get_channel_layer()
-        
+
         if channel_layer:
             await channel_layer.group_send(
-                'online_status',
+                "online_status",
                 {
-                    'type': 'online_status_change',
-                    'user_id': self.user.id,
-                    'username': self.user.username,
-                    'is_online': is_online,
-                }
+                    "type": "online_status_change",
+                    "user_id": self.user.id,
+                    "username": self.user.username,
+                    "is_online": is_online,
+                },
             )
 
     async def receive(self, text_data):
         try:
             data = json.loads(text_data)
-            message_content = data.get('message', '').strip()
-            
+            message_content = data.get("message", "").strip()
+
             if not message_content:
                 return
-            
+
             if not self.user or not self.user.is_authenticated:
-                await self.send(text_data=json.dumps({
-                    'error': 'Authentication required'
-                }))
+                await self.send(
+                    text_data=json.dumps({"error": "Authentication required"})
+                )
+                return
+
+            # Check if user is blocked from posting
+            from moderation.services import moderation_service
+
+            can_post, block_reason = moderation_service.check_user_can_post(self.user)
+            if not can_post:
+                await self.send(
+                    text_data=json.dumps(
+                        {"error": block_reason, "code": "USER_BLOCKED"}
+                    )
+                )
+                return
+
+            # Moderate the content
+            moderation_decision = moderation_service.moderate_content(
+                user=self.user, content=message_content, content_type="chat"
+            )
+
+            if not moderation_decision.is_approved:
+                warning_msg = ""
+                if moderation_decision.warning_issued:
+                    from moderation.models import UserModerationStatus
+
+                    status_obj = UserModerationStatus.objects.get(user=self.user)
+                    warning_msg = f" Warning {status_obj.warning_count}/5 issued."
+                await self.send(
+                    text_data=json.dumps(
+                        {
+                            "error": moderation_decision.rejection_reason + warning_msg,
+                            "code": "CONTENT_BLOCKED",
+                            "warning_count": getattr(status_obj, "warning_count", 0)
+                            if moderation_decision.warning_issued
+                            else 0,
+                        }
+                    )
+                )
                 return
 
             # Save to database
             message = await self.save_message(self.user, message_content)
-            
+
             if message:
                 # Broadcast to everyone in room
                 await self.channel_layer.group_send(
                     self.room_group,
                     {
-                        'type': 'chat_message',
-                        'message': {
-                            'id': message.id,
-                            'content': message.content,
-                            'sender_id': self.user.id,
-                            'sender_username': self.user.username,
-                            'room_id': self.room_id,
-                            'created_at': message.created_at.isoformat(),
-                            'is_read': message.is_read,
+                        "type": "chat_message",
+                        "message": {
+                            "id": message.id,
+                            "content": message.content,
+                            "sender_id": self.user.id,
+                            "sender_username": self.user.username,
+                            "room_id": self.room_id,
+                            "created_at": message.created_at.isoformat(),
+                            "is_read": message.is_read,
                         },
-                    }
+                    },
                 )
         except json.JSONDecodeError:
-            await self.send(text_data=json.dumps({
-                'error': 'Invalid JSON format'
-            }))
+            await self.send(text_data=json.dumps({"error": "Invalid JSON format"}))
         except Exception as e:
-            await self.send(text_data=json.dumps({
-                'error': str(e)
-            }))
+            await self.send(text_data=json.dumps({"error": str(e)}))
 
     async def chat_message(self, event):
         """Send message to WebSocket"""
-        await self.send(text_data=json.dumps({
-            'type': 'message',
-            'message': event['message']  # Changed from 'data' to 'message' for consistency
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "message",
+                    "message": event[
+                        "message"
+                    ],  # Changed from 'data' to 'message' for consistency
+                }
+            )
+        )
 
     async def message_reaction(self, event):
         """Send message reaction to WebSocket"""
-        await self.send(text_data=json.dumps({
-            'type': 'message_reaction',
-            'reaction': event['reaction']
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {"type": "message_reaction", "reaction": event["reaction"]}
+            )
+        )
 
     @database_sync_to_async
     def check_room_access(self):
@@ -344,15 +406,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """Save message to database"""
         try:
             room = Room.objects.get(id=self.room_id)
-            message = Message.objects.create(
-                room=room,
-                sender=user,
-                content=content
-            )
+            message = Message.objects.create(room=room, sender=user, content=content)
             # Update room's updated_at
             room.save()
             return message
         except Room.DoesNotExist:
             return None
-    
+
+
 """ End of Chat Consumer """
