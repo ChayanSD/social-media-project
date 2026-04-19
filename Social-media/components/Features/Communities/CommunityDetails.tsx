@@ -15,8 +15,10 @@ import {
 } from '@/store/communityApi';
 import { PostItem } from '@/store/postApi';
 import { useGetCurrentUserProfileQuery } from '@/store/authApi';
-import { FiUsers, FiUserPlus, FiUserMinus, FiFileText, FiArrowLeft, FiCheck, FiX, FiMenu } from 'react-icons/fi';
-import { Loader2 } from 'lucide-react';
+import { FiUsers, FiUserPlus, FiUserMinus, FiFileText, FiArrowLeft, FiCheck, FiX, FiMenu, FiShoppingBag } from 'react-icons/fi';
+import { Loader2, ShoppingBag, MessageSquare } from 'lucide-react';
+import { useGetMarketplaceItemsQuery } from '@/store/marketplaceApi';
+import ProductFeedCard from '../../Cards/ProductFeedCard';
 import { toast } from 'sonner';
 import Post from '../Main/Post/Post';
 import CreatePost from '../CreatePost/CreatePost';
@@ -37,6 +39,20 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [activeDetailTab, setActiveDetailTab] = useState<'posts' | 'products'>('posts');
+
+  // Marketplace items (all items — no community-specific filter available)
+  const { data: marketplaceRes, isLoading: isMarketplaceLoading } = useGetMarketplaceItemsQuery(
+    { page: 1 },
+    { skip: activeDetailTab !== 'products' }
+  );
+  const marketplaceItems = useMemo(() => {
+    const raw = marketplaceRes?.data ?? marketplaceRes?.results?.data ?? marketplaceRes?.items ?? [];
+    return raw.filter((item) => {
+      const status = String(item.status || '').toLowerCase();
+      return !status || status === 'published' || status === 'approved';
+    }).slice(0, 8);
+  }, [marketplaceRes]);
 
   // Use infinite query for community posts
   const {
@@ -411,29 +427,102 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
               </div>
             </div>
 
-            <div className="space-y-6 mt-6">
-              {community.id && isMember && (
+            {/* Community content tabs */}
+            <div className="mt-6 flex items-center gap-2 pb-2">
+              <button
+                onClick={() => setActiveDetailTab('posts')}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                  activeDetailTab === 'posts'
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow'
+                    : 'text-white/60 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                <MessageSquare size={16} />
+                Posts
+              </button>
+              <button
+                onClick={() => setActiveDetailTab('products')}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                  activeDetailTab === 'products'
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow'
+                    : 'text-white/60 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                <ShoppingBag size={16} />
+                Products
+              </button>
+            </div>
+
+            <div className="space-y-6 mt-4">
+              {activeDetailTab === 'posts' ? (
                 <>
-                  {!canPost ? (
-                    <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 text-center">
-                      <p className="text-yellow-300 text-base">
-                        {community.visibility === 'restricted'
-                          ? 'You can view posts but need to be an approved member to post in this restricted community.'
-                          : 'You must be an approved member to post in this private community.'}
-                      </p>
+                  {community.id && isMember && (
+                    <>
+                      {!canPost ? (
+                        <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 text-center">
+                          <p className="text-yellow-300 text-base">
+                            {community.visibility === 'restricted'
+                              ? 'You can view posts but need to be an approved member to post in this restricted community.'
+                              : 'You must be an approved member to post in this private community.'}
+                          </p>
+                        </div>
+                      ) : (
+                        <CreatePost
+                          communityId={community.id}
+                          isProfile={true}
+                          onSuccess={() => {
+                            refetchPosts();
+                          }}
+                        />
+                      )}
+                    </>
+                  )}
+                  {renderPosts()}
+                </>
+              ) : (
+                /* Products tab */
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-sm text-white/50">
+                      Marketplace products from the community. Browse items or list your own.
+                    </p>
+                  </div>
+                  {isMarketplaceLoading ? (
+                    <div className="space-y-4">
+                      {Array.from({ length: 3 }).map((_, idx) => (
+                        <div key={idx} className="animate-pulse rounded-2xl border border-white/10 bg-[#06133FBF] p-4">
+                          <div className="flex gap-3">
+                            <div className="h-20 w-20 rounded-xl bg-white/10" />
+                            <div className="flex-1 space-y-2">
+                              <div className="h-4 w-28 rounded bg-white/10" />
+                              <div className="h-3 w-20 rounded bg-white/10" />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : marketplaceItems.length === 0 ? (
+                    <div className="flex min-h-[30vh] items-center justify-center">
+                      <div className="text-center space-y-3">
+                        <ShoppingBag size={48} className="mx-auto text-white/20" />
+                        <p className="text-white/50 text-base">No products in this community yet</p>
+                        <button
+                          onClick={() => router.push('/marketplace/promote')}
+                          className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-sm font-medium text-white transition-all hover:from-purple-600 hover:to-pink-600"
+                        >
+                          List a Product
+                        </button>
+                      </div>
                     </div>
                   ) : (
-                    <CreatePost
-                      communityId={community.id}
-                      isProfile={true}
-                      onSuccess={() => {
-                        refetchPosts();
-                      }}
-                    />
+                    <div className="grid grid-cols-1 gap-4">
+                      {marketplaceItems.map((item) => (
+                        <ProductFeedCard key={item.id} item={item} />
+                      ))}
+                    </div>
                   )}
-                </>
+                </div>
               )}
-              {renderPosts()}
             </div>
           </div>
         </div>

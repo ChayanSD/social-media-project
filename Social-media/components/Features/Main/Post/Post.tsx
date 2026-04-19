@@ -19,6 +19,7 @@ import { FiEdit2, FiTrash2, FiFlag } from "react-icons/fi";
 import EditPost from "../../EditPost/EditPost";
 import ReportPostModal from "./ReportPostModal";
 import { toast } from "sonner";
+import FeedItemBadge from "../../../Shared/FeedItemBadge";
 
 
 interface Profile {
@@ -1183,7 +1184,8 @@ const Post = ({ post, profile }: PostProps) => {
           )}
           <div className="flex flex-col sm:flex-row items-center md:gap-3.5 text-base text-white">
             <p>{post?.user_name || post?.username || "Author Name"}</p>
-            <div className="flex items-center">
+            <div className="flex items-center gap-2">
+              <FeedItemBadge type="discussion" className="hidden sm:inline-flex" />
               <p className="text-white/70 text-xs ml-1">{createdAt}</p>
               {isCurrentUserPost && post.status !== "approved" && (
                 <span className={`text-[10px] px-2 py-0.5 rounded-full ml-2 font-medium ${post.status === "pending" ? "bg-yellow-500/20 text-yellow-300" : "bg-red-500/20 text-red-400"

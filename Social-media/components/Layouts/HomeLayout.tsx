@@ -6,6 +6,7 @@ import SidebarNavLink from "../Shared/SidebarNavLink/SidebarNavLink";
 import RightSidebar from "../Shared/SidebarNavLink/RightSidebar";
 import { SearchProvider } from "@/contexts/SearchContext";
 import { MessageProvider } from "@/contexts/MessageContext";
+import BottomNav from "../Shared/BottomNav/BottomNav";
 
 export default function HomeLayout({
   children,
@@ -43,7 +44,7 @@ export default function HomeLayout({
               className="flex-1 h-[calc(100vh)] overflow-y-auto bg-cover bg-center bg-no-repeat relative scrollbar-hide"
             >
               <div className=" bg-[#06133F]/75 backdrop-blur-[12px]">
-                <div className="xl:max-w-[47vw] mx-auto pt-32 pb-4">
+                <div className="xl:max-w-[47vw] mx-auto pt-32 pb-24 xl:pb-4">
                   {children}
                 </div>
               </div>
@@ -64,6 +65,7 @@ export default function HomeLayout({
               </div>
             </aside>
           </div>
+          <BottomNav />
         </div>
       </MessageProvider>
     </SearchProvider>

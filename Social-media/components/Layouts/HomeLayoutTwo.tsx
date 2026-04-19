@@ -5,6 +5,7 @@ import bg from "../../public/main-bg.jpg";
 import Navbar from "../Shared/Navbar/Navbar";
 import { SearchProvider } from "@/contexts/SearchContext";
 import { MessageProvider } from "@/contexts/MessageContext";
+import BottomNav from "../Shared/BottomNav/BottomNav";
 
 export default function HomeLayoutTwo({
   children,
@@ -90,10 +91,11 @@ export default function HomeLayoutTwo({
       >
         <SearchProvider>
           <MessageProvider>
-            <div className=" mx-auto mt-28">
+            <div className="mx-auto mt-28 pb-24 lg:pb-4">
               <Navbar onMenuToggle={() => setIsSidebarOpen(prev => !prev)} />
               {children}
             </div>
+            <BottomNav />
           </MessageProvider>
         </SearchProvider>
       </main>
