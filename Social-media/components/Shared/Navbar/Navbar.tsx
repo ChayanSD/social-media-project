@@ -38,6 +38,7 @@ interface NavbarProps {
 const Navbar = ({ onMenuToggle }: NavbarProps) => {
   const [isProfileSidebarOpen, setIsProfileSidebarOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const { searchQuery, setSearchQuery } = useSearchSafe();
   const { isOpen: isMessagePopupOpen, openMessagePopup, closeMessagePopup } = useMessage();
 
@@ -143,7 +144,37 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
           </div>
         </div>
 
-        <Image src={navTitle} alt="banner" className="h-[60px] w-[25vw] hidden lg:block opacity-90" width={800} height={80} />
+        {/* Desktop Search Bar */}
+        <div className="hidden md:flex flex-1 max-w-md mx-4">
+          <div className="relative w-full">
+            <GoSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50" size={18} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products, posts, communities..."
+              className="w-full bg-white/10 border border-white/15 rounded-full pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Search Toggle */}
+        <button
+          onClick={() => setIsMobileSearchOpen(prev => !prev)}
+          className="md:hidden text-white p-2 hover:bg-gray-700 rounded-full transition-colors duration-200"
+          aria-label="Toggle search"
+        >
+          <GoSearch size={20} />
+        </button>
 
         <div className="md:w-[300px]">
           {isAuthenticated ? (
@@ -264,6 +295,32 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
           isOpen={isMessagePopupOpen}
           onClose={closeMessagePopup}
         />
+      )}
+
+      {/* Mobile Search Bar - Expandable */}
+      {isMobileSearchOpen && (
+        <div className="md:hidden px-3 pb-3 pt-1">
+          <div className="relative">
+            <GoSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50" size={16} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products, posts, communities..."
+              className="w-full bg-white/10 border border-white/15 rounded-full pl-9 pr-10 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all"
+              autoFocus
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
       )}
     </nav>
   );

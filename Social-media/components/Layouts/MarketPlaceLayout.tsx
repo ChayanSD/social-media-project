@@ -6,6 +6,7 @@ import bg from "../../public/main-bg.jpg";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import MarketplaceSidebar from "../Features/Marketplace/Sidebar/MarketplaceSidebar";
+import BottomNav from "../Shared/BottomNav/BottomNav";
 
 const topNavLinks = [
   { label: "Browse", href: "/marketplace" },
@@ -24,7 +25,7 @@ export default function MarketPlaceLayout({ children }: { children: React.ReactN
         backgroundImage: `url(${bg.src})`,
         scrollbarGutter: "stable both-edges",
       }}
-      className="bg-cover bg-center h-screen bg-no-repeat p-3 lg:p-10 flex flex-col md:flex-row text-white"
+      className="bg-cover bg-center h-screen bg-no-repeat p-3 pb-20 lg:p-10 flex flex-col md:flex-row text-white"
     >
       {/* Unified container with backdrop blur */}
       <div className="w-full flex flex-col md:flex-row gap-0 backdrop-blur-xl bg-black/40 rounded-lg overflow-hidden h-[calc(100vh-80px)]">
@@ -96,11 +97,12 @@ export default function MarketPlaceLayout({ children }: { children: React.ReactN
           </header>
 
           {/* Main content */}
-          <main className="flex-1 overflow-y-auto p-2 md:p-8 custom-scroll-marketplace min-h-0">
+          <main className="flex-1 overflow-y-auto p-2 pb-8 md:p-8 custom-scroll-marketplace min-h-0">
             {children}
           </main>
         </div>
       </div>
+      <BottomNav />
     </div>
   );
 }

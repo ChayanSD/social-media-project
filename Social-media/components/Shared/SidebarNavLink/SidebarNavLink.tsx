@@ -1,3 +1,5 @@
+"use client";
+
 import { GoHome } from "react-icons/go";
 import { BsExclamationCircle } from "react-icons/bs";
 import { FaRegQuestionCircle } from "react-icons/fa";
@@ -7,8 +9,8 @@ import StoreIcon from "../../Icons/StoreIcon";
 import SubscriptionIcon from "../../Icons/SubscriptionIcon";
 import Link from "next/link";
 import HexagonIcon from "../../Icons/HexagonIcon";
-import { FiPlus, FiTag } from "react-icons/fi";
-import { useRouter } from "next/navigation";
+import { FiPlus, FiTag, FiCompass } from "react-icons/fi";
+import { usePathname, useRouter } from "next/navigation";
 import bg from "../../../public/main-bg.jpg";
 
 interface SidebarNavLinkProps {
@@ -18,6 +20,7 @@ interface SidebarNavLinkProps {
   showMobileHeader?: boolean;
   navClassName?: string;
 }
+
 const menuItems = [
   {
     icon: <GoHome size={24} />,
@@ -25,19 +28,24 @@ const menuItems = [
     href: "/",
   },
   {
+    icon: <FiCompass size={24} />,
+    label: "Explore",
+    href: "/explore",
+  },
+  {
+    icon: <FriendsIcon />,
+    label: "Communities",
+    href: "/main/communities",
+  },
+  {
+    icon: <StoreIcon />,
+    label: "Marketplace",
+    href: "/marketplace",
+  },
+  {
     icon: <FriendsIcon />,
     label: "Friends",
     href: "/main/friends",
-  },
-  // {
-  //   icon: <IoTrendingUp size={24} />,
-  //   label: "Popular",
-  //   href: "/popular",
-  // },
-  {
-    icon: <StoreIcon />,
-    label: "Virtual Store",
-    href: "/marketplace",
   },
   {
     icon: <SubscriptionIcon />,
@@ -45,6 +53,7 @@ const menuItems = [
     href: "/main/subscription",
   },
 ];
+
 const menuItemsTwo = [
   {
     icon: <FaRegQuestionCircle size={24} />,
@@ -75,8 +84,20 @@ const menuItemsTwo = [
 
 const SidebarNavLinkContent = ({ className = "" }: { className?: string }) => {
   const router = useRouter();
+  const pathname = usePathname();
 
   const safeHref = (href: string) => (href.startsWith("/") ? href : `/${href}`);
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
+  const navClass = (href: string) =>
+    `text-base text-white flex items-center gap-5 p-2.5 px-6 rounded-xl duration-300 ease-in-out ${
+      isActive(href)
+        ? "bg-white/15 border border-white/10"
+        : "hover:bg-[#06133FBF]"
+    }`;
+
   return (
     <nav className={`space-y-3 text-gray-700 mt-24 ${className}`}>
       <div className="bg-[#06133FBF] backdrop-blur-[1px] py-6 px-2 rounded-2xl">
@@ -84,7 +105,8 @@ const SidebarNavLinkContent = ({ className = "" }: { className?: string }) => {
           <Link
             key={item.label}
             href={safeHref(item.href)}
-            className="text-base text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out"
+            className={navClass(item.href)}
+            aria-current={isActive(item.href) ? "page" : undefined}
           >
             {item.icon} {item.label}
           </Link>
@@ -94,7 +116,7 @@ const SidebarNavLinkContent = ({ className = "" }: { className?: string }) => {
         <h3 className="text-base text-[#BCB3B3] px-8 my-4">Communities</h3>
         <Link
           href="/main/communities"
-          className="w-full text-base text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out"
+          className={`w-full ${navClass("/main/communities")}`}
         >
           <FriendsIcon /> Communities
         </Link>
@@ -128,7 +150,8 @@ const SidebarNavLinkContent = ({ className = "" }: { className?: string }) => {
           <Link
             key={item.label}
             href={safeHref(item.href)}
-            className="text-base text-white flex items-center gap-5 hover:bg-[#06133FBF] p-2.5 px-6 rounded-xl duration-300 ease-in-out"
+            className={navClass(item.href)}
+            aria-current={isActive(item.href) ? "page" : undefined}
           >
             {item.icon} {item.label}
           </Link>

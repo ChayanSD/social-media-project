@@ -42,7 +42,7 @@ export interface MarketplaceItem {
   updated_at?: string;
   location?: string;
   link?: string;
-  status?: "draft" | "pending" | "approved" | "rejected" | "sold" | "unpublished";
+  status?: "draft" | "pending" | "approved" | "published" | "rejected" | "sold" | "unpublished";
   rejection_reason?: string;
   [key: string]: unknown;
 }
@@ -156,7 +156,8 @@ export const marketplaceApi = baseApi.injectEndpoints({ overrideExisting: true,
       // but following Profile.tsx pattern (manual merging in component) for consistency.
       serializeQueryArgs: ({ endpointName, queryArgs }) => {
         // Exclude page from cache key so we can merge manually in components
-        const { page, ...rest } = queryArgs || {};
+        const rest = { ...(queryArgs || {}) };
+        delete rest.page;
         return { endpointName, ...rest };
       },
       merge: (currentCache, newItems) => {

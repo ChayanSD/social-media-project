@@ -59,7 +59,7 @@ export interface UpdateSubcategoryRequest {
   category_name?: string;
 }
 
-export const categoryApi = baseApi.injectEndpoints({ overrideExisting: true,
+export const categoryApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
     getCategories: builder.query<CategoriesResponse, void>({
@@ -149,4 +149,3 @@ export const {
   useApproveCategoryMutation,
   useApproveSubcategoryMutation,
 } = categoryApi;
-
