@@ -10,7 +10,6 @@ import jwt
 from django.conf import settings
 from django.core.cache import cache
 from .models import Room, Message
-from .chat_moderation import schedule_message_ai_review
 
 User = get_user_model()
 
@@ -318,29 +317,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 )
                 return
 
-            # Check if user is blocked from posting
-            from moderation.services import moderation_service
-
-            moderation_decision = moderation_service.moderate_content(
-                user=self.user,
-                content=message_content,
-                content_type="chat",
-                skip_ai=True,
-            )
-
-            if not moderation_decision.is_approved:
-                await self.send(
-                    text_data=json.dumps(
-                        {
-                            "error": moderation_decision.rejection_reason,
-                            "code": "USER_BLOCKED"
-                            if "blocked" in (moderation_decision.rejection_reason or "").lower()
-                            else "CONTENT_BLOCKED",
-                        }
-                    )
-                )
-                return
-
             # Save to database
             message = await self.save_message(self.user, message_content)
 
@@ -361,7 +337,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         },
                     },
                 )
-                schedule_message_ai_review(message.id)
+
         except json.JSONDecodeError:
             await self.send(text_data=json.dumps({"error": "Invalid JSON format"}))
         except Exception as e:
@@ -414,7 +390,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 room=room,
                 sender=user,
                 content=content,
-                ai_moderation_status=Message.AI_MODERATION_PENDING,
+
             )
             # Update room's updated_at
             room.save()

@@ -29,8 +29,6 @@ from accounts.serializers import UserSerializer
 from accounts.permissions import IsAdmin
 from post.models import Follow
 from post.notifications import notify_admins
-from moderation.services import moderation_service
-from .chat_moderation import schedule_message_ai_review
 
 User = get_user_model()
 
@@ -220,22 +218,6 @@ class RoomViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        moderation_decision = moderation_service.moderate_content(
-            user=request.user,
-            content=content,
-            content_type="chat",
-            skip_ai=True,
-        )
-
-        if not moderation_decision.is_approved:
-            return Response(
-                {
-                    "success": False,
-                    "error": moderation_decision.rejection_reason,
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
         # Check if sender is blocked by any participant (for one-on-one chats)
         if not room.is_group:
             other_participant = room.get_other_participant(request.user)
@@ -262,7 +244,7 @@ class RoomViewSet(viewsets.ModelViewSet):
             room=room,
             sender=request.user,
             content=content,
-            ai_moderation_status=Message.AI_MODERATION_PENDING,
+
         )
 
         # Broadcast via WebSocket to all room participants
@@ -288,7 +270,6 @@ class RoomViewSet(viewsets.ModelViewSet):
                 },
             )
 
-        schedule_message_ai_review(message.id)
         serializer = MessageSerializer(message, context={"request": request})
         return Response(
             {
@@ -338,24 +319,6 @@ class RoomViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        moderation_decision = moderation_service.moderate_content(
-            user=request.user, content=content, content_type="chat"
-        )
-
-        if not moderation_decision.is_approved:
-            warning_msg = ""
-            if moderation_decision.warning_issued:
-                from moderation.models import UserModerationStatus
-
-                status_obj = UserModerationStatus.objects.get(user=request.user)
-                warning_msg = f" Warning {status_obj.warning_count}/5 issued."
-            return Response(
-                {
-                    "success": False,
-                    "error": moderation_decision.rejection_reason + warning_msg,
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
 
         message.content = content
         message.save()
@@ -848,22 +811,6 @@ class SendDirectMessageView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        moderation_decision = moderation_service.moderate_content(
-            user=request.user,
-            content=content,
-            content_type="chat",
-            skip_ai=True,
-        )
-
-        if not moderation_decision.is_approved:
-            return Response(
-                {
-                    "success": False,
-                    "error": moderation_decision.rejection_reason,
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
         # Check if users have previously messaged each other or if request was accepted
         try:
             # Check if they can message each other (have accepted each other or have previous messages)
@@ -888,23 +835,6 @@ class SendDirectMessageView(APIView):
 
         # If they can't message and haven't messaged before, create a message request
         if not can_message and not has_previous_messages:
-            request_ai_decision = moderation_service.moderate_content_ai_only(
-                user=request.user,
-                content=content,
-                content_type="chat",
-            )
-
-            if not request_ai_decision.is_approved:
-                return Response(
-                    {
-                        "success": False,
-                        "error": request_ai_decision.rejection_reason
-                        or request_ai_decision.pending_reason
-                        or "This message request could not be sent.",
-                    },
-                    status=status.HTTP_403_FORBIDDEN,
-                )
-
             # Check if there's already a pending request
             existing_request = MessageRequest.objects.filter(
                 sender=request.user, receiver=receiver, status="pending"
@@ -982,7 +912,7 @@ class SendDirectMessageView(APIView):
                 sender=request.user,
                 receiver=receiver,
                 content=content,
-                ai_moderation_status=Message.AI_MODERATION_PENDING,
+
             )
         except Exception as e:
             logger.error(f"Error creating message: {str(e)}", exc_info=True)
@@ -1039,7 +969,7 @@ class SendDirectMessageView(APIView):
             )
             # Continue even if WebSocket fails - message is already created
 
-        schedule_message_ai_review(message.id)
+
 
         try:
             serializer = MessageSerializer(message, context={"request": request})
@@ -1101,32 +1031,6 @@ class UpdateDirectMessageView(APIView):
                     "error": "Message not found or you don't have permission to edit it",
                 },
                 status=status.HTTP_404_NOT_FOUND,
-            )
-
-        can_post, block_reason = moderation_service.check_user_can_post(request.user)
-        if not can_post:
-            return Response(
-                {"success": False, "error": block_reason},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
-        moderation_decision = moderation_service.moderate_content(
-            user=request.user, content=content, content_type="chat"
-        )
-
-        if not moderation_decision.is_approved:
-            warning_msg = ""
-            if moderation_decision.warning_issued:
-                from moderation.models import UserModerationStatus
-
-                status_obj = UserModerationStatus.objects.get(user=request.user)
-                warning_msg = f" Warning {status_obj.warning_count}/5 issued."
-            return Response(
-                {
-                    "success": False,
-                    "error": moderation_decision.rejection_reason + warning_msg,
-                },
-                status=status.HTTP_403_FORBIDDEN,
             )
 
         message.content = content

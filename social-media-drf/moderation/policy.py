@@ -134,6 +134,8 @@ SAFE_WORDS_THAT_CONTAIN_BANNED: List[str] = [
     "trigger",
     "weed",
     "weeds",
+    "suicide prevention",
+    "suicide prevention resources",
 ]
 
 
