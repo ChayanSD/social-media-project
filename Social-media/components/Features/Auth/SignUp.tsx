@@ -13,6 +13,7 @@ import {
   useSetCredentialsMutation,
   useGetCategoriesQuery,
   useUpdateUserProfileMutation,
+  useGetCurrentUserProfileQuery,
 } from "@/store/authApi";
 import { store } from "@/store/store";
 import { baseApi } from "@/store/baseApi";
@@ -31,6 +32,15 @@ type SignUpForm = {
 
 const SignUp = () => {
   const router = useRouter();
+  const { data: profileResponse, isLoading: isCheckingAuth } = useGetCurrentUserProfileQuery();
+  const isAuthenticated = !!profileResponse?.data;
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/explore");
+    }
+  }, [isAuthenticated, router]);
+
   const [currentStep, setCurrentStep] = useState(1);
   const [userEmail, setUserEmail] = useState("");
   const [resendTimer, setResendTimer] = useState(0);
@@ -45,6 +55,10 @@ const SignUp = () => {
     isError: isCategoriesError,
     refetch: refetchCategories,
   } = useGetCategoriesQuery();
+
+  if (isCheckingAuth || isAuthenticated) {
+    return null;
+  }
 
   const {
     register,
@@ -194,11 +208,11 @@ const SignUp = () => {
       }).unwrap();
 
       // New users are always role=user — redirect to home.
-      router.push("/");
+      router.push("/explore");
     } catch (error) {
       console.error("Failed to update profile:", error);
       // Even if profile update fails, user is logged in, so redirect to home
-      router.push("/");
+      router.push("/explore");
     }
   };
 

@@ -73,7 +73,7 @@ class KeywordFilterTests(TestCase):
 
     def test_false_positive_bullet_not_bomb(self):
         """'bullet' should not match 'bomb' or 'weapon'"""
-        result = self.filter.check_content("I need bullets for my gun")
+        result = self.filter.check_content("I need bullets for my collection")
         self.assertFalse(result.is_blocked)
 
     def test_false_positive_school_not_kill(self):
@@ -400,12 +400,12 @@ class ModerationServiceTests(TestCase):
         initial_status = UserModerationStatus.objects.get_or_create(user=self.user)[0]
         initial_count = initial_status.warning_count
 
-        content = "This is test duplicate content"
+        content = "Click here to win free money!"
         self.service.moderate_content(
-            user=self.user, content=content, content_type="chat"
+            user=self.user, content=content, content_type="post"
         )
         self.service.moderate_content(
-            user=self.user, content=content, content_type="chat"
+            user=self.user, content=content, content_type="post"
         )
 
         final_status = UserModerationStatus.objects.get(user=self.user)

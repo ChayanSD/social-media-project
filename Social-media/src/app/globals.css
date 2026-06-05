@@ -68,6 +68,21 @@
 
   }
 
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(-4px) rotate(-5deg);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  50% {
+    transform: translateY(4px) rotate(-5deg);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 4s infinite;
+}
+
   @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

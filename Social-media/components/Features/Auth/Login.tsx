@@ -1,12 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import bg from "../../../public/main-bg.jpg";
 import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { IoArrowBack } from "react-icons/io5";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import Link from "next/link";
-import { useLoginMutation, useSendPasswordResetOtpMutation, useVerifyPasswordResetOtpMutation, useResetPasswordMutation } from "@/store/authApi";
+import { useLoginMutation, useSendPasswordResetOtpMutation, useVerifyPasswordResetOtpMutation, useResetPasswordMutation, useGetCurrentUserProfileQuery } from "@/store/authApi";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { store } from "@/store/store";
@@ -34,6 +34,15 @@ type ResetStep3Form = {
 
 const Login = () => {
   const router = useRouter();
+  const { data: profileResponse, isLoading: isCheckingAuth } = useGetCurrentUserProfileQuery();
+  const isAuthenticated = !!profileResponse?.data;
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/explore");
+    }
+  }, [isAuthenticated, router]);
+
   const [currentMode, setCurrentMode] = useState<'login' | 'reset-step1' | 'reset-step2' | 'reset-step3'>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
@@ -48,6 +57,10 @@ const Login = () => {
   const resetStep2Form = useForm<ResetStep2Form>();
   const resetStep3Form = useForm<ResetStep3Form>();
 
+  if (isCheckingAuth || isAuthenticated) {
+    return null;
+  }
+
   const onLoginSubmit = async (data: LoginForm) => {
     try {
       const response = await login({
@@ -61,7 +74,7 @@ const Login = () => {
       store.dispatch(baseApi.util.resetApiState());
 
       const role = response.user?.role || "user";
-      const redirectTarget = role === "admin" ? "/dashboard" : "/";
+      const redirectTarget = role === "admin" ? "/dashboard" : "/explore";
       router.push(redirectTarget);
     } catch (error: unknown) {
       console.error("Login failed:", error);
