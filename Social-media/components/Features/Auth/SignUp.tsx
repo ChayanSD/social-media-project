@@ -56,10 +56,6 @@ const SignUp = () => {
     refetch: refetchCategories,
   } = useGetCategoriesQuery();
 
-  if (isCheckingAuth || isAuthenticated) {
-    return null;
-  }
-
   const {
     register,
     handleSubmit,
@@ -74,6 +70,10 @@ const SignUp = () => {
       return () => clearTimeout(timer);
     }
   }, [resendTimer]);
+
+  if (isCheckingAuth || isAuthenticated) {
+    return null;
+  }
 
   const handleCredentialStepSubmit = async (data: SignUpForm) => {
     if (!data.username || !data.password || !userEmail) {

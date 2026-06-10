@@ -6,17 +6,25 @@ import type { ReactNode } from "react";
 interface MotionProps {
   children: ReactNode;
   className?: string;
+  revealOnView?: boolean;
 }
 
-export function MotionReveal({ children, className }: MotionProps) {
+export function MotionReveal({
+  children,
+  className,
+  revealOnView = true,
+}: MotionProps) {
   const reduceMotion = useReducedMotion();
+  const hiddenState = reduceMotion ? false : { opacity: 0, y: 18 };
+  const visibleState = { opacity: 1, y: 0 };
 
   return (
     <LazyMotion features={domAnimation}>
       <m.div
-        initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-        whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
+        initial={hiddenState}
+        animate={revealOnView ? undefined : visibleState}
+        whileInView={revealOnView ? visibleState : undefined}
+        viewport={revealOnView ? { once: true, amount: 0.2 } : undefined}
         transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         className={className}
       >
