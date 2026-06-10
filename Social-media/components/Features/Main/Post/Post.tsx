@@ -39,7 +39,7 @@ interface PostProps {
 const Post = ({ post, profile }: PostProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  // Auth state derives from the profile prop — no localStorage needed
+  // Auth state derives from the profile prop: no localStorage needed
   const isAuthenticated = !!profile?.id;
 
   const [showComments, setShowComments] = useState(false);

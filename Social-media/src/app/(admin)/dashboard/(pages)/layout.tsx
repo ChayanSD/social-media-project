@@ -131,7 +131,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     try {
       await logoutMutation().unwrap();
     } catch {
-      // Ignore backend errors — still clear client cache
+      // Ignore backend errors: still clear client cache
     }
     store.dispatch(baseApi.util.resetApiState());
     setIsDropdownOpen(false);

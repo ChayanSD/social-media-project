@@ -174,9 +174,9 @@ export default function MixedFeedHome({ publicMode = false, defaultTab = "for-yo
               activeTab === "products"
                 ? "No marketplace items available yet"
                 : activeTab === "reviews"
-                  ? "No reviews shared yet — be the first!"
+                  ? "No reviews shared yet: be the first!"
                   : activeTab === "deals"
-                    ? "No deals posted yet — share a find!"
+                    ? "No deals posted yet: share a find!"
                     : "No discussions available yet"
             }
             showCreateButton={isAuthenticated}
@@ -322,7 +322,7 @@ export default function MixedFeedHome({ publicMode = false, defaultTab = "for-yo
           )}
         </div>
 
-        {/* Category chips — quick browse */}
+        {/* Category chips: quick browse */}
         <CategoryChips onCategoryClick={handleCategoryClick} />
 
         <FeedTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />

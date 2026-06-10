@@ -4,7 +4,7 @@ import { HelpCircle, MessageSquareText, ShoppingBag, Star, BadgePercent } from "
 const createOptions = [
   {
     title: "Write a Post",
-    description: "Start a discussion, share an update, or post media with the community.",
+    description: "Start a discussion, share an update or post media with the community.",
     href: "/main/create-post",
     icon: MessageSquareText,
   },
@@ -16,13 +16,13 @@ const createOptions = [
   },
   {
     title: "Ask a Question",
-    description: "Get advice before buying, selling, or choosing a product.",
+    description: "Get advice before buying, selling or choosing a product.",
     href: "/main/create-post?type=question",
     icon: HelpCircle,
   },
   {
     title: "Write a Review",
-    description: "Share your experience with a product, service, or community seller.",
+    description: "Share your experience with a product, service or community seller.",
     href: "/main/create-post?type=review",
     icon: Star,
   },

@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from 'react';
 import { useForm } from "react-hook-form";
-import { FaPhone, FaEnvelope, FaTwitter, FaFacebook, FaInstagram, FaTelegramPlane } from "react-icons/fa";
 import { FiMail } from "react-icons/fi";
 import { useSubmitContactMutation } from "@/store/authApi";
 import { toast } from "sonner";
@@ -15,7 +14,15 @@ type Inputs = {
   message: string;
 }
 
-export default function ContactUs() {
+interface ContactUsProps {
+  title?: string;
+  description?: string;
+}
+
+export default function ContactUs({
+  title = "Get in Touch",
+  description = "Have a question in mind or any Feedback? Feel free to contact us using the form below or through our contact details.",
+}: ContactUsProps) {
   const [submitContact, { isLoading: isSubmitting }] = useSubmitContactMutation();
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -57,8 +64,8 @@ export default function ContactUs() {
         <div className="mb-12">
           <PageHeader
             icon={<FiMail className="w-8 h-8 text-white" />}
-            title="Get in Touch"
-            description="Have a question in mind or any Feedback? Feel free to contact us using the form below or through our contact details."
+            title={title}
+            description={description}
           />
         </div>
         {/* Form Section */}
@@ -140,51 +147,6 @@ export default function ContactUs() {
               </button>
             </div>
           </form>
-        </div>
-
-        {/* Contact Links Section - Moved to bottom */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-semibold mb-8 text-center">Contact Links</h2>
-          <div className="max-w-4xl mx-auto ">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border border-white/10 rounded-2xl p-6">
-              {/* Phone */}
-              <div className="flex gap-4 p-6">
-                <div>
-                  <FaPhone className="text-xl" />
-                </div>
-                <div>
-                  <h3 className="font-medium mb-1">Phone</h3>
-                  <p className="text-base text-gray-300">+1 234 567 890</p>
-                </div>
-              </div>
-
-              {/* Email */}
-              <div className="flex gap-4 p-6">
-                <div>
-                  <FaEnvelope className="text-xl" />
-                </div>
-                <div>
-                  <h3 className="font-medium mb-1">Email</h3>
-                  <p className="text-base text-gray-300">contact@example.com</p>
-                </div>
-              </div>
-
-              {/* Social */}
-              <div className="flex gap-4 p-6">
-                <div>
-                  <FaTelegramPlane className="text-xl" />
-                </div>
-                <div>
-                  <h3 className='font-medium mb-1'>Socials</h3>
-                  <div className="flex gap-4">
-                    <FaTwitter className="text-2xl hover:text-purple-400 cursor-pointer transition-colors" />
-                    <FaFacebook className="text-2xl hover:text-purple-400 cursor-pointer transition-colors" />
-                    <FaInstagram className="text-2xl hover:text-purple-400 cursor-pointer transition-colors" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

@@ -161,7 +161,7 @@ Your continued use of our platform after changes become effective constitutes ac
                     <PageHeader
                         icon={<FiShield className="w-8 h-8 text-white" />}
                         title="Privacy Policy"
-                        description="Your privacy is important to us. This policy explains how we collect, use, protect, and share your information when you use our platform."
+                        description="Your privacy is important to us. This policy explains how we collect, use, protect and share your information when you use our platform."
                     />
                     <p className="text-white/60 text-base  text-center">
                         Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
@@ -270,4 +270,3 @@ Your continued use of our platform after changes become effective constitutes ac
 };
 
 export default Privacy;
-

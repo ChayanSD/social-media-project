@@ -35,7 +35,8 @@ export default function GlobalError({
         <div className="space-y-2">
           <h2 className="text-xl font-semibold text-white">Something went wrong</h2>
           <p className="text-sm text-white/60 leading-6">
-            We ran into an issue loading this page. This might be temporary — please try again.
+            We ran into an issue loading this page. This might be temporary:
+            please try again.
           </p>
         </div>
 
