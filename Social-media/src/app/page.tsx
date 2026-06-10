@@ -1,11 +1,24 @@
 import type { Metadata } from "next";
 import HomeClient from "./HomeClient";
+import { homepageFaqs } from "./homeFaqs";
 
 const title =
   "Interdimensional Cafe: Quantum Science, Consciousness and Spirituality Forum";
 const description =
   "Join the Interdimensional Cafe community forum for discussions on quantum science, consciousness, metaphysics, astrology, parallel universes, spiritual awakening and more. Free to join.";
 const url = "https://interdimensionalcafe.com/";
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: homepageFaqs.map((faq) => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.answer,
+    },
+  })),
+};
 
 export const metadata: Metadata = {
   title,
@@ -35,5 +48,13 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  return <HomeClient />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <HomeClient />
+    </>
+  );
 }

@@ -6,44 +6,7 @@ import { ArrowUpRight, Menu, Plus, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useGetCurrentUserProfileQuery } from "@/store/authApi";
-
-const faqs = [
-  {
-    question: "What is this platform for?",
-    answer:
-      "Interdimensional Cafe is a community forum for consciousness, quantum physics, metaphysics and spiritual exploration.",
-  },
-  {
-    question: "Can users create their own communities?",
-    answer:
-      "Yes, users can create and manage their own public, restricted, or private communities.",
-  },
-  {
-    question: "What can users post?",
-    answer:
-      "Users can share posts, media, discussions, links, reviews, and trending content.",
-  },
-  {
-    question: "Is content moderated?",
-    answer:
-      "Yes, we use AI-assisted moderation and community controls to help create healthier discussions.",
-  },
-  {
-    question: "Is there a free plan?",
-    answer:
-      "Yes. Users can access the platform for free with limited marketplace posting options.",
-  },
-  {
-    question: "How does the marketplace work?",
-    answer:
-      "List services and discover offerings through a community-powered marketplace with categories and profiles.",
-  },
-  {
-    question: "Can users message each other?",
-    answer:
-      "Yes, you can move conversations into direct messages and group chats.",
-  },
-];
+import { homepageFaqs } from "./homeFaqs";
 
 export default function HomeClient() {
   const router = useRouter();
@@ -70,8 +33,8 @@ export default function HomeClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#000000] text-white font-sans flex flex-col justify-between overflow-x-hidden selection:bg-[#F6339A] selection:text-white">
-      <header className="w-full max-w-[1440px] mx-auto px-6 py-6 md:py-8 flex items-center justify-between relative z-50">
+    <div className="min-h-screen bg-[#000000] text-white font-sans flex flex-col justify-between overflow-x-clip selection:bg-[#F6339A] selection:text-white">
+      <header className="sticky top-0 z-50 w-full max-w-[1440px] mx-auto px-6 py-6 md:py-8 flex items-center justify-between bg-black/95 backdrop-blur-md border-b border-zinc-800/80">
         <div className="flex items-center gap-3 shrink-0">
           <div className="relative w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
             <Image
@@ -242,7 +205,7 @@ export default function HomeClient() {
 
       <div
         id="how-it-works"
-        className="w-full mt-10 max-w-[1440px] mx-auto px-6 pb-12 md:pb-16 mt-auto scroll-mt-8"
+        className="w-full max-w-[1440px] mx-auto px-6 pb-12 md:pb-16 mt-auto scroll-mt-8"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="flex flex-col justify-between h-[320px] p-8 rounded-[32px] bg-[#8B5CF6] text-white transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#8B5CF6]/30 group cursor-pointer">
@@ -429,46 +392,50 @@ export default function HomeClient() {
         className="w-full max-w-[1440px] mx-auto px-6 py-16 md:pb-32 scroll-mt-8"
       >
         <h2 className="text-white text-4xl md:text-5xl lg:text-[64px] font-sans font-semibold text-center mb-16 select-none">
-          Platform Features
+          Explore What Interdimensional Cafe Offers
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex flex-col justify-center h-[320px] p-10 md:p-12 rounded-[32px] bg-[#8B5CF6] text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl shadow-[#8B5CF6]/20">
             <h3 className="text-3xl font-semibold tracking-tight mb-6">
-              Communities
+              Quantum and Metaphysical Discussion Categories
             </h3>
             <p className="text-base leading-relaxed opacity-90 max-w-md">
-              Create and manage communities with custom rules, member roles,
-              approvals, and moderation controls.
+              Browse and post in vetted categories spanning quantum science,
+              neuroscience, consciousness, astrology, parallel universes, the
+              zero point field and more.
             </p>
           </div>
 
           <div className="flex flex-col justify-center h-[320px] p-10 md:p-12 rounded-[32px] bg-[#161616] text-white border border-zinc-800/80 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
             <h3 className="text-3xl font-semibold tracking-tight mb-6">
-              Social Feed
+              Live Discovery Feed
             </h3>
             <p className="text-base leading-relaxed text-zinc-400 max-w-md">
-              Share posts, media, discussions, links, reviews, and trending
-              content through personalized feeds.
+              Stay current with trending posts, new research insights, rising
+              community discussions and fresh topics across all quantum science
+              and metaphysical categories.
             </p>
           </div>
 
           <div className="flex flex-col justify-center h-[320px] p-10 md:p-12 rounded-[32px] bg-[#F6339A] text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl shadow-[#F6339A]/20">
             <h3 className="text-3xl font-semibold tracking-tight mb-6">
-              Marketplace
+              Metaphysical Marketplace
             </h3>
             <p className="text-base leading-relaxed opacity-90 max-w-md">
-              List services and discover offerings through a community-powered
-              marketplace with categories and profiles.
+              Connect with practitioners, coaches and creators offering
+              spiritual readings, consciousness workshops, astrology reports and
+              quantum healing resources.
             </p>
           </div>
 
           <div className="flex flex-col justify-center h-[320px] p-10 md:p-12 rounded-[32px] bg-[#FF7826] text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl shadow-[#FF7826]/20">
             <h3 className="text-3xl font-semibold tracking-tight mb-6">
-              Messaging
+              Private Member Messaging
             </h3>
             <p className="text-base leading-relaxed font-medium opacity-90 max-w-md">
-              Move conversations into direct messages and group chats with
-              reactions, requests, blocking, and reporting.
+              Take conversations deeper with private direct messages and group
+              chats. Built-in safety tools include blocking, reporting and
+              moderated content screening.
             </p>
           </div>
         </div>
@@ -484,7 +451,7 @@ export default function HomeClient() {
           Questions
         </h2>
         <div className="flex flex-col gap-3">
-          {faqs.map((faq, index) => {
+          {homepageFaqs.map((faq, index) => {
             const isOpen = openFaqIndex === index;
 
             return (
