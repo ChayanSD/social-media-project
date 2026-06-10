@@ -328,7 +328,7 @@ export default function HomeClient() {
         className="w-full max-w-[1160px] mx-auto px-6 py-14 md:py-20 lg:py-24 scroll-mt-8"
       >
         <h2 className="text-white text-4xl md:text-5xl lg:text-[64px] font-sans font-semibold text-center mb-8 md:mb-14 select-none">
-          Why People Use It
+          Why Seekers Choose Interdimensional Cafe
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -344,11 +344,12 @@ export default function HomeClient() {
             </div>
             <div className="w-full text-center sm:text-left">
               <h3 className="text-white text-xl md:text-2xl font-semibold mb-4 leading-tight">
-                Focused Communities
+                Deep-Dive Discussion Spaces
               </h3>
               <p className="text-zinc-300 text-sm md:text-[15px] leading-relaxed max-w-[310px] mx-auto sm:mx-0">
-                Join public, restricted, or private spaces designed around
-                meaningful interests instead of noisy global feeds.
+                Explore dedicated forums on quantum science, consciousness,
+                parallel universes, astrology and galactic topics; free from
+                the noise of generic social media.
               </p>
             </div>
           </div>
@@ -379,21 +380,23 @@ export default function HomeClient() {
             </div>
             <div className="relative z-10">
               <h3 className="text-white text-xl md:text-2xl font-semibold mb-4 leading-tight">
-                Community Marketplace
+                Metaphysical Marketplace
               </h3>
               <p className="text-white text-sm md:text-[15px] leading-relaxed max-w-[360px]">
-                Promote services, coaching, digital products, or external
-                platforms directly to your audience.
+                Offer or discover spiritual readings, consciousness coaching,
+                astrology reports, metaphysical tools and digital courses: all
+                within a trusted community.
               </p>
             </div>
           </div>
 
           <div className="lg:col-span-4 lg:col-start-1 p-1 sm:p-4 lg:py-8 lg:pr-8 flex items-center">
             <p className="text-zinc-300 text-sm md:text-[15px] leading-relaxed max-w-[440px] mx-auto lg:mx-0 text-center lg:text-left">
-              Interdimensional Cafe is a community forum for consciousness,
-              quantum physics, metaphysics and spiritual exploration. Join
-              researchers, seekers and explorers sharing knowledge from around
-              the world.
+              Interdimensional Cafe is a quantum science and metaphysical
+              community forum where curious minds explore consciousness,
+              physics and spirituality together. Join moderated discussions,
+              connect with like-minded seekers and discover resources that
+              expand your understanding of reality.
             </p>
           </div>
 
@@ -409,11 +412,12 @@ export default function HomeClient() {
             </div>
             <div className="w-full text-center sm:text-left">
               <h3 className="text-white text-xl md:text-2xl font-semibold mb-4 leading-tight">
-                Safer Conversations
+                Moderated, Intentional Discussions
               </h3>
               <p className="text-white/90 text-sm md:text-[15px] leading-relaxed max-w-[320px] mx-auto sm:mx-0">
-                AI-assisted moderation and community controls help create
-                healthier discussions and more intentional interactions.
+                Our moderation system ensures every discussion stays on-topic,
+                respectful and relevant: so you can explore freely without
+                trolls, spam or off-theme noise.
               </p>
             </div>
           </div>
