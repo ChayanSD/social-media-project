@@ -2,6 +2,13 @@
 
 import Image from "next/image";
 import { ArrowUpRight, Plus, X } from "lucide-react";
+import {
+  AnimatePresence,
+  domAnimation,
+  LazyMotion,
+  m,
+  useReducedMotion,
+} from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useGetCurrentUserProfileQuery } from "@/store/authApi";
@@ -12,6 +19,7 @@ import { MotionItem, MotionReveal, MotionStagger } from "./LandingMotion";
 
 export default function HomeClient() {
   const router = useRouter();
+  const reduceMotion = useReducedMotion();
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(4);
 
   const {
@@ -340,42 +348,70 @@ export default function HomeClient() {
             <br />
             Questions
           </h2>
-          <div className="flex flex-col gap-3">
-            {homepageFaqs.map((faq, index) => {
-              const isOpen = openFaqIndex === index;
+          <LazyMotion features={domAnimation}>
+            <div className="flex flex-col gap-3">
+              {homepageFaqs.map((faq, index) => {
+                const isOpen = openFaqIndex === index;
 
-              return (
-                <div
-                  key={faq.question}
-                  className="bg-[#161616] rounded-xl overflow-hidden transition-all duration-300"
-                >
-                  <button
-                    onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                    className="w-full flex items-center justify-between p-5 md:p-6 text-left focus:outline-none"
-                    type="button"
+                return (
+                  <div
+                    key={faq.question}
+                    className="bg-[#161616] rounded-xl overflow-hidden transition-all duration-300"
                   >
-                    <span
-                      className={`font-medium text-sm transition-colors md:text-base ${
-                        isOpen ? "text-[#FF7826]" : "text-white"
-                      }`}
+                    <button
+                      onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                      className="w-full flex items-center justify-between p-5 md:p-6 text-left focus:outline-none"
+                      type="button"
+                      aria-expanded={isOpen}
+                      aria-controls={`faq-answer-${index}`}
                     >
-                      {faq.question}
-                    </span>
-                    <span className="text-zinc-400 shrink-0 ml-4">
-                      {isOpen ? <X size={18} /> : <Plus size={18} />}
-                    </span>
-                  </button>
-                  {isOpen && (
-                    <div className="px-5 pb-6 md:px-6 md:pb-6">
-                      <p className="text-zinc-500 text-xs md:text-sm leading-relaxed">
-                        {faq.answer}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                      <span
+                        className={`font-medium text-sm transition-colors md:text-base ${
+                          isOpen ? "text-[#FF7826]" : "text-white"
+                        }`}
+                      >
+                        {faq.question}
+                      </span>
+                      <m.span
+                        animate={reduceMotion ? undefined : { rotate: isOpen ? 90 : 0 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="text-zinc-400 shrink-0 ml-4"
+                      >
+                        {isOpen ? <X size={18} /> : <Plus size={18} />}
+                      </m.span>
+                    </button>
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <m.div
+                          id={`faq-answer-${index}`}
+                          initial={reduceMotion ? false : { height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={reduceMotion ? undefined : { height: 0, opacity: 0 }}
+                          transition={{
+                            height: {
+                              duration: reduceMotion ? 0 : 0.3,
+                              ease: [0.22, 1, 0.36, 1],
+                            },
+                            opacity: {
+                              duration: reduceMotion ? 0 : 0.2,
+                              ease: "easeOut",
+                            },
+                          }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-5 pb-6 md:px-6 md:pb-6">
+                            <p className="text-zinc-500 text-xs md:text-sm leading-relaxed">
+                              {faq.answer}
+                            </p>
+                          </div>
+                        </m.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
+          </LazyMotion>
         </MotionReveal>
       </section>
 
