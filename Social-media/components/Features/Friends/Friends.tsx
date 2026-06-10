@@ -508,7 +508,7 @@ const Friends = () => {
           <PageHeader
             icon={<FiUsers className="w-8 h-8 text-white" />}
             title="Friends"
-            description="Connect with friends, see who's following you, and discover new people to follow."
+            description="Connect with friends, see who's following you and discover new people to follow."
           />
         </div>
 
@@ -568,4 +568,3 @@ const Friends = () => {
 };
 
 export default Friends;
-

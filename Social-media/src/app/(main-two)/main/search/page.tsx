@@ -90,7 +90,7 @@ export default function SearchPage() {
       );
     }
 
-    // All tab — interleaved
+    // All tab: interleaved
     if (activeTab === "all") {
       const hasResults = mixed.length > 0 || filteredCommunities.length > 0;
       if (!hasResults) {

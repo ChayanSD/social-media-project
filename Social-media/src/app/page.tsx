@@ -19,6 +19,18 @@ const faqJsonLd = {
     },
   })),
 };
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Interdimensional Cafe",
+  url: "https://interdimensionalcafe.com",
+  potentialAction: {
+    "@type": "SearchAction",
+    target:
+      "https://interdimensionalcafe.com/search?q={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+};
 
 export const metadata: Metadata = {
   title,
@@ -53,6 +65,10 @@ export default function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
       />
       <HomeClient />
     </>

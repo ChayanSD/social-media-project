@@ -23,25 +23,25 @@ const Help = () => {
             id: 1,
             category: 'getting-started',
             question: 'How do I create an account?',
-            answer: 'To create an account, click on the "Sign Up" button in the top right corner. Fill in your email address, choose a username and password, and verify your email. Once verified, you can start using all features of our platform.',
+            answer: 'To create an account, click on the "Sign Up" button in the top right corner. Fill in your email address, choose a username and password and verify your email. Once verified, you can start using all features of our platform.',
         },
         {
             id: 2,
             category: 'account',
             question: 'How do I change my profile picture?',
-            answer: 'Go to your profile page and click on your current profile picture. You can then upload a new image from your device. Supported formats include JPG, PNG, and GIF. The image will be automatically resized to fit.',
+            answer: 'Go to your profile page and click on your current profile picture. You can then upload a new image from your device. Supported formats include JPG, PNG and GIF. The image will be automatically resized to fit.',
         },
         {
             id: 3,
             category: 'communities',
             question: 'How do I create a community?',
-            answer: 'Navigate to the Communities section in the sidebar and click "Create Community". Fill in the community name, description, and choose privacy settings. You can also upload a banner and icon to customize your community.',
+            answer: 'Navigate to the Communities section in the sidebar and click "Create Community". Fill in the community name, description and choose privacy settings. You can also upload a banner and icon to customize your community.',
         },
         {
             id: 4,
             category: 'posts',
             question: 'How do I post content?',
-            answer: 'Click the "Create Post" button in the navigation bar. You can create text posts, upload images or videos, or share links. Choose the community where you want to post, add tags if needed, and click "Publish".',
+            answer: 'Click the "Create Post" button in the navigation bar. You can create text posts, upload images or videos or share links. Choose the community where you want to post, add tags if needed and click "Publish".',
         },
         {
             id: 5,
@@ -94,7 +94,7 @@ const Help = () => {
                     <PageHeader
                         icon={<FiHelpCircle className="w-8 h-8 text-white" />}
                         title="Help Center"
-                        description="Find answers to common questions, learn how to use our platform, and get the support you need."
+                        description="Find answers to common questions, learn how to use our platform and get the support you need."
                     />
                 </div>
 
@@ -104,7 +104,7 @@ const Help = () => {
                         <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5" />
                         <input
                             type="text"
-                            placeholder="Search for help articles, FAQs, or topics..."
+                            placeholder="Search for help articles, FAQs or topics..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 text-white placeholder-white/40"
@@ -211,4 +211,3 @@ const Help = () => {
 };
 
 export default Help;
-

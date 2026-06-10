@@ -250,7 +250,7 @@ const AboutUs = () => {
                     <PageHeader
                         icon={<FiUsers className="w-8 h-8 text-white" />}
                         title="About Us"
-                        description="We're building a platform where communities thrive, connections flourish, and voices are heard."
+                        description="We're building a platform where communities thrive, connections flourish and voices are heard."
                     />
                 </div>
 
@@ -336,7 +336,7 @@ const AboutUs = () => {
                                 Our journey began with a simple idea: what if social media could be more meaningful, more community-focused, and more respectful of user privacy? This question led us to build a platform where communities can thrive organically, where content is created by real people for real people, and where every user feels valued and heard.
                             </p>
                             <p>
-                                Today, we're proud to serve thousands of users across hundreds of communities. But we're just getting started. We're constantly innovating, listening to our community, and working to make our platform even better.
+                                Today, we&apos;re proud to serve thousands of users across hundreds of communities. But we&apos;re just getting started. We&apos;re constantly innovating, listening to our community and working to make our platform even better.
                             </p>
                         </div>
                     </div>
@@ -349,7 +349,7 @@ const AboutUs = () => {
                     </div>
                     <h3 className="text-2xl font-bold text-white mb-3">Join Our Community</h3>
                     <p className="text-white/80 mb-6 max-w-2xl mx-auto">
-                        Be part of a growing community of creators, thinkers, and innovators. Together, we're building something special.
+                        Be part of a growing community of creators, thinkers and innovators. Together, we&apos;re building something special.
                     </p>
                 </div>
             </div>
@@ -358,4 +358,3 @@ const AboutUs = () => {
 };
 
 export default AboutUs;
-

@@ -482,7 +482,7 @@ export default function AdminDashboardHome() {
             <p className="text-sm text-white/40 mb-2">
               {item.title === "Total Users" && "Complete count of all registered users in the platform"}
               {item.title === "Total Posts" && "Total number of posts created by all users"}
-              {item.title === "Total Engagement" && "Combined count of all likes, comments, and shares"}
+              {item.title === "Total Engagement" && "Combined count of all likes, comments and shares"}
               {item.title === "Total Communities" && "Total number of communities created by users"}
             </p>
             <p className="text-3xl font-bold text-white mb-1">{item.count}</p>

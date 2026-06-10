@@ -69,7 +69,7 @@ const Login = () => {
         remember_me: data.rememberMe,
       }).unwrap();
 
-      // Cookies are now set by the backend — no localStorage writes needed.
+      // Cookies are now set by the backend: no localStorage writes needed.
       // Reset RTK Query cache so all queries re-fetch with new cookie.
       store.dispatch(baseApi.util.resetApiState());
 

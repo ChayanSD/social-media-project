@@ -92,7 +92,7 @@ const SignUp = () => {
         password: data.password,
       }).unwrap();
 
-      // Cookies are now set by the backend — no localStorage writes needed.
+      // Cookies are now set by the backend: no localStorage writes needed.
       // Reset RTK Query cache so all queries re-fetch with new cookie.
       store.dispatch(baseApi.util.resetApiState());
 
@@ -207,7 +207,7 @@ const SignUp = () => {
         subcategory_ids: selectedInterests,
       }).unwrap();
 
-      // New users are always role=user — redirect to home.
+      // New users are always role=user: redirect to home.
       router.push("/explore");
     } catch (error) {
       console.error("Failed to update profile:", error);

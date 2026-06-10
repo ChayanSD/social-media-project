@@ -41,7 +41,7 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDetailTab, setActiveDetailTab] = useState<'posts' | 'products'>('posts');
 
-  // Marketplace items (all items — no community-specific filter available)
+  // Marketplace items (all items: no community-specific filter available)
   const { data: marketplaceRes, isLoading: isMarketplaceLoading } = useGetMarketplaceItemsQuery(
     { page: 1 },
     { skip: activeDetailTab !== 'products' }
@@ -862,4 +862,3 @@ const CommunityDetails = ({ communityName }: CommunityDetailsProps) => {
 };
 
 export default CommunityDetails;
-

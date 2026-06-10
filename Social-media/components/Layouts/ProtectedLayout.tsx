@@ -13,7 +13,7 @@ type ProtectedLayoutProps = {
 };
 
 /**
- * ProtectedLayout — cookie-based auth guard.
+ * ProtectedLayout: cookie-based auth guard.
  *
  * Calls /auth/user-profiles/me/ (with cookies) to determine identity.
  * If the request returns 401/error, user is not authenticated → redirect to login.
@@ -39,7 +39,7 @@ export default function ProtectedLayout({
   useEffect(() => {
     if (isLoading) return;
 
-    // Not authenticated — backend returned 401/error
+    // Not authenticated: backend returned 401/error
     if (isError || !profile) {
       router.replace(unauthenticatedRedirect || "/login");
       return;
@@ -65,12 +65,12 @@ export default function ProtectedLayout({
     );
   }
 
-  // Not authenticated — render nothing while redirect fires
+  // Not authenticated: render nothing while redirect fires
   if (isError || !profile) {
     return null;
   }
 
-  // Wrong role — render nothing while redirect fires
+  // Wrong role: render nothing while redirect fires
   const hasRoleAccess =
     !allowedRoles || allowedRoles.length === 0 || allowedRoles.includes(role);
 

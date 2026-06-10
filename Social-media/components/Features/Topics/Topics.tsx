@@ -27,7 +27,7 @@ const Topics = () => {
             members: 45000,
             trend: '+12%',
             category: 'technology',
-            description: 'Discuss the latest developments in AI, machine learning, and automation.',
+            description: 'Discuss the latest developments in AI, machine learning and automation.',
         },
         {
             id: 2,
@@ -47,7 +47,7 @@ const Topics = () => {
             members: 78000,
             trend: '+15%',
             category: 'entertainment',
-            description: 'Share your gaming experiences, reviews, and connect with fellow gamers.',
+            description: 'Share your gaming experiences, reviews and connect with fellow gamers.',
         },
         {
             id: 4,
@@ -57,7 +57,7 @@ const Topics = () => {
             members: 55000,
             trend: '+10%',
             category: 'lifestyle',
-            description: 'Get motivated, share workout routines, and achieve your fitness goals together.',
+            description: 'Get motivated, share workout routines and achieve your fitness goals together.',
         },
         {
             id: 5,
@@ -67,7 +67,7 @@ const Topics = () => {
             members: 28000,
             trend: '+5%',
             category: 'technology',
-            description: 'Discuss cryptocurrency, blockchain technology, and digital assets.',
+            description: 'Discuss cryptocurrency, blockchain technology and digital assets.',
         },
         {
             id: 6,
@@ -77,7 +77,7 @@ const Topics = () => {
             members: 42000,
             trend: '+9%',
             category: 'lifestyle',
-            description: 'Share travel tips, destinations, and amazing experiences from around the world.',
+            description: 'Share travel tips, destinations and amazing experiences from around the world.',
         },
     ];
 
@@ -148,7 +148,7 @@ const Topics = () => {
                         <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5" />
                         <input
                             type="text"
-                            placeholder="Search topics, hashtags, or communities..."
+                            placeholder="Search topics, hashtags or communities..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 text-white placeholder-white/40"
@@ -289,4 +289,3 @@ const Topics = () => {
 };
 
 export default Topics;
-

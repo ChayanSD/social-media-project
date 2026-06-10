@@ -29,7 +29,8 @@ export default function NotFoundPage() {
           </div>
           <h1 className="text-xl md:text-2xl font-semibold">Page not found</h1>
           <p className="mt-2 text-base md:text-base text-white/80">
-            The page you’re looking for doesn’t exist, has been moved, or is temporarily unavailable.
+            The page you’re looking for doesn’t exist, has been moved or is
+            temporarily unavailable.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:justify-center">

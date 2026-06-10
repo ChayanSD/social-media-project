@@ -2,24 +2,29 @@ import type { Metadata } from 'next';
 import Privacy from '../../../components/Features/Privacy/Privacy';
 import StructuredData from '../../../components/Shared/StructuredData/StructuredData';
 
+const siteUrl = 'https://interdimensionalcafe.com';
+
 // Force static generation at build time
 export const dynamic = 'force-static';
 // Revalidate every 24 hours (ISR - Incremental Static Regeneration)
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy - Your Data Protection | Inter Cafe',
-  description: 'Learn how we protect your privacy and handle your personal information. Our comprehensive privacy policy explains data collection, usage, security, and your rights.',
+  title: 'Privacy Policy - Your Data Protection | Interdimensional Cafe',
+  description: 'Learn how we protect your privacy and handle your personal information. Our comprehensive privacy policy explains data collection, usage, security and your rights.',
   keywords: ['privacy policy', 'data protection', 'privacy', 'data security', 'personal information', 'GDPR', 'user rights'],
   openGraph: {
-    title: 'Privacy Policy - Your Data Protection | Inter Cafe',
+    title: 'Privacy Policy - Your Data Protection | Interdimensional Cafe',
     description: 'Learn how we protect your privacy and handle your personal information.',
     type: 'website',
   },
   twitter: {
     card: 'summary',
-    title: 'Privacy Policy - Your Data Protection | Inter Cafe',
+    title: 'Privacy Policy - Your Data Protection | Interdimensional Cafe',
     description: 'Learn how we protect your privacy and handle your personal information.',
+  },
+  alternates: {
+    canonical: `${siteUrl}/privacy`,
   },
 };
 
@@ -31,7 +36,7 @@ const privacyStructuredData = {
   about: {
     '@type': 'Thing',
     name: 'Privacy Policy',
-    description: 'Comprehensive privacy policy explaining data collection, usage, security, and user rights.',
+    description: 'Comprehensive privacy policy explaining data collection, usage, security and user rights.',
   },
 };
 
@@ -48,4 +53,3 @@ export default function PrivacyPage() {
     </>
   );
 }
-
